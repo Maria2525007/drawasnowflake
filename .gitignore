@@ -44,3 +44,6 @@ backend/prisma/migrations/
 # Temporary files
 *.tmp
 *.temp
+
+commit_time.md
+task.md
