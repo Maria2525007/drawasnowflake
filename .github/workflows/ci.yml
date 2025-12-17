@@ -43,6 +43,7 @@ jobs:
       - name: Run frontend stylelint
         run: cd frontend && npm run stylelint
 
+  # Unit tests job - runs unit tests for frontend and backend
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
