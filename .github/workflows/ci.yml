@@ -91,6 +91,7 @@ jobs:
           flags: backend
           name: backend-coverage
 
+  # E2E tests job - runs Playwright end-to-end tests
   e2e-tests:
     name: E2E Tests
     runs-on: ubuntu-latest
