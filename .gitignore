@@ -1,6 +1,8 @@
 # Dependencies
 node_modules/
-package-lock.json
+# Allow package-lock.json in frontend and backend for CI/CD
+!/frontend/package-lock.json
+!/backend/package-lock.json
 
 # Build outputs
 dist/
