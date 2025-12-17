@@ -122,6 +122,7 @@ jobs:
           path: frontend/playwright-report/
           retention-days: 30
 
+  # Build verification job - ensures frontend and backend build successfully
   build:
     name: Build Check
     runs-on: ubuntu-latest
