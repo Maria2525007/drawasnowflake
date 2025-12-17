@@ -1,0 +1,27 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Snowflake {
+  id         String   @id @default(cuid())
+  x          Float    @default(0)
+  y          Float    @default(0)
+  rotation   Float    @default(0)
+  scale      Float    @default(1)
+  pattern    String   @default("custom")
+  imageData  String?  // Base64 encoded image data
+  fallSpeed  Float?   // Speed of falling animation
+  driftSpeed Float?   // Horizontal drift speed
+  driftPhase Float?   // Phase for smooth horizontal oscillation
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
