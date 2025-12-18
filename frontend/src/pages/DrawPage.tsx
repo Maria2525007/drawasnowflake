@@ -203,9 +203,7 @@ export const DrawPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    let timeoutId: number;
     let isAnalyzing = false;
-    let intervalId: number;
 
     const analyze = () => {
       if (isAnalyzing || !drawCanvasRef.current) {
@@ -226,11 +224,11 @@ export const DrawPage: React.FC = () => {
       }
     };
 
-    intervalId = window.setInterval(() => {
+    const intervalId = window.setInterval(() => {
       analyze();
     }, ANALYSIS_CONFIG.UPDATE_INTERVAL);
 
-    timeoutId = window.setTimeout(analyze, ANALYSIS_CONFIG.INITIAL_DELAY);
+    const timeoutId = window.setTimeout(analyze, ANALYSIS_CONFIG.INITIAL_DELAY);
 
     return () => {
       if (timeoutId) {
