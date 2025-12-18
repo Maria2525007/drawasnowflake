@@ -1,8 +1,8 @@
 import '@testing-library/jest-dom';
 import { TextEncoder, TextDecoder } from 'util';
 
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder;
+global.TextEncoder = TextEncoder as typeof global.TextEncoder;
+global.TextDecoder = TextDecoder as typeof global.TextDecoder;
 
 Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
   value: jest.fn(() => ({
@@ -37,6 +37,5 @@ Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
       addColorStop: jest.fn(),
     })),
     ellipse: jest.fn(),
-    fillRect: jest.fn(),
   })),
 });

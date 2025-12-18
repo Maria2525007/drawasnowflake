@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { store } from '../../../store/store';
 import { Toolbar } from '../../../components/UI/Toolbar';
 import { createRef } from 'react';
-import type { CanvasHandle } from '../../Canvas/Canvas';
+import type { CanvasHandle } from '../../../components/Canvas/Canvas';
 
 const mockCanvasHandle: Partial<CanvasHandle> = {
   getCanvas: jest.fn(() => {
@@ -100,6 +100,7 @@ describe('Toolbar Integration', () => {
   });
 
   it('should handle undo when enabled', async () => {
+    const user = userEvent.setup();
     const { saveState } =
       await import('../../../features/history/historySlice');
     store.dispatch(saveState('test-state'));
@@ -115,6 +116,7 @@ describe('Toolbar Integration', () => {
   });
 
   it('should handle redo when enabled', async () => {
+    const user = userEvent.setup();
     const { saveState, undo } =
       await import('../../../features/history/historySlice');
     store.dispatch(saveState('state1'));
