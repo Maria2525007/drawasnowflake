@@ -207,16 +207,13 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
   );
 
   useEffect(() => {
-    let loadedCount = 0;
     const totalImages = snowflakes.filter((s) => s.imageData).length;
     
     if (totalImages === 0) return;
 
     snowflakes.forEach((snowflake) => {
       if (snowflake.imageData) {
-        preloadImage(snowflake.imageData, () => {
-          loadedCount++;
-        });
+        preloadImage(snowflake.imageData);
       }
     });
   }, [snowflakes]);
