@@ -28,7 +28,8 @@ export const Header: React.FC = () => {
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',
-          textShadow: '0 0 15px rgba(129, 212, 250, 0.7), 0 0 25px rgba(255, 255, 255, 0.5)',
+          textShadow:
+            '0 0 15px rgba(129, 212, 250, 0.7), 0 0 25px rgba(255, 255, 255, 0.5)',
           letterSpacing: '0.08em',
         }}
       >

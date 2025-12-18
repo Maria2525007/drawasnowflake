@@ -46,4 +46,3 @@ describe('TreePage', () => {
     expect(box).toBeInTheDocument();
   });
 });
-

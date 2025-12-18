@@ -1,7 +1,11 @@
 import { analyzeSnowflake } from '../../utils/snowflakeAnalysis';
 
 describe('snowflakeAnalysis', () => {
-  const createImageData = (width: number, height: number, fillColor: { r: number; g: number; b: number; a: number }): ImageData => {
+  const createImageData = (
+    width: number,
+    height: number,
+    fillColor: { r: number; g: number; b: number; a: number }
+  ): ImageData => {
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
@@ -15,7 +19,12 @@ describe('snowflakeAnalysis', () => {
   };
 
   it('should return zero similarity for empty canvas', () => {
-    const imageData = createImageData(2000, 2000, { r: 10, g: 25, b: 41, a: 255 });
+    const imageData = createImageData(2000, 2000, {
+      r: 10,
+      g: 25,
+      b: 41,
+      a: 255,
+    });
     const result = analyzeSnowflake(imageData, 2000, 2000);
     expect(result.similarity).toBe(0);
     expect(result.symmetry).toBe(0);
@@ -24,16 +33,21 @@ describe('snowflakeAnalysis', () => {
   });
 
   it('should analyze snowflake with white pixels', () => {
-    const imageData = createImageData(2000, 2000, { r: 10, g: 25, b: 41, a: 255 });
+    const imageData = createImageData(2000, 2000, {
+      r: 10,
+      g: 25,
+      b: 41,
+      a: 255,
+    });
     const data = imageData.data;
-    
+
     for (let i = 0; i < 1000; i += 4) {
       data[i] = 255;
       data[i + 1] = 255;
       data[i + 2] = 255;
       data[i + 3] = 255;
     }
-    
+
     const result = analyzeSnowflake(imageData, 2000, 2000);
     expect(result.similarity).toBeGreaterThanOrEqual(0);
     expect(result.similarity).toBeLessThanOrEqual(100);
@@ -43,7 +57,12 @@ describe('snowflakeAnalysis', () => {
   });
 
   it('should return valid analysis structure', () => {
-    const imageData = createImageData(2000, 2000, { r: 10, g: 25, b: 41, a: 255 });
+    const imageData = createImageData(2000, 2000, {
+      r: 10,
+      g: 25,
+      b: 41,
+      a: 255,
+    });
     const result = analyzeSnowflake(imageData, 2000, 2000);
     expect(result).toHaveProperty('similarity');
     expect(result).toHaveProperty('symmetry');
@@ -55,4 +74,3 @@ describe('snowflakeAnalysis', () => {
     expect(typeof result.coverage).toBe('number');
   });
 });
-

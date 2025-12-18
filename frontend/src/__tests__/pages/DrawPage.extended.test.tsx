@@ -37,64 +37,77 @@ describe('DrawPage Extended', () => {
   it('should handle Go on Tree button click with content', async () => {
     const user = userEvent.setup();
     renderDrawPage();
-    
+
     const goButton = screen.getByText('Go on Tree');
     expect(goButton).toBeInTheDocument();
     await user.click(goButton);
-    
-    await waitFor(() => {
-      const canvas = document.querySelector('canvas');
-      if (canvas) {
-        expect(canvas).toBeInTheDocument();
-      }
-    }, { timeout: 2000 });
+
+    await waitFor(
+      () => {
+        const canvas = document.querySelector('canvas');
+        if (canvas) {
+          expect(canvas).toBeInTheDocument();
+        }
+      },
+      { timeout: 2000 }
+    );
   });
 
   it('should handle zoom in', async () => {
     const user = userEvent.setup();
     renderDrawPage();
-    
+
     const zoomInButton = screen.getByLabelText('zoom in');
     await user.click(zoomInButton);
-    
+
     expect(zoomInButton).toBeInTheDocument();
   });
 
   it('should handle zoom out', async () => {
     const user = userEvent.setup();
     renderDrawPage();
-    
+
     const zoomOutButton = screen.getByLabelText('zoom out');
     await user.click(zoomOutButton);
-    
+
     expect(zoomOutButton).toBeInTheDocument();
   });
 
   it('should display similarity percentage', async () => {
     renderDrawPage();
-    
-    await waitFor(() => {
-      const similarityText = screen.queryByText(/Snowflake similarity/i);
-      if (similarityText) {
-        expect(similarityText).toBeInTheDocument();
-      }
-    }, { timeout: 2000 });
+
+    await waitFor(
+      () => {
+        const similarityText = screen.queryByText(/Snowflake similarity/i);
+        if (similarityText) {
+          expect(similarityText).toBeInTheDocument();
+        }
+      },
+      { timeout: 2000 }
+    );
   });
 
   it('should handle analysis errors gracefully', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    const snowflakeAnalysisModule = await import('../../utils/snowflakeAnalysis');
-    jest.spyOn(snowflakeAnalysisModule, 'analyzeSnowflake').mockImplementation(() => {
-      throw new Error('Analysis error');
-    });
-    
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+    const snowflakeAnalysisModule =
+      await import('../../utils/snowflakeAnalysis');
+    jest
+      .spyOn(snowflakeAnalysisModule, 'analyzeSnowflake')
+      .mockImplementation(() => {
+        throw new Error('Analysis error');
+      });
+
     renderDrawPage();
-    
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalled();
-    }, { timeout: 2000 });
-    
+
+    await waitFor(
+      () => {
+        expect(consoleSpy).toHaveBeenCalled();
+      },
+      { timeout: 2000 }
+    );
+
     consoleSpy.mockRestore();
   });
 });
-

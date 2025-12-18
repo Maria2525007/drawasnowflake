@@ -1,4 +1,11 @@
-import { useRef, useEffect, forwardRef, useImperativeHandle, useState, useCallback } from 'react';
+import {
+  useRef,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+  useState,
+  useCallback,
+} from 'react';
 import { Box } from '@mui/material';
 import { useAppSelector } from '../../hooks/useAppSelector';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
@@ -27,7 +34,17 @@ export interface CanvasHandle {
 }
 
 export const Canvas = forwardRef<CanvasHandle, CanvasProps>(
-  ({ width, height, onDraw, onStrokeEnd, zoom = ZOOM_CONFIG.DEFAULT, onZoomChange: _onZoomChange }, ref) => {
+  (
+    {
+      width,
+      height,
+      onDraw,
+      onStrokeEnd,
+      zoom = ZOOM_CONFIG.DEFAULT,
+      onZoomChange: _onZoomChange,
+    },
+    ref
+  ) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
     const isDrawingRef = useRef(false);
@@ -54,7 +71,12 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(
         const offCtx = offscreenCanvasRef.current.getContext('2d');
         if (offCtx) {
           offCtx.fillStyle = CANVAS_CONFIG.BACKGROUND_COLOR;
-          offCtx.fillRect(0, 0, CANVAS_CONFIG.BASE_WIDTH, CANVAS_CONFIG.BASE_HEIGHT);
+          offCtx.fillRect(
+            0,
+            0,
+            CANVAS_CONFIG.BASE_WIDTH,
+            CANVAS_CONFIG.BASE_HEIGHT
+          );
         }
       }
     }, []);
@@ -85,7 +107,7 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(
       const centerY = canvasHeight / 2;
       const offCanvasWidth = offCanvas.width;
       const offCanvasHeight = offCanvas.height;
-      
+
       const scaledWidth = offCanvasWidth * zoom;
       const scaledHeight = offCanvasHeight * zoom;
       const offsetX = centerX - scaledWidth / 2;
@@ -98,192 +120,203 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(
       ctx.restore();
     }, [zoom, width, height]);
 
-    useImperativeHandle(ref, () => ({
-      getCanvas: () => canvasRef.current,
-      getImageData: () => {
-        if (offscreenCanvasRef.current) {
-          const offCanvas = offscreenCanvasRef.current;
-          const tempCanvas = document.createElement('canvas');
-          tempCanvas.width = offCanvas.width * zoom;
-          tempCanvas.height = offCanvas.height * zoom;
-          const tempCtx = tempCanvas.getContext('2d');
-          if (tempCtx) {
-            tempCtx.scale(zoom, zoom);
-            tempCtx.drawImage(offCanvas, 0, 0);
-            return tempCanvas.toDataURL('image/png');
+    useImperativeHandle(
+      ref,
+      () => ({
+        getCanvas: () => canvasRef.current,
+        getImageData: () => {
+          if (offscreenCanvasRef.current) {
+            const offCanvas = offscreenCanvasRef.current;
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = offCanvas.width * zoom;
+            tempCanvas.height = offCanvas.height * zoom;
+            const tempCtx = tempCanvas.getContext('2d');
+            if (tempCtx) {
+              tempCtx.scale(zoom, zoom);
+              tempCtx.drawImage(offCanvas, 0, 0);
+              return tempCanvas.toDataURL('image/png');
+            }
+            return offCanvas.toDataURL('image/png');
           }
-          return offCanvas.toDataURL('image/png');
-        }
-        if (canvasRef.current) {
-          return canvasRef.current.toDataURL('image/png');
-        }
-        return null;
-      },
-      getImageDataForAnalysis: () => {
-        if (offscreenCanvasRef.current) {
-          const offCanvas = offscreenCanvasRef.current;
-          const ctx = offCanvas.getContext('2d', { willReadFrequently: true });
-          if (ctx) {
-            return ctx.getImageData(0, 0, offCanvas.width, offCanvas.height);
+          if (canvasRef.current) {
+            return canvasRef.current.toDataURL('image/png');
           }
-        }
-        return null;
-      },
-      clear: () => {
-        if (offscreenCanvasRef.current) {
-          const ctx = offscreenCanvasRef.current.getContext('2d');
-          if (ctx) {
-            const width = offscreenCanvasRef.current.width;
-            const height = offscreenCanvasRef.current.height;
-            ctx.clearRect(0, 0, width, height);
-            ctx.fillStyle = CANVAS_CONFIG.BACKGROUND_COLOR;
-            ctx.fillRect(0, 0, width, height);
+          return null;
+        },
+        getImageDataForAnalysis: () => {
+          if (offscreenCanvasRef.current) {
+            const offCanvas = offscreenCanvasRef.current;
+            const ctx = offCanvas.getContext('2d', {
+              willReadFrequently: true,
+            });
+            if (ctx) {
+              return ctx.getImageData(0, 0, offCanvas.width, offCanvas.height);
+            }
           }
-        }
-        renderCanvas();
-      },
-      getZoom: () => zoom,
-    }), [zoom, renderCanvas]);
+          return null;
+        },
+        clear: () => {
+          if (offscreenCanvasRef.current) {
+            const ctx = offscreenCanvasRef.current.getContext('2d');
+            if (ctx) {
+              const width = offscreenCanvasRef.current.width;
+              const height = offscreenCanvasRef.current.height;
+              ctx.clearRect(0, 0, width, height);
+              ctx.fillStyle = CANVAS_CONFIG.BACKGROUND_COLOR;
+              ctx.fillRect(0, 0, width, height);
+            }
+          }
+          renderCanvas();
+        },
+        getZoom: () => zoom,
+      }),
+      [zoom, renderCanvas]
+    );
 
-  useEffect(() => {
-    drawingStateRef.current = { tool, color, brushSize };
-  }, [tool, color, brushSize]);
+    useEffect(() => {
+      drawingStateRef.current = { tool, color, brushSize };
+    }, [tool, color, brushSize]);
 
-  const [shouldRestore, setShouldRestore] = useState(false);
-  const prevStateRef = useRef<string | null>(null);
-  
-  useEffect(() => {
-    if (shouldRestore && currentState && currentState !== prevStateRef.current && offscreenCanvasRef.current) {
-      const img = new Image();
-      img.onload = () => {
+    const [shouldRestore, setShouldRestore] = useState(false);
+    const prevStateRef = useRef<string | null>(null);
+
+    useEffect(() => {
+      if (
+        shouldRestore &&
+        currentState &&
+        currentState !== prevStateRef.current &&
+        offscreenCanvasRef.current
+      ) {
+        const img = new Image();
+        img.onload = () => {
+          const offCanvas = offscreenCanvasRef.current;
+          if (offCanvas) {
+            const offCtx = offCanvas.getContext('2d');
+            if (offCtx) {
+              offCtx.clearRect(0, 0, offCanvas.width, offCanvas.height);
+              offCtx.fillStyle = CANVAS_CONFIG.BACKGROUND_COLOR;
+              offCtx.fillRect(0, 0, offCanvas.width, offCanvas.height);
+              offCtx.drawImage(img, 0, 0, offCanvas.width, offCanvas.height);
+              renderCanvas();
+            }
+          }
+        };
+        img.src = currentState;
+        prevStateRef.current = currentState;
+        setShouldRestore(false);
+      }
+    }, [currentState, shouldRestore, renderCanvas]);
+
+    const { past, future } = useAppSelector((state) => state.history);
+    useEffect(() => {
+      if (past.length > 0 || future.length > 0) {
+        setShouldRestore(true);
+      }
+    }, [past.length, future.length]);
+
+    useEffect(() => {
+      renderCanvas();
+    }, [renderCanvas]);
+
+    useEffect(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const getCoordinates = (
+        e: MouseEvent | TouchEvent
+      ): { x: number; y: number } | null => {
+        const rect = canvas.getBoundingClientRect();
+        let clientX: number, clientY: number;
+
+        if ('touches' in e && e.touches.length > 0) {
+          clientX = e.touches[0].clientX;
+          clientY = e.touches[0].clientY;
+        } else if ('clientX' in e) {
+          clientX = e.clientX;
+          clientY = e.clientY;
+        } else {
+          return null;
+        }
+
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
         const offCanvas = offscreenCanvasRef.current;
-        if (offCanvas) {
-          const offCtx = offCanvas.getContext('2d');
-          if (offCtx) {
-            offCtx.clearRect(0, 0, offCanvas.width, offCanvas.height);
-            offCtx.fillStyle = CANVAS_CONFIG.BACKGROUND_COLOR;
-            offCtx.fillRect(0, 0, offCanvas.width, offCanvas.height);
-            offCtx.drawImage(img, 0, 0, offCanvas.width, offCanvas.height);
-            renderCanvas();
-          }
+        if (!offCanvas) return null;
+
+        const offCanvasWidth = offCanvas.width;
+        const offCanvasHeight = offCanvas.height;
+        const scaledWidth = offCanvasWidth * zoom;
+        const scaledHeight = offCanvasHeight * zoom;
+        const offsetX = centerX - scaledWidth / 2;
+        const offsetY = centerY - scaledHeight / 2;
+
+        const x = (clientX - rect.left - offsetX) / zoom;
+        const y = (clientY - rect.top - offsetY) / zoom;
+
+        return { x, y };
+      };
+
+      const draw = (currentPos: { x: number; y: number }) => {
+        const lastPos = lastPosRef.current;
+        if (!lastPos) return;
+
+        const offCanvas = offscreenCanvasRef.current;
+        if (!offCanvas) return;
+
+        const offCtx = offCanvas.getContext('2d');
+        if (!offCtx) return;
+
+        offCtx.save();
+
+        const state = drawingStateRef.current;
+        offCtx.lineWidth = state.brushSize;
+        offCtx.lineCap = 'round';
+        offCtx.lineJoin = 'round';
+
+        if (state.tool === 'eraser') {
+          offCtx.globalCompositeOperation = 'destination-out';
+        } else {
+          offCtx.globalCompositeOperation = 'source-over';
+          offCtx.strokeStyle = state.color;
+        }
+
+        offCtx.beginPath();
+        offCtx.moveTo(lastPos.x, lastPos.y);
+        offCtx.lineTo(currentPos.x, currentPos.y);
+        offCtx.stroke();
+
+        offCtx.restore();
+
+        lastPosRef.current = currentPos;
+
+        renderCanvas();
+
+        if (onDraw) {
+          onDraw(currentPos.x, currentPos.y);
         }
       };
-      img.src = currentState;
-      prevStateRef.current = currentState;
-      setShouldRestore(false);
-    }
-  }, [currentState, shouldRestore, renderCanvas]);
 
-  const { past, future } = useAppSelector((state) => state.history);
-  useEffect(() => {
-    if (past.length > 0 || future.length > 0) {
-      setShouldRestore(true);
-    }
-  }, [past.length, future.length]);
+      const handleStart = (e: MouseEvent | TouchEvent) => {
+        e.preventDefault();
+        const pos = getCoordinates(e);
+        if (pos) {
+          isDrawingRef.current = true;
+          lastPosRef.current = pos;
+        }
+      };
 
-  useEffect(() => {
-    renderCanvas();
-  }, [renderCanvas]);
+      const handleMove = (e: MouseEvent | TouchEvent) => {
+        e.preventDefault();
+        if (!isDrawingRef.current) return;
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const getCoordinates = (
-      e: MouseEvent | TouchEvent
-    ): { x: number; y: number } | null => {
-      const rect = canvas.getBoundingClientRect();
-      let clientX: number, clientY: number;
-      
-      if ('touches' in e && e.touches.length > 0) {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-      } else if ('clientX' in e) {
-        clientX = e.clientX;
-        clientY = e.clientY;
-      } else {
-        return null;
-      }
-
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const offCanvas = offscreenCanvasRef.current;
-      if (!offCanvas) return null;
-      
-      const offCanvasWidth = offCanvas.width;
-      const offCanvasHeight = offCanvas.height;
-      const scaledWidth = offCanvasWidth * zoom;
-      const scaledHeight = offCanvasHeight * zoom;
-      const offsetX = centerX - scaledWidth / 2;
-      const offsetY = centerY - scaledHeight / 2;
-      
-      const x = ((clientX - rect.left) - offsetX) / zoom;
-      const y = ((clientY - rect.top) - offsetY) / zoom;
-      
-      return { x, y };
-    };
-
-    const draw = (currentPos: { x: number; y: number }) => {
-      const lastPos = lastPosRef.current;
-      if (!lastPos) return;
-
-      const offCanvas = offscreenCanvasRef.current;
-      if (!offCanvas) return;
-      
-      const offCtx = offCanvas.getContext('2d');
-      if (!offCtx) return;
-
-      offCtx.save();
-
-      const state = drawingStateRef.current;
-      offCtx.lineWidth = state.brushSize;
-      offCtx.lineCap = 'round';
-      offCtx.lineJoin = 'round';
-
-      if (state.tool === 'eraser') {
-        offCtx.globalCompositeOperation = 'destination-out';
-      } else {
-        offCtx.globalCompositeOperation = 'source-over';
-        offCtx.strokeStyle = state.color;
-      }
-
-      offCtx.beginPath();
-      offCtx.moveTo(lastPos.x, lastPos.y);
-      offCtx.lineTo(currentPos.x, currentPos.y);
-      offCtx.stroke();
-      
-      offCtx.restore();
-      
-      lastPosRef.current = currentPos;
-      
-      renderCanvas();
-
-      if (onDraw) {
-        onDraw(currentPos.x, currentPos.y);
-      }
-    };
-
-    const handleStart = (e: MouseEvent | TouchEvent) => {
-      e.preventDefault();
-      const pos = getCoordinates(e);
-      if (pos) {
-        isDrawingRef.current = true;
-        lastPosRef.current = pos;
-      }
-    };
-
-    const handleMove = (e: MouseEvent | TouchEvent) => {
-      e.preventDefault();
-      if (!isDrawingRef.current) return;
-
-      const pos = getCoordinates(e);
-      if (pos) {
-        draw(pos);
-      }
-    };
+        const pos = getCoordinates(e);
+        if (pos) {
+          draw(pos);
+        }
+      };
 
       const handleEnd = () => {
         if (isDrawingRef.current) {
@@ -300,28 +333,27 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(
         lastPosRef.current = null;
       };
 
-    canvas.addEventListener('mousedown', handleStart);
-    canvas.addEventListener('mousemove', handleMove);
-    canvas.addEventListener('mouseup', handleEnd);
-    canvas.addEventListener('mouseleave', handleEnd);
+      canvas.addEventListener('mousedown', handleStart);
+      canvas.addEventListener('mousemove', handleMove);
+      canvas.addEventListener('mouseup', handleEnd);
+      canvas.addEventListener('mouseleave', handleEnd);
 
-    canvas.addEventListener('touchstart', handleStart, { passive: false });
-    canvas.addEventListener('touchmove', handleMove, { passive: false });
-    canvas.addEventListener('touchend', handleEnd);
-    canvas.addEventListener('touchcancel', handleEnd);
+      canvas.addEventListener('touchstart', handleStart, { passive: false });
+      canvas.addEventListener('touchmove', handleMove, { passive: false });
+      canvas.addEventListener('touchend', handleEnd);
+      canvas.addEventListener('touchcancel', handleEnd);
 
-    return () => {
-      canvas.removeEventListener('mousedown', handleStart);
-      canvas.removeEventListener('mousemove', handleMove);
-      canvas.removeEventListener('mouseup', handleEnd);
-      canvas.removeEventListener('mouseleave', handleEnd);
-      canvas.removeEventListener('touchstart', handleStart);
-      canvas.removeEventListener('touchmove', handleMove);
-      canvas.removeEventListener('touchend', handleEnd);
-      canvas.removeEventListener('touchcancel', handleEnd);
-    };
-  }, [onDraw, onStrokeEnd, dispatch, zoom, renderCanvas]);
-
+      return () => {
+        canvas.removeEventListener('mousedown', handleStart);
+        canvas.removeEventListener('mousemove', handleMove);
+        canvas.removeEventListener('mouseup', handleEnd);
+        canvas.removeEventListener('mouseleave', handleEnd);
+        canvas.removeEventListener('touchstart', handleStart);
+        canvas.removeEventListener('touchmove', handleMove);
+        canvas.removeEventListener('touchend', handleEnd);
+        canvas.removeEventListener('touchcancel', handleEnd);
+      };
+    }, [onDraw, onStrokeEnd, dispatch, zoom, renderCanvas]);
 
     return (
       <Box
@@ -338,11 +370,14 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(
             height: '100%',
             touchAction: 'none',
             cursor:
-              drawingStateRef.current.tool === 'eraser' ? 'crosshair' : 'default',
+              drawingStateRef.current.tool === 'eraser'
+                ? 'crosshair'
+                : 'default',
           }}
         />
       </Box>
     );
-});
+  }
+);
 
 Canvas.displayName = 'Canvas';

@@ -26,4 +26,3 @@ describe('drawingSlice', () => {
     expect(state.isDrawing).toBe(true);
   });
 });
-

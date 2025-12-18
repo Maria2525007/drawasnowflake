@@ -9,7 +9,8 @@ jest.mock('../../config/constants', () => ({
   },
 }));
 
-const originalImportMeta = (globalThis as { import?: { meta?: unknown } }).import?.meta;
+const originalImportMeta = (globalThis as { import?: { meta?: unknown } })
+  .import?.meta;
 
 beforeAll(() => {
   Object.defineProperty(globalThis, 'import', {
@@ -90,7 +91,14 @@ describe('api', () => {
   });
 
   it('should load snowflake from server', async () => {
-    const mockSnowflake = { id: '1', x: 100, y: 100, rotation: 0, scale: 1, pattern: 'custom' };
+    const mockSnowflake = {
+      id: '1',
+      x: 100,
+      y: 100,
+      rotation: 0,
+      scale: 1,
+      pattern: 'custom',
+    };
 
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
@@ -99,7 +107,9 @@ describe('api', () => {
 
     const result = await loadSnowflakeFromServer('1');
     expect(result).toEqual(mockSnowflake);
-    expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/snowflakes/1'));
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/snowflakes/1')
+    );
   });
 
   it('should update snowflake on server', async () => {
@@ -107,7 +117,13 @@ describe('api', () => {
 
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ id: '1', ...mockUpdate, rotation: 0, scale: 1, pattern: 'custom' }),
+      json: async () => ({
+        id: '1',
+        ...mockUpdate,
+        rotation: 0,
+        scale: 1,
+        pattern: 'custom',
+      }),
     });
 
     const result = await updateSnowflakeOnServer('1', mockUpdate);
@@ -135,7 +151,15 @@ describe('api', () => {
       ok: false,
     });
 
-    await expect(saveSnowflakeToServer({ x: 0, y: 0, rotation: 0, scale: 1, pattern: 'custom' })).rejects.toThrow();
+    await expect(
+      saveSnowflakeToServer({
+        x: 0,
+        y: 0,
+        rotation: 0,
+        scale: 1,
+        pattern: 'custom',
+      })
+    ).rejects.toThrow();
   });
 
   it('should handle errors when getting all snowflakes', async () => {
@@ -186,7 +210,7 @@ describe('api', () => {
     });
 
     await saveSnowflakeToServer(mockSnowflake);
-    
+
     const callArgs = (fetch as jest.Mock).mock.calls[0];
     const body = JSON.parse(callArgs[1].body);
     expect(body.isFalling).toBeUndefined();
@@ -197,11 +221,17 @@ describe('api', () => {
 
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ id: '1', ...mockUpdate, rotation: 0, scale: 1, pattern: 'custom' }),
+      json: async () => ({
+        id: '1',
+        ...mockUpdate,
+        rotation: 0,
+        scale: 1,
+        pattern: 'custom',
+      }),
     });
 
     await updateSnowflakeOnServer('1', mockUpdate);
-    
+
     const callArgs = (fetch as jest.Mock).mock.calls[0];
     const body = JSON.parse(callArgs[1].body);
     expect(body.isFalling).toBeUndefined();

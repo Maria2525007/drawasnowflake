@@ -1,7 +1,4 @@
-import {
-  exportCanvasAsImage,
-  copyCanvasToClipboard,
-} from '../../utils/export';
+import { exportCanvasAsImage, copyCanvasToClipboard } from '../../utils/export';
 
 describe('export', () => {
   let canvas: HTMLCanvasElement;
@@ -19,14 +16,18 @@ describe('export', () => {
 
   it('should export canvas as image', (done) => {
     const linkClickSpy = jest.fn();
-    const appendChildSpy = jest.spyOn(document.body, 'appendChild').mockImplementation(() => {
-      const link = document.createElement('a');
-      link.click = linkClickSpy;
-      return link;
-    });
-    const removeChildSpy = jest.spyOn(document.body, 'removeChild').mockImplementation(() => {
-      return {} as Node;
-    });
+    const appendChildSpy = jest
+      .spyOn(document.body, 'appendChild')
+      .mockImplementation(() => {
+        const link = document.createElement('a');
+        link.click = linkClickSpy;
+        return link;
+      });
+    const removeChildSpy = jest
+      .spyOn(document.body, 'removeChild')
+      .mockImplementation(() => {
+        return {} as Node;
+      });
 
     const originalToBlob = HTMLCanvasElement.prototype.toBlob;
     HTMLCanvasElement.prototype.toBlob = function (callback) {
@@ -36,7 +37,7 @@ describe('export', () => {
     };
 
     exportCanvasAsImage(canvas);
-    
+
     setTimeout(() => {
       expect(appendChildSpy).toHaveBeenCalled();
       expect(linkClickSpy).toHaveBeenCalled();
@@ -67,7 +68,7 @@ describe('export', () => {
     const result = await copyCanvasToClipboard(canvas);
     expect(result).toBe(true);
     expect(mockClipboard.write).toHaveBeenCalled();
-    
+
     HTMLCanvasElement.prototype.toBlob = originalToBlob;
   });
 
@@ -81,8 +82,7 @@ describe('export', () => {
 
     const result = await copyCanvasToClipboard(canvas);
     expect(result).toBe(false);
-    
+
     HTMLCanvasElement.prototype.toBlob = originalToBlob;
   });
 });
-

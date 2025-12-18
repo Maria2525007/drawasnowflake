@@ -5,9 +5,15 @@ import { snowflakeRouter } from '../../routes/snowflakes';
 jest.mock('../../controllers/snowflakeController', () => ({
   snowflakeController: {
     create: jest.fn(async (_req, res) => res.json({ id: '1', x: 100, y: 100 })),
-    getAll: jest.fn(async (_req, res) => res.json([{ id: '1', x: 100, y: 100 }])),
-    getById: jest.fn(async (req, res) => res.json({ id: req.params.id, x: 100, y: 100 })),
-    update: jest.fn(async (req, res) => res.json({ id: req.params.id, ...req.body })),
+    getAll: jest.fn(async (_req, res) =>
+      res.json([{ id: '1', x: 100, y: 100 }])
+    ),
+    getById: jest.fn(async (req, res) =>
+      res.json({ id: req.params.id, x: 100, y: 100 })
+    ),
+    update: jest.fn(async (req, res) =>
+      res.json({ id: req.params.id, ...req.body })
+    ),
     delete: jest.fn(async (_req, res) => res.json({ success: true })),
   },
 }));
@@ -51,4 +57,3 @@ describe('Snowflake Routes', () => {
     expect(response.body).toHaveProperty('success', true);
   });
 });
-
