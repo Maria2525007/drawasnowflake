@@ -9,8 +9,11 @@ describe('useAppSelector', () => {
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <Provider store={store}>{children}</Provider>
     );
-    
-    const { result } = renderHook(() => useAppSelector((state) => state.drawing.tool), { wrapper });
+
+    const { result } = renderHook(
+      () => useAppSelector((state) => state.drawing.tool),
+      { wrapper }
+    );
     expect(result.current).toBe('pencil');
   });
 
@@ -18,14 +21,16 @@ describe('useAppSelector', () => {
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <Provider store={store}>{children}</Provider>
     );
-    
-    const { result, rerender } = renderHook(() => useAppSelector((state) => state.drawing.tool), { wrapper });
+
+    const { result, rerender } = renderHook(
+      () => useAppSelector((state) => state.drawing.tool),
+      { wrapper }
+    );
     expect(result.current).toBe('pencil');
-    
+
     store.dispatch(setTool('eraser'));
     rerender();
-    
+
     expect(result.current).toBe('eraser');
   });
 });
-

@@ -4,12 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { Tree } from '../components/Tree/Tree';
 import { Toolbar } from '../components/UI/Toolbar';
 import { useAppDispatch } from '../hooks/useAppDispatch';
-import { loadSnowflakes, Snowflake } from '../features/snowflake/snowflakeSlice';
-import { getAllSnowflakes } from '../services/api';
 import {
-  SNOWFLAKE_CONFIG,
-  UI_CONFIG,
-} from '../config/constants';
+  loadSnowflakes,
+  Snowflake,
+} from '../features/snowflake/snowflakeSlice';
+import { getAllSnowflakes } from '../services/api';
+import { SNOWFLAKE_CONFIG, UI_CONFIG } from '../config/constants';
 
 export const TreePage: React.FC = () => {
   const treeCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -20,18 +20,21 @@ export const TreePage: React.FC = () => {
     const loadSnowflakesFromServer = async () => {
       try {
         const serverSnowflakes = await getAllSnowflakes();
-        
+
         if (!serverSnowflakes || serverSnowflakes.length === 0) {
           return;
         }
-        
+
         const canvasWidth = window.innerWidth;
         const canvasHeight = window.innerHeight;
         const MIN_X = SNOWFLAKE_CONFIG.BORDER_PADDING;
         const MAX_X = canvasWidth - SNOWFLAKE_CONFIG.BORDER_PADDING;
-        const MIN_Y = SNOWFLAKE_CONFIG.SPAWN_Y_OFFSET - SNOWFLAKE_CONFIG.SPAWN_Y_RANDOM - SNOWFLAKE_CONFIG.VISIBILITY_MARGIN;
+        const MIN_Y =
+          SNOWFLAKE_CONFIG.SPAWN_Y_OFFSET -
+          SNOWFLAKE_CONFIG.SPAWN_Y_RANDOM -
+          SNOWFLAKE_CONFIG.VISIBILITY_MARGIN;
         const MAX_Y = canvasHeight + SNOWFLAKE_CONFIG.VISIBILITY_MARGIN;
-        
+
         const snowflakes: Snowflake[] = serverSnowflakes.map((s) => {
           let clampedX = s.x;
           if (clampedX < MIN_X) {
@@ -39,14 +42,14 @@ export const TreePage: React.FC = () => {
           } else if (clampedX > MAX_X) {
             clampedX = MAX_X;
           }
-          
+
           let clampedY = s.y;
           if (clampedY < MIN_Y) {
             clampedY = MIN_Y;
           } else if (clampedY > MAX_Y) {
             clampedY = MAX_Y;
           }
-          
+
           return {
             id: s.id || `snowflake-${Date.now()}-${Math.random()}`,
             x: clampedX,
@@ -56,10 +59,22 @@ export const TreePage: React.FC = () => {
             pattern: s.pattern || 'custom',
             data: null,
             imageData: s.imageData || undefined,
-            fallSpeed: s.fallSpeed || SNOWFLAKE_CONFIG.MIN_FALL_SPEED + Math.random() * (SNOWFLAKE_CONFIG.MAX_FALL_SPEED - SNOWFLAKE_CONFIG.MIN_FALL_SPEED),
+            fallSpeed:
+              s.fallSpeed ||
+              SNOWFLAKE_CONFIG.MIN_FALL_SPEED +
+                Math.random() *
+                  (SNOWFLAKE_CONFIG.MAX_FALL_SPEED -
+                    SNOWFLAKE_CONFIG.MIN_FALL_SPEED),
             isFalling: s.isFalling !== undefined ? s.isFalling : true,
-            driftSpeed: s.driftSpeed || (Math.random() - 0.5) * (SNOWFLAKE_CONFIG.MAX_DRIFT_SPEED - SNOWFLAKE_CONFIG.MIN_DRIFT_SPEED),
-            driftPhase: s.driftPhase !== undefined ? s.driftPhase : Math.random() * SNOWFLAKE_CONFIG.PI_MULTIPLIER,
+            driftSpeed:
+              s.driftSpeed ||
+              (Math.random() - 0.5) *
+                (SNOWFLAKE_CONFIG.MAX_DRIFT_SPEED -
+                  SNOWFLAKE_CONFIG.MIN_DRIFT_SPEED),
+            driftPhase:
+              s.driftPhase !== undefined
+                ? s.driftPhase
+                : Math.random() * SNOWFLAKE_CONFIG.PI_MULTIPLIER,
           };
         });
         dispatch(loadSnowflakes(snowflakes));

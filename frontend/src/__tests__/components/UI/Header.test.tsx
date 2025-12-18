@@ -9,7 +9,9 @@ describe('Header', () => {
 
   it('should render description', () => {
     render(<Header />);
-    expect(screen.getByText(/Draw a snowflake and watch it fall/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Draw a snowflake and watch it fall/i)
+    ).toBeInTheDocument();
   });
 
   it('should have correct heading level', () => {
@@ -24,4 +26,3 @@ describe('Header', () => {
     expect(box).toBeInTheDocument();
   });
 });
-

@@ -15,7 +15,7 @@ const renderCanvas = (props = {}) => {
 describe('Canvas', () => {
   it('should render canvas element', () => {
     const { container } = renderCanvas();
-    
+
     const canvas = container.querySelector('canvas');
     expect(canvas).toBeInTheDocument();
   });
@@ -23,7 +23,7 @@ describe('Canvas', () => {
   it('should expose canvas handle methods', () => {
     const ref = createRef<CanvasHandle>();
     renderCanvas({ ref });
-    
+
     expect(ref.current).not.toBeNull();
     expect(ref.current?.getCanvas).toBeDefined();
     expect(ref.current?.getImageData).toBeDefined();
@@ -35,7 +35,7 @@ describe('Canvas', () => {
   it('should get canvas element from handle', () => {
     const ref = createRef<CanvasHandle>();
     renderCanvas({ ref });
-    
+
     const canvas = ref.current?.getCanvas();
     expect(canvas).toBeInstanceOf(HTMLCanvasElement);
   });
@@ -43,20 +43,20 @@ describe('Canvas', () => {
   it('should get zoom value', () => {
     const ref = createRef<CanvasHandle>();
     renderCanvas({ ref, zoom: 1.5 });
-    
+
     expect(ref.current?.getZoom()).toBe(1.5);
   });
 
   it('should clear canvas', () => {
     const ref = createRef<CanvasHandle>();
     renderCanvas({ ref });
-    
+
     expect(() => ref.current?.clear()).not.toThrow();
   });
 
   it('should render with custom width and height', () => {
     const { container } = renderCanvas({ width: 800, height: 600 });
-    
+
     const canvas = container.querySelector('canvas');
     expect(canvas).toBeInTheDocument();
   });
@@ -64,8 +64,7 @@ describe('Canvas', () => {
   it('should handle zoom prop', () => {
     const ref = createRef<CanvasHandle>();
     renderCanvas({ ref, zoom: 2.0 });
-    
+
     expect(ref.current?.getZoom()).toBe(2.0);
   });
 });
-

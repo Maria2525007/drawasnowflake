@@ -35,4 +35,3 @@ describe('storage', () => {
     expect(loaded).toBeNull();
   });
 });
-

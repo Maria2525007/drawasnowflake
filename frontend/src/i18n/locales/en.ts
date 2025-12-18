@@ -1,11 +1,12 @@
 export const en = {
   header: {
     title: 'Draw a Snowflake',
-    description: 'Draw a snowflake and watch it fall on the magical Christmas tree with everyone else\'s snowflakes. Create, share, and celebrate the winter wonderland in this simple online drawing game.',
+    description:
+      "Draw a snowflake and watch it fall on the magical Christmas tree with everyone else's snowflakes. Create, share, and celebrate the winter wonderland in this simple online drawing game.",
   },
   toolbar: {
     goOnTree: 'Go on Tree',
-    letsItSnow: 'Let\'s it snow',
+    letsItSnow: "Let's it snow",
     workSaved: 'Work saved successfully!',
     workLoaded: 'Work loaded successfully!',
     noSavedWork: 'No saved work found',
