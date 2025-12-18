@@ -37,30 +37,32 @@ describe('DrawPage Integration', () => {
   it('should handle zoom changes', async () => {
     const user = userEvent.setup();
     renderDrawPage();
-    
+
     const zoomInButton = screen.getByLabelText('zoom in');
     await user.click(zoomInButton);
-    
+
     expect(zoomInButton).toBeInTheDocument();
   });
 
   it('should display similarity after drawing', async () => {
     renderDrawPage();
-    
-    await waitFor(() => {
-      const similarityText = screen.queryByText(/Snowflake similarity/i);
-      if (similarityText) {
-        expect(similarityText).toBeInTheDocument();
-      }
-    }, { timeout: 3000 });
+
+    await waitFor(
+      () => {
+        const similarityText = screen.queryByText(/Snowflake similarity/i);
+        if (similarityText) {
+          expect(similarityText).toBeInTheDocument();
+        }
+      },
+      { timeout: 3000 }
+    );
   });
 
   it('should have all required elements', () => {
     renderDrawPage();
-    
+
     expect(screen.getByText('Draw a Snowflake')).toBeInTheDocument();
     expect(screen.getByText('Go on Tree')).toBeInTheDocument();
     expect(screen.getByLabelText('pencil')).toBeInTheDocument();
   });
 });
-

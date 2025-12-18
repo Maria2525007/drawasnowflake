@@ -17,4 +17,3 @@ describe('theme', () => {
     expect(theme.palette).toBeDefined();
   });
 });
-

@@ -26,7 +26,15 @@ describe('TreePage Extended', () => {
 
   it('should load snowflakes from server on mount', async () => {
     const mockSnowflakes = [
-      { id: '1', x: 100, y: 100, rotation: 0, scale: 1, pattern: 'custom', imageData: 'data:image/png;base64,test' },
+      {
+        id: '1',
+        x: 100,
+        y: 100,
+        rotation: 0,
+        scale: 1,
+        pattern: 'custom',
+        imageData: 'data:image/png;base64,test',
+      },
     ];
 
     (getAllSnowflakes as jest.Mock).mockResolvedValue(mockSnowflakes);
@@ -69,9 +77,7 @@ describe('TreePage Extended', () => {
   });
 
   it('should handle snowflakes with default values', async () => {
-    const mockSnowflakes = [
-      { id: '1', x: 100, y: 100 },
-    ];
+    const mockSnowflakes = [{ id: '1', x: 100, y: 100 }];
 
     (getAllSnowflakes as jest.Mock).mockResolvedValue(mockSnowflakes);
 
@@ -85,7 +91,9 @@ describe('TreePage Extended', () => {
   it('should handle API errors gracefully', async () => {
     (getAllSnowflakes as jest.Mock).mockRejectedValue(new Error('API Error'));
 
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
 
     renderTreePage();
 
@@ -103,7 +111,7 @@ describe('TreePage Extended', () => {
 
   it('should render tree canvas', () => {
     (getAllSnowflakes as jest.Mock).mockResolvedValue([]);
-    
+
     const { container } = renderTreePage();
     const canvas = container.querySelector('canvas');
     expect(canvas).toBeInTheDocument();
@@ -111,7 +119,7 @@ describe('TreePage Extended', () => {
 
   it('should render toolbar with tree tab', () => {
     (getAllSnowflakes as jest.Mock).mockResolvedValue([]);
-    
+
     renderTreePage();
     const snowText = screen.queryByText(/LET'S IT SNOW/i);
     if (snowText) {
@@ -119,4 +127,3 @@ describe('TreePage Extended', () => {
     }
   });
 });
-

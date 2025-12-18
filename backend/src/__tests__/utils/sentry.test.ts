@@ -36,11 +36,10 @@ describe('sentry', () => {
   it('should capture exception', () => {
     const error = new Error('Test error');
     const context = { url: '/test', method: 'GET' };
-    
+
     captureException(error, context);
     expect(Sentry.captureException).toHaveBeenCalledWith(error, {
       extra: context,
     });
   });
 });
-

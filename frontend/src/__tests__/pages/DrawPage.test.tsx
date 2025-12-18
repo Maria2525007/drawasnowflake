@@ -70,27 +70,30 @@ describe('DrawPage', () => {
   it('should handle zoom changes', async () => {
     const user = userEvent.setup();
     renderDrawPage();
-    
+
     const zoomInButton = screen.getByLabelText('zoom in');
     await user.click(zoomInButton);
-    
+
     expect(zoomInButton).toBeInTheDocument();
   });
 
   it('should display similarity after analysis', async () => {
     renderDrawPage();
-    
-    await waitFor(() => {
-      const similarityText = screen.queryByText(/Snowflake similarity/i);
-      if (similarityText) {
-        expect(similarityText).toBeInTheDocument();
-      }
-    }, { timeout: 2000 });
+
+    await waitFor(
+      () => {
+        const similarityText = screen.queryByText(/Snowflake similarity/i);
+        if (similarityText) {
+          expect(similarityText).toBeInTheDocument();
+        }
+      },
+      { timeout: 2000 }
+    );
   });
 
   it('should handle stroke end callback', async () => {
     renderDrawPage();
-    
+
     await waitFor(() => {
       expect(screen.getByText('Draw a Snowflake')).toBeInTheDocument();
     });

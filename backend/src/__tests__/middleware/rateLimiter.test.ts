@@ -18,4 +18,3 @@ describe('rateLimiter', () => {
     expect(limiter).toBeDefined();
   });
 });
-
