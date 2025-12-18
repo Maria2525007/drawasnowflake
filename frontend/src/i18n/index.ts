@@ -20,7 +20,7 @@ export const getLocale = (): Locale => currentLocale;
 
 export const t = (key: string, params?: Record<string, string | number>): string => {
   const keys = key.split('.');
-  let value: any = translations[currentLocale];
+  let value: unknown = translations[currentLocale];
   
   for (const k of keys) {
     if (value && typeof value === 'object' && k in value) {

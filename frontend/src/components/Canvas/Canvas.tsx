@@ -27,7 +27,7 @@ export interface CanvasHandle {
 }
 
 export const Canvas = forwardRef<CanvasHandle, CanvasProps>(
-  ({ width, height, onDraw, onStrokeEnd, zoom = ZOOM_CONFIG.DEFAULT, onZoomChange }, ref) => {
+  ({ width, height, onDraw, onStrokeEnd, zoom = ZOOM_CONFIG.DEFAULT, onZoomChange: _onZoomChange }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
     const isDrawingRef = useRef(false);

@@ -9,7 +9,7 @@ jest.mock('../../config/constants', () => ({
   },
 }));
 
-const originalImportMeta = (globalThis as any).import?.meta;
+const originalImportMeta = (globalThis as { import?: { meta?: unknown } }).import?.meta;
 
 beforeAll(() => {
   Object.defineProperty(globalThis, 'import', {
@@ -35,14 +35,13 @@ afterAll(() => {
   }
 });
 
-const apiModule = require('../../services/api');
-const {
+import {
   saveSnowflakeToServer,
   getAllSnowflakes,
   loadSnowflakeFromServer,
   updateSnowflakeOnServer,
   deleteSnowflakeFromServer,
-} = apiModule;
+} from '../../services/api';
 
 describe('api', () => {
   beforeEach(() => {
