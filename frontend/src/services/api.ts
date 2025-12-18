@@ -46,7 +46,9 @@ export const getAllSnowflakes = async (): Promise<SnowflakeData[]> => {
   return response.json();
 };
 
-export const loadSnowflakeFromServer = async (id: string): Promise<SnowflakeData> => {
+export const loadSnowflakeFromServer = async (
+  id: string
+): Promise<SnowflakeData> => {
   const response = await fetch(`${API_URL}/snowflakes/${id}`);
 
   if (!response.ok) {
