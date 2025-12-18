@@ -9,8 +9,8 @@ import {
 
 describe('analytics', () => {
   beforeEach(() => {
-    delete (window as any).gtag;
-    delete (window as any).dataLayer;
+    delete (window as { gtag?: unknown; dataLayer?: unknown }).gtag;
+    delete (window as { gtag?: unknown; dataLayer?: unknown }).dataLayer;
   });
 
   it('should initialize analytics', () => {
@@ -62,7 +62,7 @@ describe('analytics', () => {
   });
 
   it('should not fail if gtag is not available', () => {
-    delete (window as any).gtag;
+    delete (window as { gtag?: unknown }).gtag;
     expect(() => trackEvent('test')).not.toThrow();
   });
 });

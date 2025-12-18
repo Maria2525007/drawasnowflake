@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ColorPicker } from '../../../components/UI/ColorPicker';
 
@@ -13,7 +13,6 @@ describe('ColorPicker', () => {
   });
 
   it('should call onColorChange when color changes', async () => {
-    const user = userEvent.setup();
     const mockOnChange = jest.fn();
     const { container } = render(<ColorPicker color="#ffffff" onColorChange={mockOnChange} />);
     

@@ -16,10 +16,8 @@ import {
   Brush,
   Clear,
   Palette,
-  Save,
   Download,
   ContentCopy,
-  FolderOpen,
   Undo,
   Redo,
   Directions,
@@ -41,10 +39,8 @@ import {
 } from '../../features/snowflake/snowflakeSlice';
 import { undo, redo } from '../../features/history/historySlice';
 import { ColorPicker } from './ColorPicker';
-import { saveToLocalStorage, loadFromLocalStorage } from '../../utils/storage';
 import { exportCanvasAsImage, copyCanvasToClipboard } from '../../utils/export';
 import {
-  trackWorkSaved,
   trackImageExported,
   trackToolUsed,
 } from '../../utils/analytics';
@@ -162,7 +158,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const { tool, color, brushSize } = useAppSelector((state) => state.drawing);
-  const { snowflakes } = useAppSelector((state) => state.snowflake);
   const { past, future } = useAppSelector((state) => state.history);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -177,7 +172,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     if (zoomProp !== zoom) {
       setZoom(zoomProp);
     }
-  }, [zoomProp]);
+  }, [zoomProp, zoom]);
 
   const handleToolChange = (
     _event: React.MouseEvent<HTMLElement>,
@@ -198,31 +193,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     newValue: number | number[]
   ) => {
     dispatch(setBrushSize(newValue as number));
-  };
-
-  const handleSave = () => {
-    const data = {
-      snowflakes,
-      timestamp: Date.now(),
-    };
-    saveToLocalStorage(data);
-    trackWorkSaved();
-    setSnackbarMessage(t('toolbar.workSaved'));
-    setSnackbarOpen(true);
-  };
-
-  const handleLoad = () => {
-    const data = loadFromLocalStorage();
-    if (data && data.snowflakes && Array.isArray(data.snowflakes)) {
-      data.snowflakes.forEach((snowflake: unknown) => {
-        dispatch(addSnowflake(snowflake as Snowflake));
-      });
-      setSnackbarMessage(t('toolbar.workLoaded'));
-      setSnackbarOpen(true);
-    } else {
-      setSnackbarMessage(t('toolbar.noSavedWork'));
-      setSnackbarOpen(true);
-    }
   };
 
   const handleExport = () => {

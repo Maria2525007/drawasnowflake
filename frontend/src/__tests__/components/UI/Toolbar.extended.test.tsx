@@ -5,8 +5,8 @@ import { store } from '../../../store/store';
 import { Toolbar } from '../../../components/UI/Toolbar';
 import { createRef } from 'react';
 import type { CanvasHandle } from '../../Canvas/Canvas';
-import { saveState } from '../../../features/history/historySlice';
 import { addSnowflake } from '../../../features/snowflake/snowflakeSlice';
+import * as storageModule from '../../../utils/storage';
 
 jest.mock('../../../utils/storage', () => ({
   saveToLocalStorage: jest.fn(),
@@ -131,9 +131,7 @@ describe('Toolbar Extended', () => {
   });
 
   it('should handle snackbar close', async () => {
-    const user = userEvent.setup();
-    const { saveToLocalStorage } = require('../../../utils/storage');
-    saveToLocalStorage.mockImplementation(() => {});
+    jest.spyOn(storageModule, 'saveToLocalStorage').mockImplementation(() => {});
     
     store.dispatch(addSnowflake({ id: '1', x: 100, y: 100, rotation: 0, scale: 1, pattern: 'custom' }));
     

@@ -7,7 +7,6 @@ import {
   CANVAS_CONFIG,
   SNOWFLAKE_CONFIG,
   TREE_CONFIG,
-  ANIMATION_CONFIG,
   BRUSH_CONFIG,
 } from '../../config/constants';
 
@@ -207,8 +206,6 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
     []
   );
 
-  const [imagesLoaded, setImagesLoaded] = useState(0);
-
   useEffect(() => {
     let loadedCount = 0;
     const totalImages = snowflakes.filter((s) => s.imageData).length;
@@ -219,9 +216,6 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
       if (snowflake.imageData) {
         preloadImage(snowflake.imageData, () => {
           loadedCount++;
-          if (loadedCount === totalImages) {
-            setImagesLoaded((prev) => prev + 1);
-          }
         });
       }
     });
@@ -329,7 +323,7 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
         drawSnowflake(ctx, snowflake);
       }
     });
-  }, [snowflakes, drawTree, drawSnowflake, imagesLoaded]);
+  }, [snowflakes, drawTree, drawSnowflake, canvasRef]);
 
   useEffect(() => {
     render();

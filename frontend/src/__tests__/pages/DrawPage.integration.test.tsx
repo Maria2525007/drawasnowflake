@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, useNavigate } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from '../../store/store';
 import { DrawPage } from '../../pages/DrawPage';
