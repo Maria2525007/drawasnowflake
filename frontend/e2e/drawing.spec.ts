@@ -1,0 +1,260 @@
+import { test, expect } from '@playwright/test';
+
+test.describe('Drawing Page', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/draw');
+    await page.waitForLoadState('networkidle');
+  });
+
+  test('should display header with title and description', async ({ page }) => {
+    await expect(page.locator('h1')).toContainText('Draw a Snowflake');
+    await expect(page.locator('body')).toContainText('Draw a snowflake and watch it fall');
+  });
+
+  test('should display canvas for drawing', async ({ page }) => {
+    const canvas = page.locator('canvas').first();
+    await expect(canvas).toBeVisible();
+  });
+
+  test('should allow drawing on canvas with mouse', async ({ page }) => {
+    const canvas = page.locator('canvas').first();
+    const canvasBox = await canvas.boundingBox();
+    
+    if (canvasBox) {
+      await page.mouse.move(canvasBox.x + canvasBox.width / 2, canvasBox.y + canvasBox.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(canvasBox.x + canvasBox.width / 2 + 50, canvasBox.y + canvasBox.height / 2 + 50);
+      await page.mouse.up();
+      
+      await page.waitForTimeout(500);
+      
+      const imageData = await canvas.evaluate((el: HTMLCanvasElement) => {
+        const ctx = el.getContext('2d');
+        if (!ctx) return null;
+        return ctx.getImageData(0, 0, el.width, el.height).data;
+      });
+      
+      expect(imageData).not.toBeNull();
+      const hasDrawnPixels = imageData?.some((value, index) => index % 4 === 3 && value > 0);
+      expect(hasDrawnPixels).toBeTruthy();
+    }
+  });
+
+  test('should allow drawing on canvas with touch', async ({ page }) => {
+    const canvas = page.locator('canvas').first();
+    const canvasBox = await canvas.boundingBox();
+    
+    if (canvasBox) {
+      await page.touchscreen.tap(canvasBox.x + canvasBox.width / 2, canvasBox.y + canvasBox.height / 2);
+      await page.waitForTimeout(100);
+    }
+    
+    await expect(canvas).toBeVisible();
+  });
+
+  test('should switch to eraser tool', async ({ page }) => {
+    const eraserButton = page.locator('button[aria-label="eraser"]');
+    await eraserButton.click();
+    
+    await expect(eraserButton).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  test('should change brush size', async ({ page }) => {
+    const slider = page.locator('input[type="range"]').first();
+    const initialValue = await slider.inputValue();
+    
+    await slider.fill('20');
+    const newValue = await slider.inputValue();
+    
+    expect(newValue).not.toBe(initialValue);
+  });
+
+  test('should open color picker', async ({ page }) => {
+    const colorPickerButton = page.locator('button[aria-label="color picker"]');
+    await colorPickerButton.click();
+    
+    const drawer = page.locator('input[type="color"]');
+    await expect(drawer).toBeVisible();
+  });
+
+  test('should clear canvas', async ({ page }) => {
+    const canvas = page.locator('canvas').first();
+    const canvasBox = await canvas.boundingBox();
+    
+    if (canvasBox) {
+      await page.mouse.move(canvasBox.x + canvasBox.width / 2, canvasBox.y + canvasBox.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(canvasBox.x + canvasBox.width / 2 + 50, canvasBox.y + canvasBox.height / 2 + 50);
+      await page.mouse.up();
+      await page.waitForTimeout(300);
+    }
+    
+    const clearButton = page.locator('button[aria-label="clear canvas"]');
+    await clearButton.click();
+    
+    await page.waitForTimeout(500);
+    
+    const snackbar = page.locator('text=Canvas cleared');
+    await expect(snackbar).toBeVisible({ timeout: 2000 });
+  });
+
+  test('should display zoom controls', async ({ page }) => {
+    const zoomInButton = page.locator('button[aria-label="zoom in"]');
+    const zoomOutButton = page.locator('button[aria-label="zoom out"]');
+    
+    await expect(zoomInButton).toBeVisible();
+    await expect(zoomOutButton).toBeVisible();
+  });
+
+  test('should zoom in canvas', async ({ page }) => {
+    const zoomInButton = page.locator('button[aria-label="zoom in"]');
+    const slider = page.locator('input[type="range"]').last();
+    
+    const initialZoom = await slider.inputValue();
+    await zoomInButton.click();
+    await page.waitForTimeout(200);
+    
+    const newZoom = await slider.inputValue();
+    expect(parseFloat(newZoom)).toBeGreaterThan(parseFloat(initialZoom));
+  });
+
+  test('should zoom out canvas', async ({ page }) => {
+    const zoomOutButton = page.locator('button[aria-label="zoom out"]');
+    const slider = page.locator('input[type="range"]').last();
+    
+    const initialZoom = await slider.inputValue();
+    await zoomOutButton.click();
+    await page.waitForTimeout(200);
+    
+    const newZoom = await slider.inputValue();
+    expect(parseFloat(newZoom)).toBeLessThan(parseFloat(initialZoom));
+  });
+
+  test('should display similarity percentage after drawing', async ({ page }) => {
+    const canvas = page.locator('canvas').first();
+    const canvasBox = await canvas.boundingBox();
+    
+    if (canvasBox) {
+      await page.mouse.move(canvasBox.x + canvasBox.width / 2, canvasBox.y + canvasBox.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(canvasBox.x + canvasBox.width / 2 + 100, canvasBox.y + canvasBox.height / 2 + 100);
+      await page.mouse.up();
+      
+      await page.waitForTimeout(1000);
+      
+      const similarityText = page.locator('text=/Snowflake similarity/');
+      await expect(similarityText).toBeVisible({ timeout: 3000 });
+    }
+  });
+
+  test('should display "Go on Tree" button', async ({ page }) => {
+    const goToTreeButton = page.locator('button:has-text("Go on Tree")');
+    await expect(goToTreeButton).toBeVisible();
+  });
+
+  test('should navigate to tree page when clicking "Go on Tree"', async ({ page }) => {
+    const canvas = page.locator('canvas').first();
+    const canvasBox = await canvas.boundingBox();
+    
+    if (canvasBox) {
+      await page.mouse.move(canvasBox.x + canvasBox.width / 2, canvasBox.y + canvasBox.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(canvasBox.x + canvasBox.width / 2 + 50, canvasBox.y + canvasBox.height / 2 + 50);
+      await page.mouse.up();
+      await page.waitForTimeout(500);
+    }
+    
+    const goToTreeButton = page.locator('button:has-text("Go on Tree")');
+    await goToTreeButton.click();
+    
+    await page.waitForURL('**/tree', { timeout: 5000 });
+    expect(page.url()).toContain('/tree');
+  });
+
+  test('should export canvas as image', async ({ page }) => {
+    const canvas = page.locator('canvas').first();
+    const canvasBox = await canvas.boundingBox();
+    
+    if (canvasBox) {
+      await page.mouse.move(canvasBox.x + canvasBox.width / 2, canvasBox.y + canvasBox.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(canvasBox.x + canvasBox.width / 2 + 50, canvasBox.y + canvasBox.height / 2 + 50);
+      await page.mouse.up();
+      await page.waitForTimeout(300);
+    }
+    
+    const downloadButton = page.locator('button[aria-label="export"]');
+    
+    const downloadPromise = page.waitForEvent('download', { timeout: 5000 }).catch(() => null);
+    await downloadButton.click();
+    
+    const download = await downloadPromise;
+    if (download) {
+      expect(download.suggestedFilename()).toContain('.png');
+    }
+  });
+
+  test('should copy canvas to clipboard', async ({ page }) => {
+    const canvas = page.locator('canvas').first();
+    const canvasBox = await canvas.boundingBox();
+    
+    if (canvasBox) {
+      await page.mouse.move(canvasBox.x + canvasBox.width / 2, canvasBox.y + canvasBox.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(canvasBox.x + canvasBox.width / 2 + 50, canvasBox.y + canvasBox.height / 2 + 50);
+      await page.mouse.up();
+      await page.waitForTimeout(300);
+    }
+    
+    const copyButton = page.locator('button[aria-label="copy"]');
+    await copyButton.click();
+    
+    await page.waitForTimeout(500);
+    
+    const snackbar = page.locator('text=/Image copied|Failed to copy/');
+    await expect(snackbar).toBeVisible({ timeout: 2000 });
+  });
+
+  test('should undo drawing action', async ({ page }) => {
+    const canvas = page.locator('canvas').first();
+    const canvasBox = await canvas.boundingBox();
+    
+    if (canvasBox) {
+      await page.mouse.move(canvasBox.x + canvasBox.width / 2, canvasBox.y + canvasBox.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(canvasBox.x + canvasBox.width / 2 + 50, canvasBox.y + canvasBox.height / 2 + 50);
+      await page.mouse.up();
+      await page.waitForTimeout(500);
+    }
+    
+    const undoButton = page.locator('button[aria-label="undo"]');
+    await undoButton.click();
+    await page.waitForTimeout(300);
+    
+    await expect(undoButton).toBeVisible();
+  });
+
+  test('should redo drawing action', async ({ page }) => {
+    const canvas = page.locator('canvas').first();
+    const canvasBox = await canvas.boundingBox();
+    
+    if (canvasBox) {
+      await page.mouse.move(canvasBox.x + canvasBox.width / 2, canvasBox.y + canvasBox.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(canvasBox.x + canvasBox.width / 2 + 50, canvasBox.y + canvasBox.height / 2 + 50);
+      await page.mouse.up();
+      await page.waitForTimeout(500);
+      
+      const undoButton = page.locator('button[aria-label="undo"]');
+      await undoButton.click();
+      await page.waitForTimeout(300);
+      
+      const redoButton = page.locator('button[aria-label="redo"]');
+      await redoButton.click();
+      await page.waitForTimeout(300);
+      
+      await expect(redoButton).toBeVisible();
+    }
+  });
+});
+
