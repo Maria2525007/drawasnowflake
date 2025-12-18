@@ -23,7 +23,7 @@ import {
 import { t } from '../i18n';
 
 export const DrawPage: React.FC = () => {
-  const [zoom, setZoom] = useState(ZOOM_CONFIG.DEFAULT);
+  const [zoom, setZoom] = useState<number>(ZOOM_CONFIG.DEFAULT);
   const [similarity, setSimilarity] = useState<number | null>(null);
   const drawCanvasRef = useRef<CanvasHandle>(null);
   const navigate = useNavigate();
@@ -324,7 +324,7 @@ export const DrawPage: React.FC = () => {
               drawCanvasRef={drawCanvasRef}
               currentTab={0}
               zoom={zoom}
-              onZoomChange={setZoom}
+              onZoomChange={(newZoom: number) => setZoom(newZoom)}
               hideGoToTreeButton
             />
           </Box>
@@ -340,7 +340,7 @@ export const DrawPage: React.FC = () => {
             <Canvas
               ref={drawCanvasRef}
               zoom={zoom}
-              onZoomChange={setZoom}
+              onZoomChange={(newZoom: number) => setZoom(newZoom)}
               onStrokeEnd={handleStrokeEnd}
             />
           </Box>

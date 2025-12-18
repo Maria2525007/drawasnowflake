@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { store } from '../../../store/store';
 import { Toolbar } from '../../../components/UI/Toolbar';
 import { createRef } from 'react';
-import type { CanvasHandle } from '../../Canvas/Canvas';
+import type { CanvasHandle } from '../../../components/Canvas/Canvas';
 import { addSnowflake } from '../../../features/snowflake/snowflakeSlice';
 import * as storageModule from '../../../utils/storage';
 
@@ -69,6 +69,12 @@ describe('Toolbar Extended', () => {
         rotation: 0,
         scale: 1,
         pattern: 'custom',
+        data: null,
+        imageData: undefined,
+        fallSpeed: 1,
+        isFalling: false,
+        driftSpeed: 0,
+        driftPhase: 0,
       })
     );
 
@@ -156,6 +162,12 @@ describe('Toolbar Extended', () => {
         rotation: 0,
         scale: 1,
         pattern: 'custom',
+        data: null,
+        imageData: undefined,
+        fallSpeed: 1,
+        isFalling: false,
+        driftSpeed: 0,
+        driftPhase: 0,
       })
     );
 
