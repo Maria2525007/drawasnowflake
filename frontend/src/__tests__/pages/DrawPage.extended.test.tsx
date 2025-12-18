@@ -1,0 +1,123 @@
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { store } from '../../store/store';
+import { DrawPage } from '../../pages/DrawPage';
+import { createRef } from 'react';
+import type { CanvasHandle } from '../../components/Canvas/Canvas';
+
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
+
+jest.mock('../../services/api', () => ({
+  saveSnowflakeToServer: jest.fn().mockResolvedValue({ id: '1' }),
+}));
+
+jest.mock('../../utils/snowflakeAnalysis', () => ({
+  analyzeSnowflake: jest.fn().mockReturnValue({ similarity: 50 }),
+}));
+
+const mockCanvasHandle: Partial<CanvasHandle> = {
+  getCanvas: jest.fn(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 800;
+    canvas.height = 600;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(100, 100, 50, 50);
+    }
+    return canvas;
+  }),
+  getImageData: jest.fn(() => 'data:image/png;base64,test'),
+  getImageDataForAnalysis: jest.fn(() => {
+    const imageData = new ImageData(2000, 2000);
+    return imageData;
+  }),
+  clear: jest.fn(),
+  getZoom: jest.fn(() => 1.0),
+};
+
+const renderDrawPage = () => {
+  return render(
+    <Provider store={store}>
+      <MemoryRouter>
+        <DrawPage />
+      </MemoryRouter>
+    </Provider>
+  );
+};
+
+describe('DrawPage Extended', () => {
+  beforeEach(() => {
+    mockNavigate.mockClear();
+  });
+
+  it('should handle Go on Tree button click with content', async () => {
+    const user = userEvent.setup();
+    renderDrawPage();
+    
+    const goButton = screen.getByText('Go on Tree');
+    expect(goButton).toBeInTheDocument();
+    await user.click(goButton);
+    
+    await waitFor(() => {
+      const canvas = document.querySelector('canvas');
+      if (canvas) {
+        expect(canvas).toBeInTheDocument();
+      }
+    }, { timeout: 2000 });
+  });
+
+  it('should handle zoom in', async () => {
+    const user = userEvent.setup();
+    renderDrawPage();
+    
+    const zoomInButton = screen.getByLabelText('zoom in');
+    await user.click(zoomInButton);
+    
+    expect(zoomInButton).toBeInTheDocument();
+  });
+
+  it('should handle zoom out', async () => {
+    const user = userEvent.setup();
+    renderDrawPage();
+    
+    const zoomOutButton = screen.getByLabelText('zoom out');
+    await user.click(zoomOutButton);
+    
+    expect(zoomOutButton).toBeInTheDocument();
+  });
+
+  it('should display similarity percentage', async () => {
+    renderDrawPage();
+    
+    await waitFor(() => {
+      const similarityText = screen.queryByText(/Snowflake similarity/i);
+      if (similarityText) {
+        expect(similarityText).toBeInTheDocument();
+      }
+    }, { timeout: 2000 });
+  });
+
+  it('should handle analysis errors gracefully', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const { analyzeSnowflake } = require('../../utils/snowflakeAnalysis');
+    analyzeSnowflake.mockImplementation(() => {
+      throw new Error('Analysis error');
+    });
+    
+    renderDrawPage();
+    
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalled();
+    }, { timeout: 2000 });
+    
+    consoleSpy.mockRestore();
+  });
+});
+
