@@ -86,8 +86,8 @@ export function analyzeSnowflake(
 
 function calculateSymmetry(
   pixels: Array<{ x: number; y: number; brightness: number }>,
-  centerX: number,
-  centerY: number
+  _centerX: number,
+  _centerY: number
 ): number {
   if (pixels.length === 0) return 0;
   
@@ -129,8 +129,8 @@ function calculateSymmetry(
 
 function calculateStructure(
   pixels: Array<{ x: number; y: number; brightness: number }>,
-  centerX: number,
-  centerY: number
+  _centerX: number,
+  _centerY: number
 ): number {
   if (pixels.length < 10) return 0;
   

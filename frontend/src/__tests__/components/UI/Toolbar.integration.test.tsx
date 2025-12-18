@@ -90,8 +90,7 @@ describe('Toolbar Integration', () => {
   });
 
   it('should handle undo when enabled', async () => {
-    const user = userEvent.setup();
-    const { saveState } = require('../../../features/history/historySlice');
+    const { saveState } = await import('../../../features/history/historySlice');
     store.dispatch(saveState('test-state'));
     
     renderToolbar();
@@ -105,8 +104,7 @@ describe('Toolbar Integration', () => {
   });
 
   it('should handle redo when enabled', async () => {
-    const user = userEvent.setup();
-    const { saveState, undo } = require('../../../features/history/historySlice');
+    const { saveState, undo } = await import('../../../features/history/historySlice');
     store.dispatch(saveState('state1'));
     store.dispatch(saveState('state2'));
     store.dispatch(undo());

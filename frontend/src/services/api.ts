@@ -19,6 +19,7 @@ export interface SnowflakeData {
 export const saveSnowflakeToServer = async (
   snowflake: SnowflakeData
 ): Promise<SnowflakeData> => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { isFalling, ...dataToSave } = snowflake;
   const response = await fetch(`${API_URL}/snowflakes`, {
     method: 'POST',
@@ -59,6 +60,7 @@ export const updateSnowflakeOnServer = async (
   id: string,
   snowflake: Partial<SnowflakeData>
 ): Promise<SnowflakeData> => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { isFalling, ...dataToUpdate } = snowflake;
   const response = await fetch(`${API_URL}/snowflakes/${id}`, {
     method: 'PUT',
