@@ -15,7 +15,7 @@ const renderTreeCanvas = (props = {}) => {
 describe('TreeCanvas', () => {
   it('should render canvas element', () => {
     const { container } = renderTreeCanvas();
-    
+
     const canvas = container.querySelector('canvas');
     expect(canvas).toBeInTheDocument();
   });
@@ -23,14 +23,14 @@ describe('TreeCanvas', () => {
   it('should render with external ref', () => {
     const ref = createRef<HTMLCanvasElement>();
     const { container } = renderTreeCanvas({ canvasRef: ref });
-    
+
     const canvas = container.querySelector('canvas');
     expect(canvas).toBeInTheDocument();
   });
 
   it('should render without external ref', () => {
     const { container } = renderTreeCanvas();
-    
+
     const canvas = container.querySelector('canvas');
     expect(canvas).toBeInTheDocument();
   });
@@ -41,4 +41,3 @@ describe('TreeCanvas', () => {
     expect(box).toBeInTheDocument();
   });
 });
-

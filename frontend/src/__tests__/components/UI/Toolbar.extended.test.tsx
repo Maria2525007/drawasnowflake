@@ -42,10 +42,14 @@ const mockCanvasHandle: Partial<CanvasHandle> = {
 const renderToolbar = (props = {}) => {
   const drawCanvasRef = createRef<CanvasHandle>();
   Object.assign(drawCanvasRef, { current: mockCanvasHandle });
-  
+
   return render(
     <Provider store={store}>
-      <Toolbar drawCanvasRef={drawCanvasRef as React.RefObject<CanvasHandle>} currentTab={0} {...props} />
+      <Toolbar
+        drawCanvasRef={drawCanvasRef as React.RefObject<CanvasHandle>}
+        currentTab={0}
+        {...props}
+      />
     </Provider>
   );
 };
@@ -57,10 +61,19 @@ describe('Toolbar Extended', () => {
 
   it('should handle save', async () => {
     const user = userEvent.setup();
-    store.dispatch(addSnowflake({ id: '1', x: 100, y: 100, rotation: 0, scale: 1, pattern: 'custom' }));
-    
+    store.dispatch(
+      addSnowflake({
+        id: '1',
+        x: 100,
+        y: 100,
+        rotation: 0,
+        scale: 1,
+        pattern: 'custom',
+      })
+    );
+
     renderToolbar();
-    
+
     const saveButton = screen.queryByLabelText('save');
     if (saveButton) {
       await user.click(saveButton);
@@ -70,7 +83,7 @@ describe('Toolbar Extended', () => {
   it('should handle load', async () => {
     const user = userEvent.setup();
     renderToolbar();
-    
+
     const loadButton = screen.queryByLabelText('load');
     if (loadButton) {
       await user.click(loadButton);
@@ -80,7 +93,7 @@ describe('Toolbar Extended', () => {
   it('should handle export with drawCanvasRef', async () => {
     const user = userEvent.setup();
     renderToolbar();
-    
+
     const exportButton = screen.queryByLabelText('export');
     if (exportButton) {
       await user.click(exportButton);
@@ -94,9 +107,9 @@ describe('Toolbar Extended', () => {
       writable: true,
       configurable: true,
     });
-    
+
     renderToolbar();
-    
+
     const copyButton = screen.queryByLabelText('copy');
     if (copyButton) {
       await user.click(copyButton);
@@ -107,23 +120,23 @@ describe('Toolbar Extended', () => {
     const user = userEvent.setup();
     const onZoomChange = jest.fn();
     renderToolbar({ onZoomChange, zoom: 1.0 });
-    
+
     const slider = screen.getByLabelText('zoom');
     await user.click(slider);
-    
+
     expect(slider).toBeInTheDocument();
   });
 
   it('should close color picker drawer', async () => {
     const user = userEvent.setup();
     renderToolbar();
-    
+
     const colorPickerButton = screen.getByLabelText('color picker');
     await user.click(colorPickerButton);
-    
+
     const drawer = screen.getByRole('presentation');
     expect(drawer).toBeInTheDocument();
-    
+
     const backdrop = drawer.querySelector('[class*="MuiBackdrop"]');
     if (backdrop) {
       await user.click(backdrop);
@@ -131,30 +144,44 @@ describe('Toolbar Extended', () => {
   });
 
   it('should handle snackbar close', async () => {
-    jest.spyOn(storageModule, 'saveToLocalStorage').mockImplementation(() => {});
-    
-    store.dispatch(addSnowflake({ id: '1', x: 100, y: 100, rotation: 0, scale: 1, pattern: 'custom' }));
-    
+    jest
+      .spyOn(storageModule, 'saveToLocalStorage')
+      .mockImplementation(() => {});
+
+    store.dispatch(
+      addSnowflake({
+        id: '1',
+        x: 100,
+        y: 100,
+        rotation: 0,
+        scale: 1,
+        pattern: 'custom',
+      })
+    );
+
     renderToolbar();
-    
-    await waitFor(() => {
-      const snackbar = screen.queryByRole('alert');
-      if (snackbar) {
-        expect(snackbar).toBeInTheDocument();
-      }
-    }, { timeout: 1000 });
+
+    await waitFor(
+      () => {
+        const snackbar = screen.queryByRole('alert');
+        if (snackbar) {
+          expect(snackbar).toBeInTheDocument();
+        }
+      },
+      { timeout: 1000 }
+    );
   });
 
   it('should disable zoom in at max zoom', () => {
     renderToolbar({ zoom: 2.0 });
-    
+
     const zoomInButton = screen.getByLabelText('zoom in');
     expect(zoomInButton).toBeDisabled();
   });
 
   it('should disable zoom out at min zoom', () => {
     renderToolbar({ zoom: 0.1 });
-    
+
     const zoomOutButton = screen.getByLabelText('zoom out');
     expect(zoomOutButton).toBeDisabled();
   });
@@ -162,11 +189,10 @@ describe('Toolbar Extended', () => {
   it('should handle brush size slider change', async () => {
     const user = userEvent.setup();
     renderToolbar();
-    
+
     const slider = screen.getByLabelText('brush size');
     await user.click(slider);
-    
+
     expect(slider).toBeInTheDocument();
   });
 });
-

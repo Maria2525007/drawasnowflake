@@ -25,7 +25,7 @@ const renderWithRouter = (initialEntries = ['/']) => {
 describe('App', () => {
   it('should redirect from root to /draw', async () => {
     renderWithRouter(['/']);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Draw a Snowflake')).toBeInTheDocument();
     });
@@ -33,13 +33,13 @@ describe('App', () => {
 
   it('should render DrawPage on /draw route', () => {
     renderWithRouter(['/draw']);
-    
+
     expect(screen.getByText('Draw a Snowflake')).toBeInTheDocument();
   });
 
   it('should render TreePage on /tree route', () => {
     renderWithRouter(['/tree']);
-    
+
     expect(screen.getByText(/LET'S IT SNOW/i)).toBeInTheDocument();
   });
 
@@ -48,4 +48,3 @@ describe('App', () => {
     expect(container).toBeInTheDocument();
   });
 });
-

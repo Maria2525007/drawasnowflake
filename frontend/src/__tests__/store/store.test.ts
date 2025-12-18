@@ -13,17 +13,21 @@ describe('store', () => {
 
   it('should dispatch snowflake actions', () => {
     const initialState = store.getState();
-    store.dispatch(addSnowflake({
-      id: '1',
-      x: 100,
-      y: 100,
-      rotation: 0,
-      scale: 1,
-      pattern: 'custom',
-      data: null,
-    }));
+    store.dispatch(
+      addSnowflake({
+        id: '1',
+        x: 100,
+        y: 100,
+        rotation: 0,
+        scale: 1,
+        pattern: 'custom',
+        data: null,
+      })
+    );
     const newState = store.getState();
-    expect(newState.snowflake.snowflakes).toHaveLength(initialState.snowflake.snowflakes.length + 1);
+    expect(newState.snowflake.snowflakes).toHaveLength(
+      initialState.snowflake.snowflakes.length + 1
+    );
   });
 
   it('should dispatch drawing actions', () => {
@@ -38,4 +42,3 @@ describe('store', () => {
     expect(state.history.present).toBe('test-state');
   });
 });
-

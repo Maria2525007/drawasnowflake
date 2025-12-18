@@ -51,7 +51,10 @@ describe('snowflakeSlice', () => {
       animationSpeed: 1,
       isAnimating: true,
     };
-    const state = snowflakeReducer(initialState, updateSnowflake({ id: '1', x: 200, y: 200 }));
+    const state = snowflakeReducer(
+      initialState,
+      updateSnowflake({ id: '1', x: 200, y: 200 })
+    );
     expect(state.snowflakes[0].x).toBe(200);
     expect(state.snowflakes[0].y).toBe(200);
   });
@@ -81,7 +84,7 @@ describe('snowflakeSlice', () => {
   it('should clamp animation speed to valid range', () => {
     const state1 = snowflakeReducer(undefined, setAnimationSpeed(-1));
     expect(state1.animationSpeed).toBe(0);
-    
+
     const state2 = snowflakeReducer(undefined, setAnimationSpeed(3));
     expect(state2.animationSpeed).toBe(2);
   });
@@ -124,7 +127,9 @@ describe('snowflakeSlice', () => {
 
   it('should reset snowflake position when it reaches bottom', () => {
     const initialState = {
-      snowflakes: [{ ...mockSnowflake, y: 1100, isFalling: true, fallSpeed: 50 }],
+      snowflakes: [
+        { ...mockSnowflake, y: 1100, isFalling: true, fallSpeed: 50 },
+      ],
       selectedId: null,
       animationSpeed: 1,
       isAnimating: true,

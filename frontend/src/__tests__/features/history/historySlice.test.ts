@@ -56,4 +56,3 @@ describe('historySlice', () => {
     expect(state.past.length).toBeLessThanOrEqual(50);
   });
 });
-
