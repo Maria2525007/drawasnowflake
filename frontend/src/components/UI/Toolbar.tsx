@@ -38,7 +38,6 @@ import {
   Snowflake,
   removeSnowflake,
 } from '../../features/snowflake/snowflakeSlice';
-import { useAppSelector } from '../../hooks/useAppSelector';
 import { SNOWFLAKE_CONFIG } from '../../config/constants';
 import { undo, redo } from '../../features/history/historySlice';
 import { ColorPicker } from './ColorPicker';
