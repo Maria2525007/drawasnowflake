@@ -143,7 +143,9 @@ describe('snowflakeController', () => {
     );
 
     expect(mockStatus).toHaveBeenCalledWith(500);
-    expect(mockJson).toHaveBeenCalledWith({ error: 'Failed to get snowflakes' });
+    expect(mockJson).toHaveBeenCalledWith({
+      error: 'Failed to get snowflakes',
+    });
   });
 
   it('should handle error in create', async () => {
@@ -260,7 +262,10 @@ describe('snowflakeController', () => {
     const mockSnowflake = { id: '1', imageData: 'data:image/png' };
     (prisma.snowflake.create as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.body = { imageData: 'data:image/png' };
-    await snowflakeController.create(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.create(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -269,7 +274,10 @@ describe('snowflakeController', () => {
     const mockSnowflake = { id: '1', imageData: null };
     (prisma.snowflake.create as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.body = { imageData: null };
-    await snowflakeController.create(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.create(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -278,7 +286,10 @@ describe('snowflakeController', () => {
     const mockSnowflake = { id: '1', imageData: null };
     (prisma.snowflake.create as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.body = { imageData: '' };
-    await snowflakeController.create(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.create(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -287,7 +298,10 @@ describe('snowflakeController', () => {
     const mockSnowflake = { id: '1', x: 0 };
     (prisma.snowflake.create as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.body = { y: 100 };
-    await snowflakeController.create(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.create(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -296,7 +310,10 @@ describe('snowflakeController', () => {
     const mockSnowflake = { id: '1', y: 0 };
     (prisma.snowflake.create as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.body = { x: 100 };
-    await snowflakeController.create(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.create(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -305,7 +322,10 @@ describe('snowflakeController', () => {
     const mockSnowflake = { id: '1', rotation: 0 };
     (prisma.snowflake.create as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.body = { x: 100 };
-    await snowflakeController.create(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.create(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -314,7 +334,10 @@ describe('snowflakeController', () => {
     const mockSnowflake = { id: '1', scale: 1 };
     (prisma.snowflake.create as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.body = { x: 100 };
-    await snowflakeController.create(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.create(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -323,7 +346,10 @@ describe('snowflakeController', () => {
     const mockSnowflake = { id: '1', pattern: 'custom' };
     (prisma.snowflake.create as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.body = { x: 100 };
-    await snowflakeController.create(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.create(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -332,7 +358,10 @@ describe('snowflakeController', () => {
     const mockSnowflake = { id: '1', fallSpeed: null };
     (prisma.snowflake.create as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.body = { x: 100 };
-    await snowflakeController.create(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.create(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -341,7 +370,10 @@ describe('snowflakeController', () => {
     const mockSnowflake = { id: '1', driftSpeed: null };
     (prisma.snowflake.create as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.body = { x: 100 };
-    await snowflakeController.create(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.create(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -350,7 +382,10 @@ describe('snowflakeController', () => {
     const mockSnowflake = { id: '1', driftPhase: null };
     (prisma.snowflake.create as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.body = { x: 100 };
-    await snowflakeController.create(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.create(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -360,7 +395,10 @@ describe('snowflakeController', () => {
     (prisma.snowflake.update as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.params = { id: '1' };
     mockRequest.body = { x: 200 };
-    await snowflakeController.update(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.update(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -370,7 +408,10 @@ describe('snowflakeController', () => {
     (prisma.snowflake.update as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.params = { id: '1' };
     mockRequest.body = { rotation: 45 };
-    await snowflakeController.update(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.update(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -380,7 +421,10 @@ describe('snowflakeController', () => {
     (prisma.snowflake.update as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.params = { id: '1' };
     mockRequest.body = { x: 200 };
-    await snowflakeController.update(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.update(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -390,7 +434,10 @@ describe('snowflakeController', () => {
     (prisma.snowflake.update as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.params = { id: '1' };
     mockRequest.body = { scale: 2 };
-    await snowflakeController.update(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.update(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -400,7 +447,10 @@ describe('snowflakeController', () => {
     (prisma.snowflake.update as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.params = { id: '1' };
     mockRequest.body = { x: 200 };
-    await snowflakeController.update(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.update(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -410,7 +460,10 @@ describe('snowflakeController', () => {
     (prisma.snowflake.update as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.params = { id: '1' };
     mockRequest.body = { pattern: 'star' };
-    await snowflakeController.update(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.update(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -420,7 +473,10 @@ describe('snowflakeController', () => {
     (prisma.snowflake.update as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.params = { id: '1' };
     mockRequest.body = { x: 200 };
-    await snowflakeController.update(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.update(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -430,7 +486,10 @@ describe('snowflakeController', () => {
     (prisma.snowflake.update as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.params = { id: '1' };
     mockRequest.body = { imageData: 'data:image' };
-    await snowflakeController.update(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.update(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -440,7 +499,10 @@ describe('snowflakeController', () => {
     (prisma.snowflake.update as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.params = { id: '1' };
     mockRequest.body = { x: 200 };
-    await snowflakeController.update(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.update(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -450,7 +512,10 @@ describe('snowflakeController', () => {
     (prisma.snowflake.update as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.params = { id: '1' };
     mockRequest.body = { fallSpeed: 5 };
-    await snowflakeController.update(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.update(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -460,7 +525,10 @@ describe('snowflakeController', () => {
     (prisma.snowflake.update as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.params = { id: '1' };
     mockRequest.body = { x: 200 };
-    await snowflakeController.update(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.update(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -470,7 +538,10 @@ describe('snowflakeController', () => {
     (prisma.snowflake.update as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.params = { id: '1' };
     mockRequest.body = { driftSpeed: 3 };
-    await snowflakeController.update(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.update(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -480,7 +551,10 @@ describe('snowflakeController', () => {
     (prisma.snowflake.update as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.params = { id: '1' };
     mockRequest.body = { x: 200 };
-    await snowflakeController.update(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.update(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -490,7 +564,10 @@ describe('snowflakeController', () => {
     (prisma.snowflake.update as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.params = { id: '1' };
     mockRequest.body = { driftPhase: 1.5 };
-    await snowflakeController.update(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.update(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -500,26 +577,61 @@ describe('snowflakeController', () => {
     (prisma.snowflake.update as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.params = { id: '1' };
     mockRequest.body = { x: 200 };
-    await snowflakeController.update(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.update(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
   it('should update with all fields defined', async () => {
     const prisma = new PrismaClient();
-    const mockSnowflake = { id: '1', x: 100, y: 200, rotation: 45, scale: 2, pattern: 'star', imageData: 'data', fallSpeed: 5, driftSpeed: 3, driftPhase: 1.5 };
+    const mockSnowflake = {
+      id: '1',
+      x: 100,
+      y: 200,
+      rotation: 45,
+      scale: 2,
+      pattern: 'star',
+      imageData: 'data',
+      fallSpeed: 5,
+      driftSpeed: 3,
+      driftPhase: 1.5,
+    };
     (prisma.snowflake.update as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.params = { id: '1' };
-    mockRequest.body = { x: 100, y: 200, rotation: 45, scale: 2, pattern: 'star', imageData: 'data', fallSpeed: 5, driftSpeed: 3, driftPhase: 1.5 };
-    await snowflakeController.update(mockRequest as Request, mockResponse as Response);
+    mockRequest.body = {
+      x: 100,
+      y: 200,
+      rotation: 45,
+      scale: 2,
+      pattern: 'star',
+      imageData: 'data',
+      fallSpeed: 5,
+      driftSpeed: 3,
+      driftPhase: 1.5,
+    };
+    await snowflakeController.update(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
   it('should create with all optional fields', async () => {
     const prisma = new PrismaClient();
-    const mockSnowflake = { id: '1', fallSpeed: 5, driftSpeed: 3, driftPhase: 1.5 };
+    const mockSnowflake = {
+      id: '1',
+      fallSpeed: 5,
+      driftSpeed: 3,
+      driftPhase: 1.5,
+    };
     (prisma.snowflake.create as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.body = { fallSpeed: 5, driftSpeed: 3, driftPhase: 1.5 };
-    await snowflakeController.create(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.create(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -528,7 +640,10 @@ describe('snowflakeController', () => {
     const mockSnowflake = { id: '1', x: 0 };
     (prisma.snowflake.create as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.body = { x: null };
-    await snowflakeController.create(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.create(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -537,7 +652,10 @@ describe('snowflakeController', () => {
     const mockSnowflake = { id: '1', y: 0 };
     (prisma.snowflake.create as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.body = { y: null };
-    await snowflakeController.create(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.create(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -546,7 +664,10 @@ describe('snowflakeController', () => {
     const mockSnowflake = { id: '1', rotation: 0 };
     (prisma.snowflake.create as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.body = { rotation: null };
-    await snowflakeController.create(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.create(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -555,7 +676,10 @@ describe('snowflakeController', () => {
     const mockSnowflake = { id: '1', scale: 1 };
     (prisma.snowflake.create as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.body = { scale: null };
-    await snowflakeController.create(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.create(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 
@@ -564,7 +688,10 @@ describe('snowflakeController', () => {
     const mockSnowflake = { id: '1', pattern: 'custom' };
     (prisma.snowflake.create as jest.Mock).mockResolvedValue(mockSnowflake);
     mockRequest.body = { pattern: null };
-    await snowflakeController.create(mockRequest as Request, mockResponse as Response);
+    await snowflakeController.create(
+      mockRequest as Request,
+      mockResponse as Response
+    );
     expect(mockJson).toHaveBeenCalledWith(mockSnowflake);
   });
 });
