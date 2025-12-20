@@ -7,6 +7,7 @@ import snowflakeReducer, {
   setAnimationSpeed,
   toggleAnimation,
   loadSnowflakes,
+  animateSnowflakes,
   Snowflake,
 } from '../../../features/snowflake/snowflakeSlice';
 
@@ -162,6 +163,64 @@ describe('snowflakeSlice', () => {
       );
       expect(state.snowflakes).toHaveLength(1);
       expect(state.snowflakes[0].id).toBe('2');
+    });
+  });
+
+  describe('animateSnowflakes', () => {
+    it('should animate snowflakes', () => {
+      const {
+        animateSnowflakes,
+      } = require('../../../features/snowflake/snowflakeSlice');
+      const snowflakeWithAnimation = {
+        ...mockSnowflake,
+        isFalling: true,
+        fallSpeed: 1,
+        driftSpeed: 0.5,
+        driftPhase: 0,
+      };
+      const stateWithSnowflake = {
+        ...initialState,
+        snowflakes: [snowflakeWithAnimation],
+      };
+
+      const state = snowflakeReducer(
+        stateWithSnowflake,
+        animateSnowflakes({
+          deltaTime: 0.1,
+          canvasHeight: 1000,
+          canvasWidth: 800,
+        })
+      );
+
+      expect(state.snowflakes[0].rotation).toBeGreaterThan(0);
+    });
+
+    it('should reset snowflake position when it falls below canvas', () => {
+      const {
+        animateSnowflakes,
+      } = require('../../../features/snowflake/snowflakeSlice');
+      const fallingSnowflake = {
+        ...mockSnowflake,
+        y: 1100,
+        isFalling: true,
+        fallSpeed: 1,
+        driftPhase: 0,
+      };
+      const stateWithSnowflake = {
+        ...initialState,
+        snowflakes: [fallingSnowflake],
+      };
+
+      const state = snowflakeReducer(
+        stateWithSnowflake,
+        animateSnowflakes({
+          deltaTime: 0.1,
+          canvasHeight: 1000,
+          canvasWidth: 800,
+        })
+      );
+
+      expect(state.snowflakes[0].y).toBeLessThan(1000);
     });
   });
 });

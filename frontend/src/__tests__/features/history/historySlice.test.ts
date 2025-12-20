@@ -80,4 +80,17 @@ describe('historySlice', () => {
       expect(state.future).toHaveLength(0);
     });
   });
+
+  describe('saveState maxHistorySize limit', () => {
+    it('should limit history size to maxHistorySize', () => {
+      let state = historyReducer(initialState, saveState('state0'));
+
+      for (let i = 1; i <= 60; i++) {
+        state = historyReducer(state, saveState(`state${i}`));
+      }
+
+      expect(state.past.length).toBeLessThanOrEqual(50);
+      expect(state.present).toBe('state60');
+    });
+  });
 });
