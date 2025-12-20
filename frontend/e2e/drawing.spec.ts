@@ -45,7 +45,30 @@ test.describe('Drawing Page', () => {
     const canvasBox = await canvas.boundingBox();
     
     if (canvasBox) {
-      await page.touchscreen.tap(canvasBox.x + canvasBox.width / 2, canvasBox.y + canvasBox.height / 2);
+      const centerX = canvasBox.x + canvasBox.width / 2;
+      const centerY = canvasBox.y + canvasBox.height / 2;
+      
+      await page.evaluate(({ x, y }) => {
+        const touch = new Touch({
+          identifier: 1,
+          target: document.elementFromPoint(x, y) || document.body,
+          clientX: x,
+          clientY: y,
+          radiusX: 2.5,
+          radiusY: 2.5,
+          rotationAngle: 0,
+          force: 0.5,
+        });
+        const touchEvent = new TouchEvent('touchstart', {
+          cancelable: true,
+          bubbles: true,
+          touches: [touch],
+          targetTouches: [touch],
+          changedTouches: [touch],
+        });
+        document.elementFromPoint(x, y)?.dispatchEvent(touchEvent);
+      }, { x: centerX, y: centerY });
+      
       await page.waitForTimeout(100);
     }
     
@@ -184,6 +207,7 @@ test.describe('Drawing Page', () => {
     }
     
     const downloadButton = page.locator('button[aria-label="export"]');
+    await downloadButton.waitFor({ state: 'visible', timeout: 5000 });
     
     const downloadPromise = page.waitForEvent('download', { timeout: 5000 }).catch(() => null);
     await downloadButton.click();
@@ -194,7 +218,9 @@ test.describe('Drawing Page', () => {
     }
   });
 
-  test('should copy canvas to clipboard', async ({ page }) => {
+  test('should copy canvas to clipboard', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    
     const canvas = page.locator('canvas').first();
     const canvasBox = await canvas.boundingBox();
     
@@ -207,6 +233,7 @@ test.describe('Drawing Page', () => {
     }
     
     const copyButton = page.locator('button[aria-label="copy"]');
+    await copyButton.waitFor({ state: 'visible', timeout: 5000 });
     await copyButton.click();
     
     await page.waitForTimeout(500);
@@ -224,10 +251,12 @@ test.describe('Drawing Page', () => {
       await page.mouse.down();
       await page.mouse.move(canvasBox.x + canvasBox.width / 2 + 50, canvasBox.y + canvasBox.height / 2 + 50);
       await page.mouse.up();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(800);
     }
     
     const undoButton = page.locator('button[aria-label="undo"]');
+    await undoButton.waitFor({ state: 'visible', timeout: 5000 });
+    await expect(undoButton).not.toBeDisabled({ timeout: 5000 });
     await undoButton.click();
     await page.waitForTimeout(300);
     
@@ -243,13 +272,17 @@ test.describe('Drawing Page', () => {
       await page.mouse.down();
       await page.mouse.move(canvasBox.x + canvasBox.width / 2 + 50, canvasBox.y + canvasBox.height / 2 + 50);
       await page.mouse.up();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(800);
       
       const undoButton = page.locator('button[aria-label="undo"]');
+      await undoButton.waitFor({ state: 'visible', timeout: 5000 });
+      await expect(undoButton).not.toBeDisabled({ timeout: 5000 });
       await undoButton.click();
-      await page.waitForTimeout(300);
+      await page.waitForTimeout(500);
       
       const redoButton = page.locator('button[aria-label="redo"]');
+      await redoButton.waitFor({ state: 'visible', timeout: 5000 });
+      await expect(redoButton).not.toBeDisabled({ timeout: 5000 });
       await redoButton.click();
       await page.waitForTimeout(300);
       
