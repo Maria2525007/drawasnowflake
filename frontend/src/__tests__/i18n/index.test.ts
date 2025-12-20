@@ -40,7 +40,7 @@ describe('i18n', () => {
     it('should update locale', () => {
       setLocale('en');
       expect(getLocale()).toBe('en');
-      
+
       setLocale('ru');
       expect(getLocale()).toBe('ru');
     });
@@ -131,7 +131,7 @@ describe('i18n', () => {
     it('should persist locale changes to localStorage', () => {
       setLocale('ru');
       expect(localStorage.getItem('locale')).toBe('ru');
-      
+
       setLocale('en');
       expect(localStorage.getItem('locale')).toBe('en');
     });
@@ -141,10 +141,10 @@ describe('i18n', () => {
     it('should provide same structure for both locales', () => {
       setLocale('en');
       const enTitle = t('header.title');
-      
+
       setLocale('ru');
       const ruTitle = t('header.title');
-      
+
       expect(enTitle).toBeTruthy();
       expect(ruTitle).toBeTruthy();
       expect(typeof enTitle).toBe('string');

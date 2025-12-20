@@ -56,7 +56,7 @@ describe('snowflakeSlice', () => {
       let state = snowflakeReducer(initialState, addSnowflake(mockSnowflake));
       const snowflake2 = { ...mockSnowflake, id: '2' };
       state = snowflakeReducer(state, addSnowflake(snowflake2));
-      
+
       expect(state.snowflakes).toHaveLength(2);
       expect(state.snowflakes[0].id).toBe('1');
       expect(state.snowflakes[1].id).toBe('2');
@@ -85,7 +85,10 @@ describe('snowflakeSlice', () => {
         ...initialState,
         snowflakes: [mockSnowflake],
       };
-      const state = snowflakeReducer(stateWithSnowflake, removeSnowflake('999'));
+      const state = snowflakeReducer(
+        stateWithSnowflake,
+        removeSnowflake('999')
+      );
       expect(state.snowflakes).toHaveLength(1);
     });
 
@@ -97,7 +100,7 @@ describe('snowflakeSlice', () => {
         snowflakes: [mockSnowflake, snowflake2, snowflake3],
       };
       const state = snowflakeReducer(stateWithSnowflakes, removeSnowflake('2'));
-      
+
       expect(state.snowflakes).toHaveLength(2);
       expect(state.snowflakes[0].id).toBe('1');
       expect(state.snowflakes[1].id).toBe('3');
@@ -125,7 +128,7 @@ describe('snowflakeSlice', () => {
         stateWithSnowflake,
         updateSnowflake({ id: '1', x: 200, y: 200 })
       );
-      
+
       expect(state.snowflakes[0].x).toBe(200);
       expect(state.snowflakes[0].y).toBe(200);
       expect(state.snowflakes[0].id).toBe('1');
@@ -146,7 +149,7 @@ describe('snowflakeSlice', () => {
           scale: 1.5,
         })
       );
-      
+
       expect(state.snowflakes[0].x).toBe(300);
       expect(state.snowflakes[0].y).toBe(400);
       expect(state.snowflakes[0].rotation).toBe(45);
@@ -162,7 +165,7 @@ describe('snowflakeSlice', () => {
         stateWithSnowflake,
         updateSnowflake({ id: '999', x: 999 })
       );
-      
+
       expect(state.snowflakes[0].x).toBe(100);
     });
 
@@ -176,7 +179,7 @@ describe('snowflakeSlice', () => {
         stateWithSnowflakes,
         updateSnowflake({ id: '1', x: 500 })
       );
-      
+
       expect(state.snowflakes[0].x).toBe(500);
       expect(state.snowflakes[1].x).toBe(200);
     });
@@ -215,7 +218,7 @@ describe('snowflakeSlice', () => {
         selectedId: '1',
       };
       const state = snowflakeReducer(stateWithSnowflakes, clearSnowflakes());
-      
+
       expect(state.snowflakes).toHaveLength(0);
       expect(state.selectedId).toBeNull();
     });
@@ -228,7 +231,7 @@ describe('snowflakeSlice', () => {
         isAnimating: false,
       };
       const state = snowflakeReducer(stateWithSnowflakes, clearSnowflakes());
-      
+
       expect(state.animationSpeed).toBe(1.5);
       expect(state.isAnimating).toBe(false);
     });
@@ -253,7 +256,7 @@ describe('snowflakeSlice', () => {
     it('should handle edge values', () => {
       const state1 = snowflakeReducer(initialState, setAnimationSpeed(0));
       expect(state1.animationSpeed).toBe(0);
-      
+
       const state2 = snowflakeReducer(initialState, setAnimationSpeed(2));
       expect(state2.animationSpeed).toBe(2);
     });
@@ -290,7 +293,7 @@ describe('snowflakeSlice', () => {
     it('should load snowflakes array', () => {
       const snowflakes = [mockSnowflake, { ...mockSnowflake, id: '2' }];
       const state = snowflakeReducer(initialState, loadSnowflakes(snowflakes));
-      
+
       expect(state.snowflakes).toHaveLength(2);
       expect(state.snowflakes).toEqual(snowflakes);
     });
@@ -301,8 +304,11 @@ describe('snowflakeSlice', () => {
         snowflakes: [mockSnowflake],
       };
       const newSnowflakes = [{ ...mockSnowflake, id: '2' }];
-      const state = snowflakeReducer(stateWithSnowflake, loadSnowflakes(newSnowflakes));
-      
+      const state = snowflakeReducer(
+        stateWithSnowflake,
+        loadSnowflakes(newSnowflakes)
+      );
+
       expect(state.snowflakes).toHaveLength(1);
       expect(state.snowflakes[0].id).toBe('2');
     });
@@ -327,7 +333,7 @@ describe('snowflakeSlice', () => {
           canvasWidth: 800,
         })
       );
-      
+
       expect(state.snowflakes[0].y).toBeGreaterThan(100);
       expect(state.snowflakes[0].rotation).toBeGreaterThan(0);
     });
@@ -347,7 +353,7 @@ describe('snowflakeSlice', () => {
           canvasWidth: 800,
         })
       );
-      
+
       expect(state.snowflakes[0].y).toBeLessThan(0);
     });
 
@@ -373,7 +379,7 @@ describe('snowflakeSlice', () => {
           canvasWidth: 800,
         })
       );
-      
+
       expect(state.snowflakes[0].x).toBeDefined();
     });
 
@@ -398,7 +404,7 @@ describe('snowflakeSlice', () => {
           canvasWidth: 800,
         })
       );
-      
+
       expect(state.snowflakes[0].x).toBeGreaterThanOrEqual(50);
     });
 
@@ -417,7 +423,7 @@ describe('snowflakeSlice', () => {
           canvasWidth: 800,
         })
       );
-      
+
       expect(state.snowflakes[0].y).toBe(100);
     });
 
@@ -442,7 +448,7 @@ describe('snowflakeSlice', () => {
           canvasWidth: 800,
         })
       );
-      
+
       expect(state.snowflakes[0].rotation).toBeLessThan(360);
       expect(state.snowflakes[0].rotation).toBeGreaterThanOrEqual(0);
     });
@@ -463,7 +469,7 @@ describe('snowflakeSlice', () => {
           canvasWidth: 800,
         })
       );
-      
+
       expect(state.snowflakes[0].y).toBeGreaterThan(100);
       expect(state.snowflakes[1].y).toBeGreaterThan(200);
       expect(state.snowflakes[0].y).not.toBe(state.snowflakes[1].y);

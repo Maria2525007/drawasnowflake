@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { ColorPicker } from '../../../components/UI/ColorPicker';
 
 describe('ColorPicker', () => {
@@ -10,7 +10,9 @@ describe('ColorPicker', () => {
 
   describe('Rendering', () => {
     it('should render color input', () => {
-      const { container } = render(<ColorPicker color="#ffffff" onColorChange={mockOnColorChange} />);
+      const { container } = render(
+        <ColorPicker color="#ffffff" onColorChange={mockOnColorChange} />
+      );
 
       const colorInput = container.querySelector('input[type="color"]');
       expect(colorInput).toBeInTheDocument();
@@ -47,7 +49,7 @@ describe('ColorPicker', () => {
       const colorInput = container.querySelector(
         'input[type="color"]'
       ) as HTMLInputElement;
-      
+
       expect(colorInput).toBeInTheDocument();
       expect(colorInput.value).toBe('#ffffff');
     });
@@ -60,10 +62,10 @@ describe('ColorPicker', () => {
       const colorInput = container.querySelector(
         'input[type="color"]'
       ) as HTMLInputElement;
-      
+
       colorInput.value = '#00ff00';
       colorInput.dispatchEvent(new Event('change', { bubbles: true }));
-      
+
       expect(colorInput.value).toBe('#00ff00');
     });
 

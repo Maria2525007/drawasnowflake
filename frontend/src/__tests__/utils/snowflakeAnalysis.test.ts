@@ -5,10 +5,13 @@ describe('snowflakeAnalysis', () => {
   const createImageData = (
     width: number,
     height: number,
-    pixelFn?: (_x: number, _y: number) => { r: number; g: number; b: number; a: number }
+    pixelFn?: (
+      _x: number,
+      _y: number
+    ) => { r: number; g: number; b: number; a: number }
   ): ImageData => {
     const data = new Uint8ClampedArray(width * height * 4);
-    
+
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = (y * width + x) * 4;
@@ -26,7 +29,7 @@ describe('snowflakeAnalysis', () => {
         }
       }
     }
-    
+
     return new ImageData(data, width, height);
   };
 
@@ -47,16 +50,18 @@ describe('snowflakeAnalysis', () => {
       const imageData = createImageData(200, 200, (x, y) => {
         const centerX = 100;
         const centerY = 100;
-        const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+        const dist = Math.sqrt(
+          Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
+        );
         const angle = Math.atan2(y - centerY, x - centerX);
-        
+
         if (dist < 50 && dist > 20) {
           const sector = Math.floor((angle + Math.PI) / (Math.PI / 3)) % 6;
           if (sector % 2 === 0) {
             return { r: 255, g: 255, b: 255, a: 255 };
           }
         }
-        
+
         return {
           r: CANVAS_CONFIG.BACKGROUND_R,
           g: CANVAS_CONFIG.BACKGROUND_G,
@@ -78,7 +83,9 @@ describe('snowflakeAnalysis', () => {
       const imageData = createImageData(100, 100, (x, y) => {
         const centerX = 50;
         const centerY = 50;
-        const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+        const dist = Math.sqrt(
+          Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
+        );
         if (dist < 30) {
           return { r: 255, g: 255, b: 255, a: 255 };
         }
@@ -102,7 +109,9 @@ describe('snowflakeAnalysis', () => {
       const imageData = createImageData(width, height, (x, y) => {
         const centerX = width / 2;
         const centerY = height / 2;
-        const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+        const dist = Math.sqrt(
+          Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
+        );
         if (dist < 100) {
           return { r: 255, g: 255, b: 255, a: 255 };
         }
@@ -140,7 +149,9 @@ describe('snowflakeAnalysis', () => {
       const imageData = createImageData(200, 200, (x, y) => {
         const centerX = 100;
         const centerY = 100;
-        const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+        const dist = Math.sqrt(
+          Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
+        );
         if (dist < 50) {
           return { r: 255, g: 255, b: 255, a: 5 };
         }
@@ -180,7 +191,9 @@ describe('snowflakeAnalysis', () => {
       const imageData = createImageData(200, 200, (x, y) => {
         const centerX = 100;
         const centerY = 100;
-        const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+        const dist = Math.sqrt(
+          Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
+        );
         if (dist < 50) {
           return { r: 255, g: 255, b: 255, a: 255 };
         }
@@ -228,7 +241,9 @@ describe('snowflakeAnalysis', () => {
       const imageData = createImageData(200, 200, (x, y) => {
         const centerX = 100;
         const centerY = 100;
-        const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+        const dist = Math.sqrt(
+          Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
+        );
         if (dist < 50) {
           return { r: 255, g: 255, b: 255, a: 255 };
         }
@@ -264,7 +279,9 @@ describe('snowflakeAnalysis', () => {
       const imageData = createImageData(200, 200, (x, y) => {
         const centerX = 100;
         const centerY = 100;
-        const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+        const dist = Math.sqrt(
+          Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
+        );
         if (dist < 50) {
           return { r: 255, g: 255, b: 255, a: 255 };
         }
@@ -288,16 +305,18 @@ describe('snowflakeAnalysis', () => {
       const imageData = createImageData(200, 200, (x, y) => {
         const centerX = 100;
         const centerY = 100;
-        const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+        const dist = Math.sqrt(
+          Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
+        );
         const angle = Math.atan2(y - centerY, x - centerX);
-        
+
         if (dist < 80) {
           const sector = Math.floor((angle + Math.PI) / (Math.PI / 3)) % 6;
           if (dist > 20 || sector % 2 === 0) {
             return { r: 255, g: 255, b: 255, a: 255 };
           }
         }
-        
+
         return {
           r: CANVAS_CONFIG.BACKGROUND_R,
           g: CANVAS_CONFIG.BACKGROUND_G,
@@ -333,7 +352,9 @@ describe('snowflakeAnalysis', () => {
         const imageData = createImageData(w, h, (x, y) => {
           const centerX = w / 2;
           const centerY = h / 2;
-          const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+          const dist = Math.sqrt(
+            Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
+          );
           if (dist < w / 4) {
             return { r: 255, g: 255, b: 255, a: 255 };
           }

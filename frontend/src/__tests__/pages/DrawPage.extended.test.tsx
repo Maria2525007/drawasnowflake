@@ -40,10 +40,10 @@ describe('DrawPage Extended', () => {
 
     const goButton = screen.getByText('Go on Tree');
     expect(goButton).toBeInTheDocument();
-    
+
     const canvas = document.querySelector('canvas');
     expect(canvas).toBeInTheDocument();
-    
+
     await user.click(goButton);
   });
 
