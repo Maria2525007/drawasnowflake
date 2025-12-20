@@ -37,7 +37,8 @@ describe('Toolbar BackToDraw', () => {
 
   it('should navigate to /draw when onBackToDraw is not provided', async () => {
     const user = userEvent.setup();
-    const originalHref = Object.getOwnPropertyDescriptor(window, 'location')?.value?.href;
+    const originalHref = Object.getOwnPropertyDescriptor(window, 'location')
+      ?.value?.href;
     const mockLocation = {
       href: '',
     };
