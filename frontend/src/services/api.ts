@@ -20,6 +20,7 @@ export const saveSnowflakeToServer = async (
   snowflake: SnowflakeData
 ): Promise<SnowflakeData> => {
   const { isFalling, ...dataToSave } = snowflake;
+  void isFalling;
   const response = await fetch(`${API_URL}/snowflakes`, {
     method: 'POST',
     headers: {
@@ -62,6 +63,7 @@ export const updateSnowflakeOnServer = async (
   snowflake: Partial<SnowflakeData>
 ): Promise<SnowflakeData> => {
   const { isFalling, ...dataToUpdate } = snowflake;
+  void isFalling;
   const response = await fetch(`${API_URL}/snowflakes/${id}`, {
     method: 'PUT',
     headers: {
