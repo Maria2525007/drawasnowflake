@@ -22,6 +22,7 @@ coverage/
 # IDE
 .vscode/
 .idea/
+.cursor/
 *.swp
 *.swo
 *~
@@ -42,6 +43,8 @@ backend/prisma/migrations/
 
 # Testing
 .jest-cache/
+playwright-report/
+test-results/
 
 # Temporary files
 *.tmp

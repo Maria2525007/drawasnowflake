@@ -2,7 +2,6 @@
 set -e
 
 echo "Waiting for database to be ready..."
-# Wait for postgres to be ready (healthcheck should handle this, but we add a small delay)
 sleep 2
 
 echo "Running Prisma migrations..."
