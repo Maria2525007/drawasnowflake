@@ -2,6 +2,7 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: drawasnowflake-db
+    platform: linux/amd64
     environment:
       POSTGRES_USER: drawasnowflake
       POSTGRES_PASSWORD: drawasnowflake
