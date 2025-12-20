@@ -52,7 +52,30 @@ test.describe('Responsive Design', () => {
     const canvasBox = await canvas.boundingBox();
     
     if (canvasBox) {
-      await page.touchscreen.tap(canvasBox.x + canvasBox.width / 2, canvasBox.y + canvasBox.height / 2);
+      const centerX = canvasBox.x + canvasBox.width / 2;
+      const centerY = canvasBox.y + canvasBox.height / 2;
+      
+      await page.evaluate(({ x, y }) => {
+        const touch = new Touch({
+          identifier: 1,
+          target: document.elementFromPoint(x, y) || document.body,
+          clientX: x,
+          clientY: y,
+          radiusX: 2.5,
+          radiusY: 2.5,
+          rotationAngle: 0,
+          force: 0.5,
+        });
+        const touchEvent = new TouchEvent('touchstart', {
+          cancelable: true,
+          bubbles: true,
+          touches: [touch],
+          targetTouches: [touch],
+          changedTouches: [touch],
+        });
+        document.elementFromPoint(x, y)?.dispatchEvent(touchEvent);
+      }, { x: centerX, y: centerY });
+      
       await page.waitForTimeout(300);
     }
     
