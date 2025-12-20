@@ -380,26 +380,31 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       const { saveSnowflakeToServer } = await import('../../services/api');
       const savedSnowflake = await saveSnowflakeToServer(newSnowflake);
       if (savedSnowflake?.id) {
-        newSnowflake.id = savedSnowflake.id;
-        dispatch(addSnowflake(newSnowflake));
+        const updatedSnowflake = { ...newSnowflake, id: savedSnowflake.id };
+        dispatch(addSnowflake(updatedSnowflake));
       } else {
         dispatch(addSnowflake(newSnowflake));
       }
+      if (drawCanvasRef?.current) {
+        drawCanvasRef.current.clear();
+      }
+      if (onGoToTree) {
+        onGoToTree();
+      }
+      setSnackbarMessage(t('toolbar.snowflakeAdded'));
+      setSnackbarOpen(true);
     } catch (error) {
       console.error('Failed to save snowflake to server:', error);
       dispatch(addSnowflake(newSnowflake));
+      if (drawCanvasRef?.current) {
+        drawCanvasRef.current.clear();
+      }
+      if (onGoToTree) {
+        onGoToTree();
+      }
+      setSnackbarMessage(t('toolbar.snowflakeAdded'));
+      setSnackbarOpen(true);
     }
-
-    if (drawCanvasRef?.current) {
-      drawCanvasRef.current.clear();
-    }
-
-    if (onGoToTree) {
-      onGoToTree();
-    }
-
-    setSnackbarMessage(t('toolbar.snowflakeAdded'));
-    setSnackbarOpen(true);
   };
 
   return (

@@ -192,20 +192,24 @@ export const DrawPage: React.FC = () => {
     saveSnowflakeToServer(newSnowflake)
       .then((savedSnowflake) => {
         if (savedSnowflake?.id) {
-          dispatch(updateSnowflake({ id: newSnowflake.id, ...savedSnowflake }));
+          const updatedSnowflake = { ...newSnowflake, id: savedSnowflake.id };
+          dispatch(addSnowflake(updatedSnowflake));
+        } else {
+          dispatch(addSnowflake(newSnowflake));
         }
+        if (drawCanvasRef?.current) {
+          drawCanvasRef.current.clear();
+        }
+        navigate('/tree');
       })
       .catch((error) => {
         console.error('Failed to save snowflake to server:', error);
+        dispatch(addSnowflake(newSnowflake));
+        if (drawCanvasRef?.current) {
+          drawCanvasRef.current.clear();
+        }
+        navigate('/tree');
       });
-
-    dispatch(addSnowflake(newSnowflake));
-
-    if (drawCanvasRef?.current) {
-      drawCanvasRef.current.clear();
-    }
-
-    navigate('/tree');
   };
 
   const performAnalysis = useCallback(() => {

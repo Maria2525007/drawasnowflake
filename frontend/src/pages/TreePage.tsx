@@ -79,7 +79,12 @@ export const TreePage: React.FC = () => {
             startDelay: Math.random() * 3,
           };
         });
-        dispatch(loadSnowflakes(snowflakes));
+
+        const limitedSnowflakes = snowflakes.slice(
+          0,
+          SNOWFLAKE_CONFIG.MAX_SNOWFLAKES_ON_TREE
+        );
+        dispatch(loadSnowflakes(limitedSnowflakes));
       } catch (error) {
         console.error('Failed to load snowflakes from server:', error);
       }

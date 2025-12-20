@@ -42,6 +42,7 @@ export const SNOWFLAKE_CONFIG = {
   RESET_BOTTOM_OFFSET: 100,
   FULL_ROTATION: 360,
   PI_MULTIPLIER: Math.PI * 2,
+  MAX_SNOWFLAKES_ON_TREE: 50,
 } as const;
 
 export const ANALYSIS_CONFIG = {
