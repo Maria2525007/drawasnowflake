@@ -80,15 +80,10 @@ describe('DrawPage', () => {
   it('should display similarity after analysis', async () => {
     renderDrawPage();
 
-    await waitFor(
-      () => {
-        const similarityText = screen.queryByText(/Snowflake similarity/i);
-        if (similarityText) {
-          expect(similarityText).toBeInTheDocument();
-        }
-      },
-      { timeout: 2000 }
-    );
+    const similarityText = screen.queryByText(/Snowflake similarity/i);
+    if (similarityText) {
+      expect(similarityText).toBeInTheDocument();
+    }
   });
 
   it('should handle stroke end callback', async () => {

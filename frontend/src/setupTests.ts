@@ -78,3 +78,21 @@ Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
   writable: true,
   configurable: true,
 });
+
+global.requestAnimationFrame = jest.fn((cb) => {
+  if (typeof cb === 'function') {
+    setTimeout(cb, 0);
+  }
+  return 1;
+});
+
+global.cancelAnimationFrame = jest.fn();
+
+global.requestIdleCallback = jest.fn((cb, options?) => {
+  if (typeof cb === 'function') {
+    setTimeout(cb, 0);
+  }
+  return 1;
+});
+
+global.cancelIdleCallback = jest.fn();
