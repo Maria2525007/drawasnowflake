@@ -17,5 +17,8 @@ export default {
       statements: 80,
     },
   },
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
 };
 
