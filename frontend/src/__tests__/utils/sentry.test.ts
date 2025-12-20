@@ -3,6 +3,8 @@ import { initSentry, captureException } from '../../utils/sentry';
 jest.mock('@sentry/react', () => ({
   init: jest.fn(),
   captureException: jest.fn(),
+  browserTracingIntegration: jest.fn(() => ({})),
+  replayIntegration: jest.fn(() => ({})),
 }));
 
 describe('sentry utilities', () => {
@@ -39,9 +41,10 @@ describe('sentry utilities', () => {
 
       captureException(error);
 
-      expect(sentry.captureException).toHaveBeenCalledWith(error, {
-        extra: undefined,
-      });
+      expect(sentry.captureException).toHaveBeenCalled();
+      const calls = (sentry.captureException as jest.Mock).mock.calls;
+      expect(calls[0][0]).toBe(error);
+      expect(calls[0][1]).toEqual({ extra: undefined });
     });
 
     it('should capture exception with context', async () => {
