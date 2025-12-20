@@ -90,9 +90,12 @@ describe('Toolbar Copy', () => {
     await user.click(copyButton);
 
     // Should not show snackbar when canvasRef is null
-    await waitFor(() => {
-      const snackbar = screen.queryByRole('alert');
-      expect(snackbar).not.toBeInTheDocument();
-    }, { timeout: 500 });
+    await waitFor(
+      () => {
+        const snackbar = screen.queryByRole('alert');
+        expect(snackbar).not.toBeInTheDocument();
+      },
+      { timeout: 500 }
+    );
   });
 });
