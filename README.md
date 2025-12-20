@@ -88,8 +88,9 @@ docker compose up --build
 
 Эта команда:
 - Соберёт Docker образы для backend и frontend
+- Автоматически установит все необходимые зависимости (включая OpenSSL для Prisma)
 - Запустит PostgreSQL базу данных
-- Применит миграции базы данных
+- Применит миграции базы данных автоматически
 - Запустит backend сервер
 - Запустит frontend приложение
 
@@ -115,7 +116,12 @@ docker compose down -v
 # Просмотр логов
 docker compose logs -f
 
-# Пересборка образов
+# Просмотр логов конкретного сервиса
+docker compose logs -f backend
+docker compose logs -f frontend
+docker compose logs -f postgres
+
+# Пересборка образов (используйте при проблемах с зависимостями)
 docker compose build --no-cache
 
 # Остановка всех сервисов
@@ -123,6 +129,43 @@ docker compose stop
 
 # Перезапуск сервисов
 docker compose restart
+
+# Полная пересборка и запуск (рекомендуется при первой установке)
+docker compose down -v
+docker compose build --no-cache
+docker compose up -d
+```
+
+#### Решение проблем
+
+Если при запуске возникают ошибки:
+
+**Ошибка с Prisma/OpenSSL:**
+```bash
+# Полная пересборка образов
+docker compose down
+docker compose build --no-cache
+docker compose up -d
+```
+
+**Проблемы с базой данных:**
+```bash
+# Очистка и пересоздание базы данных
+docker compose down -v
+docker compose up -d
+```
+
+**Проблемы с портами:**
+- Убедитесь, что порты 80, 3001 и 5432 не заняты другими приложениями
+- Измените порты в `docker-compose.yml` при необходимости
+
+**Просмотр подробных логов:**
+```bash
+# Логи всех сервисов
+docker compose logs -f
+
+# Логи конкретного сервиса
+docker compose logs -f backend
 ```
 
 ---
