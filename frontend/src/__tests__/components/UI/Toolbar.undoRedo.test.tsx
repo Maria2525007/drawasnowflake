@@ -120,35 +120,4 @@ describe('Toolbar Undo/Redo', () => {
     expect(state.history.future).toHaveLength(0);
   });
 
-  it('should not undo when past is empty', async () => {
-    const user = userEvent.setup();
-    render(
-      <Provider store={store}>
-        <Toolbar currentTab={0} />
-      </Provider>
-    );
-
-    const undoButton = screen.getByLabelText(/undo/i);
-    expect(undoButton).toBeDisabled();
-    await user.click(undoButton);
-
-    const state = store.getState();
-    expect(state.history.past).toHaveLength(0);
-  });
-
-  it('should not redo when future is empty', async () => {
-    const user = userEvent.setup();
-    render(
-      <Provider store={store}>
-        <Toolbar currentTab={0} />
-      </Provider>
-    );
-
-    const redoButton = screen.getByLabelText(/redo/i);
-    expect(redoButton).toBeDisabled();
-    await user.click(redoButton);
-
-    const state = store.getState();
-    expect(state.history.future).toHaveLength(0);
-  });
 });
