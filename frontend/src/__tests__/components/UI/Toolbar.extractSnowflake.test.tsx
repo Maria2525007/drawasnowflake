@@ -178,7 +178,12 @@ describe('Toolbar ExtractSnowflake', () => {
     document.createElement = jest.fn().mockImplementation((tagName: string) => {
       if (tagName === 'canvas') {
         const tempCanvas = originalCreateElement.call(document, 'canvas');
-        jest.spyOn(tempCanvas, 'getContext').mockReturnValue(null);
+        // Mock getContext to return null
+        Object.defineProperty(tempCanvas, 'getContext', {
+          value: jest.fn().mockReturnValue(null),
+          writable: true,
+          configurable: true,
+        });
         return tempCanvas;
       }
       return originalCreateElement.call(document, tagName);
