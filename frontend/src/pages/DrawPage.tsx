@@ -185,6 +185,8 @@ export const DrawPage: React.FC = () => {
         (Math.random() - 0.5) *
         (SNOWFLAKE_CONFIG.MAX_DRIFT_SPEED - SNOWFLAKE_CONFIG.MIN_DRIFT_SPEED),
       driftPhase: Math.random() * SNOWFLAKE_CONFIG.PI_MULTIPLIER,
+      timeOffset: Math.random() * 10,
+      startDelay: Math.random() * 2,
     };
 
     saveSnowflakeToServer(newSnowflake)

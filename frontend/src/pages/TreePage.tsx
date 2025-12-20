@@ -75,6 +75,8 @@ export const TreePage: React.FC = () => {
               s.driftPhase !== undefined
                 ? s.driftPhase
                 : Math.random() * SNOWFLAKE_CONFIG.PI_MULTIPLIER,
+            timeOffset: Math.random() * 10,
+            startDelay: Math.random() * 2,
           };
         });
         dispatch(loadSnowflakes(snowflakes));
