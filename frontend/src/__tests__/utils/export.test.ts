@@ -1,7 +1,4 @@
-import {
-  exportCanvasAsImage,
-  copyCanvasToClipboard,
-} from '../../utils/export';
+import { exportCanvasAsImage, copyCanvasToClipboard } from '../../utils/export';
 
 describe('export utilities', () => {
   let mockCanvas: HTMLCanvasElement;
@@ -102,9 +99,13 @@ describe('export utilities', () => {
 
   describe('copyCanvasToClipboard', () => {
     beforeEach(() => {
-      global.navigator.clipboard = {
-        write: jest.fn().mockResolvedValue(undefined),
-      } as unknown as Clipboard;
+      Object.defineProperty(global.navigator, 'clipboard', {
+        value: {
+          write: jest.fn().mockResolvedValue(undefined),
+        },
+        writable: true,
+        configurable: true,
+      });
 
       global.ClipboardItem = jest.fn((items: Record<string, Blob>) => {
         return {
@@ -139,13 +140,15 @@ describe('export utilities', () => {
     });
 
     it('should return false if clipboard write fails', async () => {
-      global.navigator.clipboard = {
-        write: jest.fn().mockRejectedValue(new Error('Clipboard error')),
-      } as unknown as Clipboard;
+      Object.defineProperty(global.navigator, 'clipboard', {
+        value: {
+          write: jest.fn().mockRejectedValue(new Error('Clipboard error')),
+        },
+        writable: true,
+        configurable: true,
+      });
 
-      const consoleErrorSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation();
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       const result = await copyCanvasToClipboard(mockCanvas);
 
@@ -159,12 +162,16 @@ describe('export utilities', () => {
     });
 
     it('should handle toBlob promise rejection', async () => {
-      mockCanvas.toBlob = jest.fn();
+      mockCanvas.toBlob = jest.fn((callback) => {
+        if (callback) {
+          setTimeout(() => callback(null), 0);
+        }
+      });
 
       const result = await copyCanvasToClipboard(mockCanvas);
 
       expect(result).toBe(false);
-    });
+    }, 5000);
 
     it('should create ClipboardItem with correct blob', async () => {
       await copyCanvasToClipboard(mockCanvas);
@@ -176,13 +183,15 @@ describe('export utilities', () => {
 
     it('should handle clipboard API errors gracefully', async () => {
       const error = new Error('Clipboard API not available');
-      global.navigator.clipboard = {
-        write: jest.fn().mockRejectedValue(error),
-      } as unknown as Clipboard;
+      Object.defineProperty(global.navigator, 'clipboard', {
+        value: {
+          write: jest.fn().mockRejectedValue(error),
+        },
+        writable: true,
+        configurable: true,
+      });
 
-      const consoleErrorSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation();
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       const result = await copyCanvasToClipboard(mockCanvas);
 

@@ -22,7 +22,7 @@ describe('storage utilities', () => {
 
       const saved = localStorage.getItem('drawasnowflake_data');
       expect(saved).toBeTruthy();
-      
+
       const parsed = JSON.parse(saved!);
       expect(parsed).toEqual(mockData);
     });
@@ -48,9 +48,7 @@ describe('storage utilities', () => {
     });
 
     it('should handle localStorage quota exceeded error', () => {
-      const consoleErrorSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation();
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       const originalSetItem = Storage.prototype.setItem;
       Storage.prototype.setItem = jest.fn(() => {
@@ -65,9 +63,7 @@ describe('storage utilities', () => {
     });
 
     it('should handle other localStorage errors', () => {
-      const consoleErrorSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation();
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       const originalSetItem = Storage.prototype.setItem;
       Storage.prototype.setItem = jest.fn(() => {
@@ -100,9 +96,7 @@ describe('storage utilities', () => {
     it('should return null if data is invalid JSON', () => {
       localStorage.setItem('drawasnowflake_data', 'invalid json');
 
-      const consoleErrorSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation();
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       const loaded = loadFromLocalStorage();
 
@@ -113,9 +107,7 @@ describe('storage utilities', () => {
     });
 
     it('should handle localStorage read errors', () => {
-      const consoleErrorSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation();
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       const originalGetItem = Storage.prototype.getItem;
       Storage.prototype.getItem = jest.fn(() => {
@@ -163,9 +155,7 @@ describe('storage utilities', () => {
     });
 
     it('should handle localStorage remove errors', () => {
-      const consoleErrorSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation();
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       const originalRemoveItem = Storage.prototype.removeItem;
       Storage.prototype.removeItem = jest.fn(() => {
