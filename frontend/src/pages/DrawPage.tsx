@@ -6,11 +6,7 @@ import { useAppDispatch } from '../hooks/useAppDispatch';
 import { Canvas, type CanvasHandle } from '../components/Canvas/Canvas';
 import { Toolbar } from '../components/UI/Toolbar';
 import { Header } from '../components/UI/Header';
-import {
-  addSnowflake,
-  updateSnowflake,
-  Snowflake,
-} from '../features/snowflake/snowflakeSlice';
+import { addSnowflake, Snowflake } from '../features/snowflake/snowflakeSlice';
 import { saveSnowflakeToServer } from '../services/api';
 import { analyzeSnowflake } from '../utils/snowflakeAnalysis';
 import {
