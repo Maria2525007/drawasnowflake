@@ -40,17 +40,11 @@ describe('DrawPage Extended', () => {
 
     const goButton = screen.getByText('Go on Tree');
     expect(goButton).toBeInTheDocument();
+    
+    const canvas = document.querySelector('canvas');
+    expect(canvas).toBeInTheDocument();
+    
     await user.click(goButton);
-
-    await waitFor(
-      () => {
-        const canvas = document.querySelector('canvas');
-        if (canvas) {
-          expect(canvas).toBeInTheDocument();
-        }
-      },
-      { timeout: 2000 }
-    );
   });
 
   it('should handle zoom in', async () => {
@@ -76,15 +70,10 @@ describe('DrawPage Extended', () => {
   it('should display similarity percentage', async () => {
     renderDrawPage();
 
-    await waitFor(
-      () => {
-        const similarityText = screen.queryByText(/Snowflake similarity/i);
-        if (similarityText) {
-          expect(similarityText).toBeInTheDocument();
-        }
-      },
-      { timeout: 2000 }
-    );
+    const similarityText = screen.queryByText(/Snowflake similarity/i);
+    if (similarityText) {
+      expect(similarityText).toBeInTheDocument();
+    }
   });
 
   it('should handle analysis errors gracefully', async () => {
@@ -105,7 +94,7 @@ describe('DrawPage Extended', () => {
       () => {
         expect(consoleSpy).toHaveBeenCalled();
       },
-      { timeout: 2000 }
+      { timeout: 1000 }
     );
 
     consoleSpy.mockRestore();
