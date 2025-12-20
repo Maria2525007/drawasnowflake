@@ -57,7 +57,6 @@ describe('Toolbar Export', () => {
     const exportButton = screen.getByLabelText(/export/i);
     await user.click(exportButton);
 
-    // Should not show snackbar when canvasRef is null
     await waitFor(
       () => {
         const snackbar = screen.queryByRole('alert');
