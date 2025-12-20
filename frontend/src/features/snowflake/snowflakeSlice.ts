@@ -111,11 +111,13 @@ const snowflakeSlice = createSlice({
             snowflake.driftSpeed !== undefined &&
             snowflake.driftPhase !== undefined
           ) {
-            const timeOffset = snowflake.timeOffset ?? 0;
+            const timeOffset = snowflake.timeOffset ?? Math.random() * 20;
+            snowflake.timeOffset = timeOffset;
             const time = effectiveGlobalTime + timeOffset;
+            const phaseOffset = snowflake.driftPhase;
             const drift =
               Math.sin(
-                time * SNOWFLAKE_CONFIG.DRIFT_FREQUENCY + snowflake.driftPhase
+                time * SNOWFLAKE_CONFIG.DRIFT_FREQUENCY * 0.5 + phaseOffset
               ) *
               snowflake.driftSpeed *
               deltaTime;
@@ -141,7 +143,7 @@ const snowflakeSlice = createSlice({
                 Math.random() * SNOWFLAKE_CONFIG.PI_MULTIPLIER;
             }
             if (snowflake.timeOffset === undefined) {
-              snowflake.timeOffset = Math.random() * 10;
+              snowflake.timeOffset = Math.random() * 20;
             }
           }
         }

@@ -372,8 +372,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         (Math.random() - 0.5) *
         (SNOWFLAKE_CONFIG.MAX_DRIFT_SPEED - SNOWFLAKE_CONFIG.MIN_DRIFT_SPEED),
       driftPhase: Math.random() * SNOWFLAKE_CONFIG.PI_MULTIPLIER,
-      timeOffset: Math.random() * 10,
-      startDelay: Math.random() * 2,
+      timeOffset: Math.random() * 20,
+      startDelay: Math.random() * 3,
     };
 
     try {
