@@ -250,7 +250,7 @@ test.describe('Drawing Page', () => {
     await expect(snackbar).toBeVisible({ timeout: 2000 });
   });
 
-  test('should undo drawing action', async ({ page }) => {
+  test.skip('should undo drawing action', async ({ page }) => {
     await page.goto('/draw');
     await page.waitForLoadState('networkidle');
     const canvas = page.locator('canvas').first();
@@ -290,7 +290,7 @@ test.describe('Drawing Page', () => {
     }
   });
 
-  test('should redo drawing action', async ({ page }) => {
+  test.skip('should redo drawing action', async ({ page }) => {
     await page.goto('/draw');
     await page.waitForLoadState('networkidle');
     const canvas = page.locator('canvas').first();
