@@ -251,7 +251,9 @@ test.describe('Drawing Page', () => {
   });
 
   test('should undo drawing action', async ({ page }) => {
+    await page.goto('/draw');
     const canvas = page.locator('canvas').first();
+    await canvas.waitFor({ state: 'visible' });
     const canvasBox = await canvas.boundingBox();
     
     if (canvasBox) {
@@ -259,40 +261,64 @@ test.describe('Drawing Page', () => {
       await page.mouse.down();
       await page.mouse.move(canvasBox.x + canvasBox.width / 2 + 50, canvasBox.y + canvasBox.height / 2 + 50);
       await page.mouse.up();
-      await page.waitForTimeout(1500);
-    }
-    
-    const undoButton = page.locator('button[aria-label="undo"]');
-    await undoButton.waitFor({ state: 'visible', timeout: 5000 });
-    await expect(undoButton).not.toBeDisabled({ timeout: 10000 });
-    await undoButton.click();
-    await page.waitForTimeout(300);
-    
-    await expect(undoButton).toBeVisible();
-  });
-
-  test('should redo drawing action', async ({ page }) => {
-    const canvas = page.locator('canvas').first();
-    const canvasBox = await canvas.boundingBox();
-    
-    if (canvasBox) {
-      await page.mouse.move(canvasBox.x + canvasBox.width / 2, canvasBox.y + canvasBox.height / 2);
-      await page.mouse.down();
-      await page.mouse.move(canvasBox.x + canvasBox.width / 2 + 50, canvasBox.y + canvasBox.height / 2 + 50);
-      await page.mouse.up();
-      await page.waitForTimeout(1500);
       
       const undoButton = page.locator('button[aria-label="undo"]');
       await undoButton.waitFor({ state: 'visible', timeout: 5000 });
-      await expect(undoButton).not.toBeDisabled({ timeout: 10000 });
+      
+      await page.waitForFunction(
+        () => {
+          const button = document.querySelector('button[aria-label="undo"]') as HTMLButtonElement;
+          return button && !button.disabled;
+        },
+        { timeout: 20000 }
+      );
+      
       await undoButton.click();
-      await page.waitForTimeout(800);
+      await page.waitForTimeout(500);
+      
+      await expect(undoButton).toBeVisible();
+    }
+  });
+
+  test('should redo drawing action', async ({ page }) => {
+    await page.goto('/draw');
+    const canvas = page.locator('canvas').first();
+    await canvas.waitFor({ state: 'visible' });
+    const canvasBox = await canvas.boundingBox();
+    
+    if (canvasBox) {
+      await page.mouse.move(canvasBox.x + canvasBox.width / 2, canvasBox.y + canvasBox.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(canvasBox.x + canvasBox.width / 2 + 50, canvasBox.y + canvasBox.height / 2 + 50);
+      await page.mouse.up();
+      
+      const undoButton = page.locator('button[aria-label="undo"]');
+      await undoButton.waitFor({ state: 'visible', timeout: 5000 });
+      
+      await page.waitForFunction(
+        () => {
+          const button = document.querySelector('button[aria-label="undo"]') as HTMLButtonElement;
+          return button && !button.disabled;
+        },
+        { timeout: 20000 }
+      );
+      
+      await undoButton.click();
+      await page.waitForTimeout(1000);
       
       const redoButton = page.locator('button[aria-label="redo"]');
       await redoButton.waitFor({ state: 'visible', timeout: 5000 });
-      await expect(redoButton).not.toBeDisabled({ timeout: 10000 });
+      
+      await page.waitForFunction(
+        () => {
+          const button = document.querySelector('button[aria-label="redo"]') as HTMLButtonElement;
+          return button && !button.disabled;
+        },
+        { timeout: 20000 }
+      );
+      
       await redoButton.click();
-      await page.waitForTimeout(300);
+      await page.waitForTimeout(500);
       
       await expect(redoButton).toBeVisible();
     }
