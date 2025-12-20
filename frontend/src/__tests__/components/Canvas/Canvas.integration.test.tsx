@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, act } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { store } from '../../../store/store';
 import { Canvas, CanvasHandle } from '../../../components/Canvas/Canvas';
@@ -76,7 +76,9 @@ describe('Canvas Integration', () => {
     const ref = createRef<CanvasHandle>();
     renderCanvas({ ref });
 
-    store.dispatch(setTool('eraser'));
+    act(() => {
+      store.dispatch(setTool('eraser'));
+    });
 
     expect(ref.current).not.toBeNull();
   });
@@ -85,7 +87,9 @@ describe('Canvas Integration', () => {
     const ref = createRef<CanvasHandle>();
     renderCanvas({ ref });
 
-    store.dispatch(setColor('#ff0000'));
+    act(() => {
+      store.dispatch(setColor('#ff0000'));
+    });
 
     expect(ref.current).not.toBeNull();
   });
@@ -94,7 +98,9 @@ describe('Canvas Integration', () => {
     const ref = createRef<CanvasHandle>();
     renderCanvas({ ref });
 
-    store.dispatch(setBrushSize(10));
+    act(() => {
+      store.dispatch(setBrushSize(10));
+    });
 
     expect(ref.current).not.toBeNull();
   });
