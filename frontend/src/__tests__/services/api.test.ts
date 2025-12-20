@@ -119,5 +119,29 @@ describe('api service', () => {
         })
       );
     });
+
+    it('should throw error on failed delete', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      await expect(deleteSnowflakeFromServer('1')).rejects.toThrow();
+    });
+  });
+
+  describe('loadSnowflakeFromServer', () => {
+    it('should load snowflake by id', async () => {
+      const mockSnowflake = { id: '1', x: 100, y: 100, rotation: 0, scale: 1, pattern: 'custom' };
+
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockSnowflake,
+      });
+
+      const result = await import('../../services/api').then(m => m.loadSnowflakeFromServer('1'));
+
+      expect(fetch).toHaveBeenCalledWith('http://localhost:3001/api/snowflakes/1');
+    });
   });
 });

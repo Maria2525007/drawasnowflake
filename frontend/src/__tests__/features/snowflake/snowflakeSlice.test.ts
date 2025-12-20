@@ -196,9 +196,6 @@ describe('snowflakeSlice', () => {
     });
 
     it('should reset snowflake position when it falls below canvas', () => {
-      const {
-        animateSnowflakes,
-      } = require('../../../features/snowflake/snowflakeSlice');
       const fallingSnowflake = {
         ...mockSnowflake,
         y: 1100,
@@ -209,6 +206,7 @@ describe('snowflakeSlice', () => {
       const stateWithSnowflake = {
         ...initialState,
         snowflakes: [fallingSnowflake],
+        animationSpeed: 1.5,
       };
 
       const state = snowflakeReducer(
@@ -220,7 +218,7 @@ describe('snowflakeSlice', () => {
         })
       );
 
-      expect(state.snowflakes[0].y).toBeLessThan(1000);
+      expect(state.snowflakes[0].y).toBeLessThan(100);
     });
   });
 });
