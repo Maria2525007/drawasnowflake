@@ -374,7 +374,6 @@ describe('snowflakeSlice', () => {
         })
       );
       
-      // X position should change due to drift
       expect(state.snowflakes[0].x).toBeDefined();
     });
 

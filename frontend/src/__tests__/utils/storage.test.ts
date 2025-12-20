@@ -52,7 +52,6 @@ describe('storage utilities', () => {
         .spyOn(console, 'error')
         .mockImplementation();
 
-      // Mock localStorage.setItem to throw quota exceeded error
       const originalSetItem = Storage.prototype.setItem;
       Storage.prototype.setItem = jest.fn(() => {
         throw new DOMException('QuotaExceededError');
