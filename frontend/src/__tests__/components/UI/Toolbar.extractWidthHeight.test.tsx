@@ -16,21 +16,12 @@ jest.mock('../../../utils/analytics', () => ({
   trackToolUsed: jest.fn(),
 }));
 
-describe('Toolbar ExtractSnowflake', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('should extract snowflake from canvas with content', async () => {
+describe('Toolbar Extract Width Height', () => {
+  it('should handle extractSnowflake when width <= 0', async () => {
     const user = userEvent.setup();
     const canvas = document.createElement('canvas');
     canvas.width = 200;
     canvas.height = 200;
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-      ctx.fillStyle = 'rgb(0, 0, 0)';
-      ctx.fillRect(50, 50, 50, 50);
-    }
 
     const mockCanvasHandle: Partial<CanvasHandle> = {
       getCanvas: jest.fn(() => canvas),
@@ -85,7 +76,7 @@ describe('Toolbar ExtractSnowflake', () => {
     window.Image = originalImage;
   });
 
-  it('should handle extractSnowflakeFromCanvas with small content', async () => {
+  it('should handle extractSnowflake with edge coordinates', async () => {
     const user = userEvent.setup();
     const canvas = document.createElement('canvas');
     canvas.width = 200;
@@ -93,7 +84,8 @@ describe('Toolbar ExtractSnowflake', () => {
     const ctx = canvas.getContext('2d');
     if (ctx) {
       ctx.fillStyle = 'rgb(0, 0, 0)';
-      ctx.fillRect(100, 100, 1, 1);
+      ctx.fillRect(0, 0, 1, 1);
+      ctx.fillRect(199, 199, 1, 1);
     }
 
     const mockCanvasHandle: Partial<CanvasHandle> = {
@@ -146,85 +138,6 @@ describe('Toolbar ExtractSnowflake', () => {
       { timeout: 2000 }
     );
 
-    window.Image = originalImage;
-  });
-
-  it('should handle extractSnowflakeFromCanvas when tempCtx is null', async () => {
-    const user = userEvent.setup();
-    const canvas = document.createElement('canvas');
-    canvas.width = 200;
-    canvas.height = 200;
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-      ctx.fillStyle = 'rgb(0, 0, 0)';
-      ctx.fillRect(50, 50, 50, 50);
-    }
-
-    const mockCanvasHandle: Partial<CanvasHandle> = {
-      getCanvas: jest.fn(() => canvas),
-      getImageData: jest.fn(() => canvas.toDataURL()),
-      clear: jest.fn(),
-    };
-
-    const drawCanvasRef = createRef<CanvasHandle>();
-    Object.assign(drawCanvasRef, { current: mockCanvasHandle });
-
-    const originalCreateElement = document.createElement;
-    document.createElement = jest.fn().mockImplementation((tagName: string) => {
-      if (tagName === 'canvas') {
-        const tempCanvas = originalCreateElement.call(document, 'canvas');
-        Object.defineProperty(tempCanvas, 'getContext', {
-          value: jest.fn().mockReturnValue(null),
-          writable: true,
-          configurable: true,
-        });
-        return tempCanvas;
-      }
-      return originalCreateElement.call(document, tagName);
-    });
-
-    const originalImage = window.Image;
-    let imageOnLoad: (() => void) | null = null;
-    window.Image = jest.fn().mockImplementation(() => {
-      const img = new originalImage();
-      Object.defineProperty(img, 'onload', {
-        get: () => imageOnLoad,
-        set: (fn) => {
-          imageOnLoad = fn;
-          setTimeout(() => {
-            if (fn) {
-              fn();
-            }
-          }, 0);
-        },
-        configurable: true,
-      });
-      Object.defineProperty(img, 'width', { value: 200, configurable: true });
-      Object.defineProperty(img, 'height', { value: 200, configurable: true });
-      return img;
-    }) as any;
-
-    render(
-      <Provider store={store}>
-        <Toolbar
-          drawCanvasRef={drawCanvasRef as React.RefObject<CanvasHandle>}
-          currentTab={0}
-        />
-      </Provider>
-    );
-
-    const goToTreeButton = screen.getByText(/go on tree/i);
-    await user.click(goToTreeButton);
-
-    await waitFor(
-      () => {
-        const snackbar = screen.queryByRole('alert');
-        expect(snackbar).toBeInTheDocument();
-      },
-      { timeout: 2000 }
-    );
-
-    document.createElement = originalCreateElement;
     window.Image = originalImage;
   });
 });

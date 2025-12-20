@@ -36,12 +36,10 @@ describe('export', () => {
     URL.revokeObjectURL = jest.fn();
 
     const mockBlob = new Blob(['test'], { type: 'image/png' });
-    // Mock toBlob to call callback synchronously
     const toBlobSpy = jest
       .spyOn(HTMLCanvasElement.prototype, 'toBlob')
       .mockImplementation(function (callback) {
         if (callback) {
-          // Call synchronously
           callback(mockBlob);
         }
       });

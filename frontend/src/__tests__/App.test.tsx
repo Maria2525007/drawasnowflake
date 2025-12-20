@@ -13,7 +13,6 @@ jest.mock('../utils/snowflakeAnalysis', () => ({
   analyzeSnowflake: jest.fn().mockReturnValue({ similarity: 50 }),
 }));
 
-// Create a test version of App without BrowserRouter
 const TestApp = () => {
   return (
     <Routes>
