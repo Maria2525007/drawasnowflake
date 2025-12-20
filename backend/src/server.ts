@@ -2,9 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import { healthRouter } from './routes/health';
-import { snowflakeRouter } from './routes/snowflakes';
-import { initSentry, captureException } from './utils/sentry';
+import { healthRouter } from './routes/health.js';
+import { snowflakeRouter } from './routes/snowflakes.js';
+import { initSentry, captureException } from './utils/sentry.js';
 
 const sentryDsn = process.env.SENTRY_DSN;
 if (sentryDsn) {

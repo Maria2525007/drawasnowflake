@@ -16,10 +16,8 @@ import {
   Brush,
   Clear,
   Palette,
-  Save,
   Download,
   ContentCopy,
-  FolderOpen,
   Undo,
   Redo,
   Directions,
@@ -41,13 +39,8 @@ import {
 } from '../../features/snowflake/snowflakeSlice';
 import { undo, redo } from '../../features/history/historySlice';
 import { ColorPicker } from './ColorPicker';
-import { saveToLocalStorage, loadFromLocalStorage } from '../../utils/storage';
 import { exportCanvasAsImage, copyCanvasToClipboard } from '../../utils/export';
-import {
-  trackWorkSaved,
-  trackImageExported,
-  trackToolUsed,
-} from '../../utils/analytics';
+import { trackImageExported, trackToolUsed } from '../../utils/analytics';
 import type { CanvasHandle } from '../Canvas/Canvas';
 import { Button } from '@mui/material';
 import {
@@ -82,9 +75,14 @@ const extractSnowflakeFromCanvas = (
 
       if (
         a > 0 &&
-        !(Math.abs(r - CANVAS_CONFIG.BACKGROUND_R) < ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL && 
-          Math.abs(g - CANVAS_CONFIG.BACKGROUND_G) < ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL && 
-          Math.abs(b - CANVAS_CONFIG.BACKGROUND_B) < ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL)
+        !(
+          Math.abs(r - CANVAS_CONFIG.BACKGROUND_R) <
+            ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL &&
+          Math.abs(g - CANVAS_CONFIG.BACKGROUND_G) <
+            ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL &&
+          Math.abs(b - CANVAS_CONFIG.BACKGROUND_B) <
+            ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL
+        )
       ) {
         minX = Math.min(minX, x);
         minY = Math.min(minY, y);
@@ -126,9 +124,12 @@ const extractSnowflakeFromCanvas = (
     const b = sourceData[i + 2];
 
     if (
-      Math.abs(r - CANVAS_CONFIG.BACKGROUND_R) < ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL &&
-      Math.abs(g - CANVAS_CONFIG.BACKGROUND_G) < ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL &&
-      Math.abs(b - CANVAS_CONFIG.BACKGROUND_B) < ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL
+      Math.abs(r - CANVAS_CONFIG.BACKGROUND_R) <
+        ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL &&
+      Math.abs(g - CANVAS_CONFIG.BACKGROUND_G) <
+        ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL &&
+      Math.abs(b - CANVAS_CONFIG.BACKGROUND_B) <
+        ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL
     ) {
       sourceData[i + 3] = 0;
     }
@@ -162,14 +163,13 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const { tool, color, brushSize } = useAppSelector((state) => state.drawing);
-  const { snowflakes } = useAppSelector((state) => state.snowflake);
   const { past, future } = useAppSelector((state) => state.history);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [zoom, setZoom] = useState(zoomProp);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const isDrawTab = currentTab === 0;
   const isTreeTab = currentTab === 1;
 
@@ -177,7 +177,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     if (zoomProp !== zoom) {
       setZoom(zoomProp);
     }
-  }, [zoomProp]);
+  }, [zoomProp, zoom]);
 
   const handleToolChange = (
     _event: React.MouseEvent<HTMLElement>,
@@ -198,31 +198,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     newValue: number | number[]
   ) => {
     dispatch(setBrushSize(newValue as number));
-  };
-
-  const handleSave = () => {
-    const data = {
-      snowflakes,
-      timestamp: Date.now(),
-    };
-    saveToLocalStorage(data);
-    trackWorkSaved();
-    setSnackbarMessage(t('toolbar.workSaved'));
-    setSnackbarOpen(true);
-  };
-
-  const handleLoad = () => {
-    const data = loadFromLocalStorage();
-    if (data && data.snowflakes && Array.isArray(data.snowflakes)) {
-      data.snowflakes.forEach((snowflake: unknown) => {
-        dispatch(addSnowflake(snowflake as Snowflake));
-      });
-      setSnackbarMessage(t('toolbar.workLoaded'));
-      setSnackbarOpen(true);
-    } else {
-      setSnackbarMessage(t('toolbar.noSavedWork'));
-      setSnackbarOpen(true);
-    }
   };
 
   const handleExport = () => {
@@ -325,7 +300,14 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       const g = data[i + 1];
       const b = data[i + 2];
       const a = data[i + 3];
-      if (a > 0 && !(r === CANVAS_CONFIG.BACKGROUND_R && g === CANVAS_CONFIG.BACKGROUND_G && b === CANVAS_CONFIG.BACKGROUND_B)) {
+      if (
+        a > 0 &&
+        !(
+          r === CANVAS_CONFIG.BACKGROUND_R &&
+          g === CANVAS_CONFIG.BACKGROUND_G &&
+          b === CANVAS_CONFIG.BACKGROUND_B
+        )
+      ) {
         hasContent = true;
         break;
       }
@@ -356,28 +338,39 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         return;
       }
       tempCtx.drawImage(tempImg, 0, 0);
-      const processedImageData = extractSnowflakeFromCanvas(tempCanvas, tempCtx);
-      
+      const processedImageData = extractSnowflakeFromCanvas(
+        tempCanvas,
+        tempCtx
+      );
+
       createSnowflakeFromImage(processedImageData);
     };
     tempImg.src = imageDataWithZoom;
   };
 
   const createSnowflakeFromImage = (processedImageData: string) => {
-    const randomX = Math.random() * window.innerWidth * 0.8 + window.innerWidth * 0.1;
-    
+    const randomX =
+      Math.random() * window.innerWidth * 0.8 + window.innerWidth * 0.1;
+
     const newSnowflake: Snowflake = {
       id: `snowflake-${Date.now()}-${Math.random()}`,
       x: randomX,
-      y: SNOWFLAKE_CONFIG.SPAWN_Y_OFFSET - Math.random() * SNOWFLAKE_CONFIG.SPAWN_Y_RANDOM,
+      y:
+        SNOWFLAKE_CONFIG.SPAWN_Y_OFFSET -
+        Math.random() * SNOWFLAKE_CONFIG.SPAWN_Y_RANDOM,
       rotation: 0,
       scale: 0.3,
       pattern: 'custom',
       data: null,
       imageData: processedImageData,
-      fallSpeed: SNOWFLAKE_CONFIG.MIN_FALL_SPEED + Math.random() * (SNOWFLAKE_CONFIG.MAX_FALL_SPEED - SNOWFLAKE_CONFIG.MIN_FALL_SPEED),
+      fallSpeed:
+        SNOWFLAKE_CONFIG.MIN_FALL_SPEED +
+        Math.random() *
+          (SNOWFLAKE_CONFIG.MAX_FALL_SPEED - SNOWFLAKE_CONFIG.MIN_FALL_SPEED),
       isFalling: true,
-      driftSpeed: (Math.random() - 0.5) * (SNOWFLAKE_CONFIG.MAX_DRIFT_SPEED - SNOWFLAKE_CONFIG.MIN_DRIFT_SPEED),
+      driftSpeed:
+        (Math.random() - 0.5) *
+        (SNOWFLAKE_CONFIG.MAX_DRIFT_SPEED - SNOWFLAKE_CONFIG.MIN_DRIFT_SPEED),
       driftPhase: Math.random() * SNOWFLAKE_CONFIG.PI_MULTIPLIER,
     };
 
@@ -427,10 +420,16 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 aria-label={t('toolbar.ariaLabels.drawingTool')}
                 size="small"
               >
-                <ToggleButton value="pencil" aria-label={t('toolbar.ariaLabels.pencil')}>
+                <ToggleButton
+                  value="pencil"
+                  aria-label={t('toolbar.ariaLabels.pencil')}
+                >
                   <Brush />
                 </ToggleButton>
-                <ToggleButton value="eraser" aria-label={t('toolbar.ariaLabels.eraser')}>
+                <ToggleButton
+                  value="eraser"
+                  aria-label={t('toolbar.ariaLabels.eraser')}
+                >
                   <Clear />
                 </ToggleButton>
               </ToggleButtonGroup>
@@ -519,7 +518,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 >
                   {[...Array(3)].map((_, i) => {
                     const delay = i * 0.2;
-                    
+
                     const twinkle = keyframes`
                       0%, 100% {
                         opacity: 0.3;
@@ -530,7 +529,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                         transform: scale(1.2);
                       }
                     `;
-                    
+
                     return (
                       <Box
                         key={`left-${i}`}
@@ -547,14 +546,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                     );
                   })}
                 </Box>
-                
+
                 <Box
                   sx={{
                     fontFamily: 'cursive',
                     fontSize: '1.5rem',
                     fontWeight: 'bold',
                     textTransform: 'uppercase',
-                    background: 'linear-gradient(45deg, #C0C0C0 0%, #FFFFFF 50%, #E8E8E8 100%)',
+                    background:
+                      'linear-gradient(45deg, #C0C0C0 0%, #FFFFFF 50%, #E8E8E8 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
@@ -564,7 +564,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 >
                   {t('toolbar.letsItSnow')}
                 </Box>
-                
+
                 <Box
                   sx={{
                     display: 'flex',
@@ -574,7 +574,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 >
                   {[...Array(3)].map((_, i) => {
                     const delay = i * 0.2;
-                    
+
                     const twinkle = keyframes`
                       0%, 100% {
                         opacity: 0.3;
@@ -585,7 +585,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                         transform: scale(1.2);
                       }
                     `;
-                    
+
                     return (
                       <Box
                         key={`right-${i}`}
@@ -610,7 +610,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               >
                 <Download />
               </IconButton>
-              <IconButton color="inherit" aria-label={t('toolbar.ariaLabels.copy')} onClick={handleCopy}>
+              <IconButton
+                color="inherit"
+                aria-label={t('toolbar.ariaLabels.copy')}
+                onClick={handleCopy}
+              >
                 <ContentCopy />
               </IconButton>
             </>

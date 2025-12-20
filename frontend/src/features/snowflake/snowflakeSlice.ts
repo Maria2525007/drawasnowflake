@@ -1,8 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import {
-  SNOWFLAKE_CONFIG,
-  ANIMATION_CONFIG,
-} from '../../config/constants';
+import { SNOWFLAKE_CONFIG, ANIMATION_CONFIG } from '../../config/constants';
 
 export interface Snowflake {
   id: string;
@@ -67,7 +64,10 @@ const snowflakeSlice = createSlice({
       state.selectedId = null;
     },
     setAnimationSpeed: (state, action: PayloadAction<number>) => {
-      state.animationSpeed = Math.max(ANIMATION_CONFIG.MIN_SPEED, Math.min(ANIMATION_CONFIG.MAX_SPEED, action.payload));
+      state.animationSpeed = Math.max(
+        ANIMATION_CONFIG.MIN_SPEED,
+        Math.min(ANIMATION_CONFIG.MAX_SPEED, action.payload)
+      );
     },
     toggleAnimation: (state) => {
       state.isAnimating = !state.isAnimating;
@@ -84,36 +84,51 @@ const snowflakeSlice = createSlice({
       }>
     ) => {
       const { deltaTime, canvasHeight, canvasWidth } = action.payload;
-      
+
       const MIN_X = SNOWFLAKE_CONFIG.BORDER_PADDING;
       const MAX_X = canvasWidth - SNOWFLAKE_CONFIG.BORDER_PADDING;
-      
+
       state.snowflakes.forEach((snowflake) => {
-        snowflake.rotation += deltaTime * state.animationSpeed * SNOWFLAKE_CONFIG.ROTATION_SPEED;
+        snowflake.rotation +=
+          deltaTime * state.animationSpeed * SNOWFLAKE_CONFIG.ROTATION_SPEED;
         if (snowflake.rotation >= SNOWFLAKE_CONFIG.FULL_ROTATION) {
           snowflake.rotation -= SNOWFLAKE_CONFIG.FULL_ROTATION;
         }
 
         if (snowflake.isFalling && snowflake.fallSpeed) {
           snowflake.y += snowflake.fallSpeed * deltaTime;
-          
-          if (snowflake.driftSpeed !== undefined && snowflake.driftPhase !== undefined) {
+
+          if (
+            snowflake.driftSpeed !== undefined &&
+            snowflake.driftPhase !== undefined
+          ) {
             const time = Date.now() / 1000;
-            const drift = Math.sin(time * SNOWFLAKE_CONFIG.DRIFT_FREQUENCY + snowflake.driftPhase) * snowflake.driftSpeed * deltaTime;
+            const drift =
+              Math.sin(
+                time * SNOWFLAKE_CONFIG.DRIFT_FREQUENCY + snowflake.driftPhase
+              ) *
+              snowflake.driftSpeed *
+              deltaTime;
             snowflake.x += drift;
-            
+
             if (snowflake.x < MIN_X) {
               snowflake.x = MIN_X;
             } else if (snowflake.x > MAX_X) {
               snowflake.x = MAX_X;
             }
           }
-          
-          if (snowflake.y > canvasHeight + SNOWFLAKE_CONFIG.RESET_BOTTOM_OFFSET) {
-            snowflake.y = SNOWFLAKE_CONFIG.RESET_Y_OFFSET - Math.random() * SNOWFLAKE_CONFIG.RESET_Y_RANDOM;
+
+          if (
+            snowflake.y >
+            canvasHeight + SNOWFLAKE_CONFIG.RESET_BOTTOM_OFFSET
+          ) {
+            snowflake.y =
+              SNOWFLAKE_CONFIG.RESET_Y_OFFSET -
+              Math.random() * SNOWFLAKE_CONFIG.RESET_Y_RANDOM;
             snowflake.x = MIN_X + Math.random() * (MAX_X - MIN_X);
             if (snowflake.driftPhase !== undefined) {
-              snowflake.driftPhase = Math.random() * SNOWFLAKE_CONFIG.PI_MULTIPLIER;
+              snowflake.driftPhase =
+                Math.random() * SNOWFLAKE_CONFIG.PI_MULTIPLIER;
             }
           }
         }

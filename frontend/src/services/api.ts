@@ -1,6 +1,6 @@
-import { API_CONFIG } from '../config/constants';
+import { getApiUrl } from '../config/apiConfig';
 
-const API_URL = import.meta.env.VITE_API_URL || API_CONFIG.DEFAULT_URL;
+const API_URL = getApiUrl();
 
 export interface SnowflakeData {
   id?: string;
@@ -20,6 +20,7 @@ export const saveSnowflakeToServer = async (
   snowflake: SnowflakeData
 ): Promise<SnowflakeData> => {
   const { isFalling, ...dataToSave } = snowflake;
+  void isFalling;
   const response = await fetch(`${API_URL}/snowflakes`, {
     method: 'POST',
     headers: {
@@ -45,7 +46,9 @@ export const getAllSnowflakes = async (): Promise<SnowflakeData[]> => {
   return response.json();
 };
 
-export const loadSnowflakeFromServer = async (id: string): Promise<SnowflakeData> => {
+export const loadSnowflakeFromServer = async (
+  id: string
+): Promise<SnowflakeData> => {
   const response = await fetch(`${API_URL}/snowflakes/${id}`);
 
   if (!response.ok) {
@@ -60,6 +63,7 @@ export const updateSnowflakeOnServer = async (
   snowflake: Partial<SnowflakeData>
 ): Promise<SnowflakeData> => {
   const { isFalling, ...dataToUpdate } = snowflake;
+  void isFalling;
   const response = await fetch(`${API_URL}/snowflakes/${id}`, {
     method: 'PUT',
     headers: {

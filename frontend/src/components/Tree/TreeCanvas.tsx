@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, useState } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import { Box } from '@mui/material';
 import { useAppSelector } from '../../hooks/useAppSelector';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
@@ -7,7 +7,6 @@ import {
   CANVAS_CONFIG,
   SNOWFLAKE_CONFIG,
   TREE_CONFIG,
-  ANIMATION_CONFIG,
   BRUSH_CONFIG,
 } from '../../config/constants';
 
@@ -46,18 +45,26 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
   const dispatch = useAppDispatch();
 
   const drawTree = useCallback(
-    (ctx: CanvasRenderingContext2D, width: number, height: number, animationTime: number = 0) => {
+    (
+      ctx: CanvasRenderingContext2D,
+      width: number,
+      height: number,
+      animationTime: number = 0
+    ) => {
       ctx.fillStyle = CANVAS_CONFIG.BACKGROUND_COLOR;
       ctx.fillRect(0, 0, width, height);
 
       const centerX = width / 2;
-      const treeWidth = Math.min(width * TREE_CONFIG.WIDTH_RATIO, TREE_CONFIG.MAX_WIDTH);
+      const treeWidth = Math.min(
+        width * TREE_CONFIG.WIDTH_RATIO,
+        TREE_CONFIG.MAX_WIDTH
+      );
       const treeHeight = height * TREE_CONFIG.HEIGHT_RATIO;
       const treeTop = height * TREE_CONFIG.TOP_OFFSET;
       const trunkHeight = height * TREE_CONFIG.TRUNK_HEIGHT_RATIO;
 
       ctx.fillStyle = TREE_CONFIG.TREE_COLOR;
-      
+
       ctx.beginPath();
       ctx.moveTo(centerX, treeTop + treeHeight * 0.2);
       ctx.lineTo(centerX - treeWidth * 0.15, treeTop + treeHeight * 0.35);
@@ -100,7 +107,7 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
       ctx.strokeStyle = TREE_CONFIG.GARLAND_COLOR;
       ctx.lineWidth = TREE_CONFIG.GARLAND_WIDTH;
       ctx.beginPath();
-      
+
       const garlandPoints = [
         { y: treeTop + treeHeight * 0.25, xOffset: 0.05 },
         { y: treeTop + treeHeight * 0.35, xOffset: 0.12 },
@@ -108,10 +115,10 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
         { y: treeTop + treeHeight * 0.55, xOffset: 0.22 },
         { y: treeTop + treeHeight * 0.65, xOffset: 0.25 },
         { y: treeTop + treeHeight * 0.75, xOffset: 0.28 },
-        { y: treeTop + treeHeight * 0.85, xOffset: 0.30 },
+        { y: treeTop + treeHeight * 0.85, xOffset: 0.3 },
         { y: treeTop + treeHeight * 0.95, xOffset: 0.32 },
       ];
-      
+
       let isLeft = true;
       garlandPoints.forEach((point, index) => {
         const x = centerX + (isLeft ? -1 : 1) * treeWidth * point.xOffset;
@@ -125,48 +132,105 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
       ctx.stroke();
 
       garlandPoints.forEach((point, index) => {
-        const x = centerX + (index % 2 === 0 ? -1 : 1) * treeWidth * point.xOffset;
-        const colorIndex = (index + Math.floor(animationTime * TREE_CONFIG.LIGHT_ANIMATION_MULTIPLIER)) % TREE_CONFIG.LIGHT_COLORS.length;
+        const x =
+          centerX + (index % 2 === 0 ? -1 : 1) * treeWidth * point.xOffset;
+        const colorIndex =
+          (index +
+            Math.floor(
+              animationTime * TREE_CONFIG.LIGHT_ANIMATION_MULTIPLIER
+            )) %
+          TREE_CONFIG.LIGHT_COLORS.length;
         const baseColor = TREE_CONFIG.LIGHT_COLORS[colorIndex];
-        
-        const gradient = ctx.createRadialGradient(x, point.y, 0, x, point.y, TREE_CONFIG.LIGHT_RADIUS);
+
+        const gradient = ctx.createRadialGradient(
+          x,
+          point.y,
+          0,
+          x,
+          point.y,
+          TREE_CONFIG.LIGHT_RADIUS
+        );
         gradient.addColorStop(0, baseColor);
         gradient.addColorStop(0.5, baseColor + '80');
         gradient.addColorStop(1, baseColor + '00');
-        
+
         ctx.fillStyle = gradient;
         ctx.beginPath();
         ctx.arc(x, point.y, TREE_CONFIG.LIGHT_RADIUS, 0, Math.PI * 2);
         ctx.fill();
-        
+
         ctx.fillStyle = baseColor;
         ctx.beginPath();
         ctx.arc(x, point.y, TREE_CONFIG.LIGHT_BULB_RADIUS, 0, Math.PI * 2);
         ctx.fill();
-        
+
         ctx.fillStyle = `rgba(255, 255, 255, ${TREE_CONFIG.LIGHT_OPACITY})`;
         ctx.beginPath();
-        ctx.arc(x - TREE_CONFIG.LIGHT_HIGHLIGHT_OFFSET, point.y - TREE_CONFIG.LIGHT_HIGHLIGHT_OFFSET, TREE_CONFIG.LIGHT_HIGHLIGHT_RADIUS, 0, Math.PI * 2);
+        ctx.arc(
+          x - TREE_CONFIG.LIGHT_HIGHLIGHT_OFFSET,
+          point.y - TREE_CONFIG.LIGHT_HIGHLIGHT_OFFSET,
+          TREE_CONFIG.LIGHT_HIGHLIGHT_RADIUS,
+          0,
+          Math.PI * 2
+        );
         ctx.fill();
       });
 
       const ornaments = [
-        { y: treeTop + treeHeight * 0.3, xOffset: 0.04, color: TREE_CONFIG.ORNAMENT_COLORS[0], size: TREE_CONFIG.ORNAMENT_SIZES[0] },
-        { y: treeTop + treeHeight * 0.5, xOffset: -0.12, color: TREE_CONFIG.ORNAMENT_COLORS[1], size: TREE_CONFIG.ORNAMENT_SIZES[1] },
-        { y: treeTop + treeHeight * 0.55, xOffset: 0.1, color: TREE_CONFIG.ORNAMENT_COLORS[2], size: TREE_CONFIG.ORNAMENT_SIZES[1] },
-        { y: treeTop + treeHeight * 0.75, xOffset: -0.15, color: TREE_CONFIG.ORNAMENT_COLORS[3], size: TREE_CONFIG.ORNAMENT_SIZES[2] },
-        { y: treeTop + treeHeight * 0.8, xOffset: 0.14, color: TREE_CONFIG.ORNAMENT_COLORS[4], size: TREE_CONFIG.ORNAMENT_SIZES[2] },
-        { y: treeTop + treeHeight * 0.93, xOffset: -0.18, color: TREE_CONFIG.ORNAMENT_COLORS[5], size: TREE_CONFIG.ORNAMENT_SIZES[2] },
+        {
+          y: treeTop + treeHeight * 0.3,
+          xOffset: 0.04,
+          color: TREE_CONFIG.ORNAMENT_COLORS[0],
+          size: TREE_CONFIG.ORNAMENT_SIZES[0],
+        },
+        {
+          y: treeTop + treeHeight * 0.5,
+          xOffset: -0.12,
+          color: TREE_CONFIG.ORNAMENT_COLORS[1],
+          size: TREE_CONFIG.ORNAMENT_SIZES[1],
+        },
+        {
+          y: treeTop + treeHeight * 0.55,
+          xOffset: 0.1,
+          color: TREE_CONFIG.ORNAMENT_COLORS[2],
+          size: TREE_CONFIG.ORNAMENT_SIZES[1],
+        },
+        {
+          y: treeTop + treeHeight * 0.75,
+          xOffset: -0.15,
+          color: TREE_CONFIG.ORNAMENT_COLORS[3],
+          size: TREE_CONFIG.ORNAMENT_SIZES[2],
+        },
+        {
+          y: treeTop + treeHeight * 0.8,
+          xOffset: 0.14,
+          color: TREE_CONFIG.ORNAMENT_COLORS[4],
+          size: TREE_CONFIG.ORNAMENT_SIZES[2],
+        },
+        {
+          y: treeTop + treeHeight * 0.93,
+          xOffset: -0.18,
+          color: TREE_CONFIG.ORNAMENT_COLORS[5],
+          size: TREE_CONFIG.ORNAMENT_SIZES[2],
+        },
       ];
 
       ornaments.forEach((ornament) => {
         const x = centerX + treeWidth * ornament.xOffset;
-        
+
         ctx.fillStyle = `rgba(0, 0, 0, ${TREE_CONFIG.ORNAMENT_SHADOW_OPACITY})`;
         ctx.beginPath();
-        ctx.ellipse(x, ornament.y + ornament.size * TREE_CONFIG.ORNAMENT_SHADOW_RATIO, ornament.size * 0.6, ornament.size * TREE_CONFIG.ORNAMENT_HIGHLIGHT_RATIO, 0, 0, Math.PI * 2);
+        ctx.ellipse(
+          x,
+          ornament.y + ornament.size * TREE_CONFIG.ORNAMENT_SHADOW_RATIO,
+          ornament.size * 0.6,
+          ornament.size * TREE_CONFIG.ORNAMENT_HIGHLIGHT_RATIO,
+          0,
+          0,
+          Math.PI * 2
+        );
         ctx.fill();
-        
+
         const ornamentGradient = ctx.createRadialGradient(
           x - ornament.size * TREE_CONFIG.ORNAMENT_HIGHLIGHT_RATIO,
           ornament.y - ornament.size * TREE_CONFIG.ORNAMENT_HIGHLIGHT_RATIO,
@@ -175,25 +239,51 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
           ornament.y,
           ornament.size
         );
-        ornamentGradient.addColorStop(TREE_CONFIG.ORNAMENT_GRADIENT_STOP_1, TREE_CONFIG.ORNAMENT_WHITE);
-        ornamentGradient.addColorStop(TREE_CONFIG.ORNAMENT_GRADIENT_STOP_2, ornament.color);
-        ornamentGradient.addColorStop(TREE_CONFIG.ORNAMENT_GRADIENT_STOP_3, TREE_CONFIG.ORNAMENT_BLACK);
-        
+        ornamentGradient.addColorStop(
+          TREE_CONFIG.ORNAMENT_GRADIENT_STOP_1,
+          TREE_CONFIG.ORNAMENT_WHITE
+        );
+        ornamentGradient.addColorStop(
+          TREE_CONFIG.ORNAMENT_GRADIENT_STOP_2,
+          ornament.color
+        );
+        ornamentGradient.addColorStop(
+          TREE_CONFIG.ORNAMENT_GRADIENT_STOP_3,
+          TREE_CONFIG.ORNAMENT_BLACK
+        );
+
         ctx.fillStyle = ornamentGradient;
         ctx.beginPath();
         ctx.arc(x, ornament.y, ornament.size, 0, Math.PI * 2);
         ctx.fill();
-        
+
         ctx.fillStyle = `rgba(255, 255, 255, ${TREE_CONFIG.LIGHT_OPACITY})`;
         ctx.beginPath();
-        ctx.arc(x - ornament.size * TREE_CONFIG.ORNAMENT_HIGHLIGHT_RATIO, ornament.y - ornament.size * TREE_CONFIG.ORNAMENT_HIGHLIGHT_RATIO, ornament.size * TREE_CONFIG.ORNAMENT_HIGHLIGHT_RATIO, 0, Math.PI * 2);
+        ctx.arc(
+          x - ornament.size * TREE_CONFIG.ORNAMENT_HIGHLIGHT_RATIO,
+          ornament.y - ornament.size * TREE_CONFIG.ORNAMENT_HIGHLIGHT_RATIO,
+          ornament.size * TREE_CONFIG.ORNAMENT_HIGHLIGHT_RATIO,
+          0,
+          Math.PI * 2
+        );
         ctx.fill();
-        
+
         ctx.fillStyle = TREE_CONFIG.ORNAMENT_CAP_COLOR;
         ctx.beginPath();
-        ctx.arc(x, ornament.y - ornament.size, TREE_CONFIG.ORNAMENT_CAP_RADIUS, 0, Math.PI * 2);
+        ctx.arc(
+          x,
+          ornament.y - ornament.size,
+          TREE_CONFIG.ORNAMENT_CAP_RADIUS,
+          0,
+          Math.PI * 2
+        );
         ctx.fill();
-        ctx.fillRect(x - TREE_CONFIG.ORNAMENT_CAP_WIDTH / 2, ornament.y - ornament.size - TREE_CONFIG.ORNAMENT_CAP_HEIGHT / 2, TREE_CONFIG.ORNAMENT_CAP_WIDTH, TREE_CONFIG.ORNAMENT_CAP_HEIGHT);
+        ctx.fillRect(
+          x - TREE_CONFIG.ORNAMENT_CAP_WIDTH / 2,
+          ornament.y - ornament.size - TREE_CONFIG.ORNAMENT_CAP_HEIGHT / 2,
+          TREE_CONFIG.ORNAMENT_CAP_WIDTH,
+          TREE_CONFIG.ORNAMENT_CAP_HEIGHT
+        );
       });
 
       ctx.fillStyle = TREE_CONFIG.TRUNK_COLOR;
@@ -207,22 +297,14 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
     []
   );
 
-  const [imagesLoaded, setImagesLoaded] = useState(0);
-
   useEffect(() => {
-    let loadedCount = 0;
     const totalImages = snowflakes.filter((s) => s.imageData).length;
-    
+
     if (totalImages === 0) return;
 
     snowflakes.forEach((snowflake) => {
       if (snowflake.imageData) {
-        preloadImage(snowflake.imageData, () => {
-          loadedCount++;
-          if (loadedCount === totalImages) {
-            setImagesLoaded((prev) => prev + 1);
-          }
-        });
+        preloadImage(snowflake.imageData);
       }
     });
   }, [snowflakes]);
@@ -242,7 +324,10 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
           let imgWidth = img.width;
           let imgHeight = img.height;
 
-          if (imgWidth > SNOWFLAKE_CONFIG.MAX_SIZE || imgHeight > SNOWFLAKE_CONFIG.MAX_SIZE) {
+          if (
+            imgWidth > SNOWFLAKE_CONFIG.MAX_SIZE ||
+            imgHeight > SNOWFLAKE_CONFIG.MAX_SIZE
+          ) {
             if (imgWidth > imgHeight) {
               imgWidth = SNOWFLAKE_CONFIG.MAX_SIZE;
               imgHeight = SNOWFLAKE_CONFIG.MAX_SIZE / aspectRatio;
@@ -325,11 +410,14 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
     drawTree(ctx, width, height, animationTimeRef.current);
 
     snowflakes.forEach((snowflake) => {
-      if (snowflake.y > -SNOWFLAKE_CONFIG.VISIBILITY_MARGIN && snowflake.y < height + SNOWFLAKE_CONFIG.VISIBILITY_MARGIN) {
+      if (
+        snowflake.y > -SNOWFLAKE_CONFIG.VISIBILITY_MARGIN &&
+        snowflake.y < height + SNOWFLAKE_CONFIG.VISIBILITY_MARGIN
+      ) {
         drawSnowflake(ctx, snowflake);
       }
     });
-  }, [snowflakes, drawTree, drawSnowflake, imagesLoaded]);
+  }, [snowflakes, drawTree, drawSnowflake, canvasRef]);
 
   useEffect(() => {
     render();
@@ -349,9 +437,13 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
 
     if (isAnimating && deltaTime > 0) {
       const canvas = canvasRef.current;
-      const canvasHeight = canvas ? canvas.getBoundingClientRect().height : window.innerHeight;
-      const canvasWidth = canvas ? canvas.getBoundingClientRect().width : window.innerWidth;
-      
+      const canvasHeight = canvas
+        ? canvas.getBoundingClientRect().height
+        : window.innerHeight;
+      const canvasWidth = canvas
+        ? canvas.getBoundingClientRect().width
+        : window.innerWidth;
+
       dispatch(animateSnowflakes({ deltaTime, canvasHeight, canvasWidth }));
       render();
     } else {

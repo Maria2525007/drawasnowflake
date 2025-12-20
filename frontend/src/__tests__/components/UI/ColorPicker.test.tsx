@@ -1,44 +1,51 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render } from '@testing-library/react';
 import { ColorPicker } from '../../../components/UI/ColorPicker';
 
 describe('ColorPicker', () => {
-  it('should render color input', () => {
-    const mockOnChange = jest.fn();
-    const { container } = render(<ColorPicker color="#ffffff" onColorChange={mockOnChange} />);
-    
-    const colorInput = container.querySelector('input[type="color"]');
-    expect(colorInput).toBeInTheDocument();
-    expect(colorInput).toHaveAttribute('value', '#ffffff');
+  const mockOnColorChange = jest.fn();
+
+  beforeEach(() => {
+    mockOnColorChange.mockClear();
   });
 
-  it('should call onColorChange when color changes', async () => {
-    const user = userEvent.setup();
-    const mockOnChange = jest.fn();
-    const { container } = render(<ColorPicker color="#ffffff" onColorChange={mockOnChange} />);
-    
-    const colorInput = container.querySelector('input[type="color"]') as HTMLInputElement;
-    colorInput.value = '#000000';
-    await userEvent.click(colorInput);
-    
-    expect(colorInput.value).toBe('#000000');
+  it('should render color input', () => {
+    const { container } = render(
+      <ColorPicker color="#ffffff" onColorChange={mockOnColorChange} />
+    );
+
+    const colorInput = container.querySelector('input[type="color"]');
+    expect(colorInput).toBeInTheDocument();
+  });
+
+  it('should call onColorChange when color changes', () => {
+    const { container } = render(
+      <ColorPicker color="#ffffff" onColorChange={mockOnColorChange} />
+    );
+
+    const colorInput = container.querySelector(
+      'input[type="color"]'
+    ) as HTMLInputElement;
+    expect(colorInput).toBeInTheDocument();
+
+    if (colorInput) {
+      Object.defineProperty(colorInput, 'value', {
+        writable: true,
+        value: '#00ff00',
+      });
+      colorInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+      expect(mockOnColorChange).toHaveBeenCalledWith('#00ff00');
+    }
   });
 
   it('should display current color', () => {
-    const mockOnChange = jest.fn();
-    const { container } = render(<ColorPicker color="#ff0000" onColorChange={mockOnChange} />);
-    
-    const colorInput = container.querySelector('input[type="color"]') as HTMLInputElement;
-    expect(colorInput).toBeInTheDocument();
-    expect(colorInput.value).toBe('#ff0000');
-  });
+    const { container } = render(
+      <ColorPicker color="#ff0000" onColorChange={mockOnColorChange} />
+    );
 
-  it('should have correct styling', () => {
-    const mockOnChange = jest.fn();
-    const { container } = render(<ColorPicker color="#ffffff" onColorChange={mockOnChange} />);
-    
-    const box = container.querySelector('div');
-    expect(box).toBeInTheDocument();
+    const colorInput = container.querySelector(
+      'input[type="color"]'
+    ) as HTMLInputElement;
+    expect(colorInput?.value).toBe('#ff0000');
   });
 });
-

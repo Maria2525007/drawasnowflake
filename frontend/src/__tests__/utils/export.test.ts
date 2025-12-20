@@ -1,88 +1,140 @@
-import {
-  exportCanvasAsImage,
-  copyCanvasToClipboard,
-} from '../../utils/export';
+import { exportCanvasAsImage, copyCanvasToClipboard } from '../../utils/export';
 
-describe('export', () => {
-  let canvas: HTMLCanvasElement;
+describe('export utilities', () => {
+  let mockCanvas: HTMLCanvasElement;
+  let mockBlob: Blob;
+  let mockLink: HTMLAnchorElement;
+  let createElementSpy: jest.SpyInstance;
 
   beforeEach(() => {
-    canvas = document.createElement('canvas');
-    canvas.width = 100;
-    canvas.height = 100;
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, 100, 100);
-    }
-  });
-
-  it('should export canvas as image', (done) => {
-    const linkClickSpy = jest.fn();
-    const appendChildSpy = jest.spyOn(document.body, 'appendChild').mockImplementation(() => {
-      const link = document.createElement('a');
-      link.click = linkClickSpy;
-      return link;
-    });
-    const removeChildSpy = jest.spyOn(document.body, 'removeChild').mockImplementation(() => {
-      return {} as Node;
-    });
-
-    const originalToBlob = HTMLCanvasElement.prototype.toBlob;
-    HTMLCanvasElement.prototype.toBlob = function (callback) {
-      if (callback) {
-        callback(new Blob(['test'], { type: 'image/png' }));
-      }
-    };
-
-    exportCanvasAsImage(canvas);
-    
-    setTimeout(() => {
-      expect(appendChildSpy).toHaveBeenCalled();
-      expect(linkClickSpy).toHaveBeenCalled();
-      HTMLCanvasElement.prototype.toBlob = originalToBlob;
-      appendChildSpy.mockRestore();
-      removeChildSpy.mockRestore();
-      done();
-    }, 100);
-  });
-
-  it('should handle copy to clipboard', async () => {
-    const mockClipboard = {
-      write: jest.fn().mockResolvedValue(undefined),
-    };
-    Object.defineProperty(navigator, 'clipboard', {
-      value: mockClipboard,
+    mockBlob = new Blob(['test'], { type: 'image/png' });
+    mockLink = document.createElement('a');
+    Object.defineProperty(mockLink, 'click', {
+      value: jest.fn(),
       writable: true,
-      configurable: true,
+    });
+    Object.defineProperty(mockLink, 'href', {
+      value: '',
+      writable: true,
+    });
+    Object.defineProperty(mockLink, 'download', {
+      value: '',
+      writable: true,
     });
 
-    const originalToBlob = HTMLCanvasElement.prototype.toBlob;
-    HTMLCanvasElement.prototype.toBlob = function (callback) {
+    mockCanvas = document.createElement('canvas');
+    mockCanvas.width = 100;
+    mockCanvas.height = 100;
+    mockCanvas.toBlob = jest.fn((callback) => {
       if (callback) {
-        callback(new Blob(['test'], { type: 'image/png' }));
+        callback(mockBlob);
       }
-    };
+    });
 
-    const result = await copyCanvasToClipboard(canvas);
-    expect(result).toBe(true);
-    expect(mockClipboard.write).toHaveBeenCalled();
-    
-    HTMLCanvasElement.prototype.toBlob = originalToBlob;
+    global.URL.createObjectURL = jest.fn(() => 'blob:test');
+    global.URL.revokeObjectURL = jest.fn();
+
+    createElementSpy = jest
+      .spyOn(document, 'createElement')
+      .mockImplementation((tagName: string) => {
+        if (tagName === 'a') {
+          return mockLink;
+        }
+        return document.createElement(tagName);
+      });
   });
 
-  it('should return false if blob is null', async () => {
-    const originalToBlob = HTMLCanvasElement.prototype.toBlob;
-    HTMLCanvasElement.prototype.toBlob = function (callback) {
-      if (callback) {
-        callback(null);
-      }
-    };
+  afterEach(() => {
+    jest.clearAllMocks();
+    createElementSpy.mockRestore();
+  });
 
-    const result = await copyCanvasToClipboard(canvas);
-    expect(result).toBe(false);
-    
-    HTMLCanvasElement.prototype.toBlob = originalToBlob;
+  describe('exportCanvasAsImage', () => {
+    it('should export canvas as image', () => {
+      exportCanvasAsImage(mockCanvas);
+
+      expect(mockCanvas.toBlob).toHaveBeenCalled();
+      expect(URL.createObjectURL).toHaveBeenCalledWith(mockBlob);
+      expect(mockLink.href).toBe('blob:test');
+      expect(mockLink.download).toBe('snowflake-tree.png');
+      expect(mockLink.click).toHaveBeenCalled();
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:test');
+    });
+
+    it('should handle null blob', () => {
+      mockCanvas.toBlob = jest.fn((callback) => {
+        if (callback) {
+          callback(null);
+        }
+      });
+
+      exportCanvasAsImage(mockCanvas);
+
+      expect(mockCanvas.toBlob).toHaveBeenCalled();
+      expect(URL.createObjectURL).not.toHaveBeenCalled();
+    });
+
+    it('should use custom filename', () => {
+      exportCanvasAsImage(mockCanvas, 'custom.png');
+
+      expect(mockLink.download).toBe('custom.png');
+    });
+  });
+
+  describe('copyCanvasToClipboard', () => {
+    beforeEach(() => {
+      Object.defineProperty(global.navigator, 'clipboard', {
+        value: {
+          write: jest.fn().mockResolvedValue(undefined),
+        },
+        writable: true,
+        configurable: true,
+      });
+
+      global.ClipboardItem = jest.fn((items: Record<string, Blob>) => {
+        return {
+          types: Object.keys(items),
+          getType: jest.fn((type: string) => Promise.resolve(items[type])),
+        } as unknown as ClipboardItem;
+      }) as unknown as typeof ClipboardItem;
+    });
+
+    it('should copy canvas to clipboard', async () => {
+      const result = await copyCanvasToClipboard(mockCanvas);
+
+      expect(result).toBe(true);
+      expect(mockCanvas.toBlob).toHaveBeenCalled();
+      expect(ClipboardItem).toHaveBeenCalledWith({
+        'image/png': mockBlob,
+      });
+      expect(navigator.clipboard.write).toHaveBeenCalled();
+    });
+
+    it('should return false if blob is null', async () => {
+      mockCanvas.toBlob = jest.fn((callback) => {
+        if (callback) {
+          callback(null);
+        }
+      });
+
+      const result = await copyCanvasToClipboard(mockCanvas);
+
+      expect(result).toBe(false);
+      expect(navigator.clipboard.write).not.toHaveBeenCalled();
+    });
+
+    it('should return false if clipboard write fails', async () => {
+      Object.defineProperty(global.navigator, 'clipboard', {
+        value: {
+          write: jest.fn().mockRejectedValue(new Error('Clipboard error')),
+        },
+        writable: true,
+        configurable: true,
+      });
+
+      const result = await copyCanvasToClipboard(mockCanvas);
+
+      expect(result).toBe(false);
+    });
   });
 });
-

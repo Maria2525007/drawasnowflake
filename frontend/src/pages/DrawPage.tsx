@@ -6,7 +6,11 @@ import { useAppDispatch } from '../hooks/useAppDispatch';
 import { Canvas, type CanvasHandle } from '../components/Canvas/Canvas';
 import { Toolbar } from '../components/UI/Toolbar';
 import { Header } from '../components/UI/Header';
-import { addSnowflake, updateSnowflake, Snowflake } from '../features/snowflake/snowflakeSlice';
+import {
+  addSnowflake,
+  updateSnowflake,
+  Snowflake,
+} from '../features/snowflake/snowflakeSlice';
 import { saveSnowflakeToServer } from '../services/api';
 import { analyzeSnowflake } from '../utils/snowflakeAnalysis';
 import {
@@ -19,7 +23,7 @@ import {
 import { t } from '../i18n';
 
 export const DrawPage: React.FC = () => {
-  const [zoom, setZoom] = useState(ZOOM_CONFIG.DEFAULT);
+  const [zoom, setZoom] = useState<number>(ZOOM_CONFIG.DEFAULT);
   const [similarity, setSimilarity] = useState<number | null>(null);
   const drawCanvasRef = useRef<CanvasHandle>(null);
   const navigate = useNavigate();
@@ -49,7 +53,14 @@ export const DrawPage: React.FC = () => {
       const g = data[i + 1];
       const b = data[i + 2];
       const a = data[i + 3];
-      if (a > 0 && !(r === CANVAS_CONFIG.BACKGROUND_R && g === CANVAS_CONFIG.BACKGROUND_G && b === CANVAS_CONFIG.BACKGROUND_B)) {
+      if (
+        a > 0 &&
+        !(
+          r === CANVAS_CONFIG.BACKGROUND_R &&
+          g === CANVAS_CONFIG.BACKGROUND_G &&
+          b === CANVAS_CONFIG.BACKGROUND_B
+        )
+      ) {
         hasContent = true;
         break;
       }
@@ -81,9 +92,14 @@ export const DrawPage: React.FC = () => {
 
           if (
             a > 0 &&
-            !(Math.abs(r - CANVAS_CONFIG.BACKGROUND_R) < ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL && 
-              Math.abs(g - CANVAS_CONFIG.BACKGROUND_G) < ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL && 
-              Math.abs(b - CANVAS_CONFIG.BACKGROUND_B) < ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL)
+            !(
+              Math.abs(r - CANVAS_CONFIG.BACKGROUND_R) <
+                ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL &&
+              Math.abs(g - CANVAS_CONFIG.BACKGROUND_G) <
+                ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL &&
+              Math.abs(b - CANVAS_CONFIG.BACKGROUND_B) <
+                ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL
+            )
           ) {
             minX = Math.min(minX, x);
             minY = Math.min(minY, y);
@@ -127,9 +143,12 @@ export const DrawPage: React.FC = () => {
         const b = sourceData[i + 2];
 
         if (
-          Math.abs(r - CANVAS_CONFIG.BACKGROUND_R) < ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL &&
-          Math.abs(g - CANVAS_CONFIG.BACKGROUND_G) < ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL &&
-          Math.abs(b - CANVAS_CONFIG.BACKGROUND_B) < ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL
+          Math.abs(r - CANVAS_CONFIG.BACKGROUND_R) <
+            ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL &&
+          Math.abs(g - CANVAS_CONFIG.BACKGROUND_G) <
+            ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL &&
+          Math.abs(b - CANVAS_CONFIG.BACKGROUND_B) <
+            ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL
         ) {
           sourceData[i + 3] = 0;
         }
@@ -143,21 +162,28 @@ export const DrawPage: React.FC = () => {
 
     const MIN_X = SNOWFLAKE_CONFIG.BORDER_PADDING;
     const MAX_X = canvas.width - SNOWFLAKE_CONFIG.BORDER_PADDING;
-    
+
     const randomX = MIN_X + Math.random() * (MAX_X - MIN_X);
-    
+
     const newSnowflake: Snowflake = {
       id: `snowflake-${Date.now()}-${Math.random()}`,
       x: randomX,
-      y: SNOWFLAKE_CONFIG.SPAWN_Y_OFFSET - Math.random() * SNOWFLAKE_CONFIG.SPAWN_Y_RANDOM,
+      y:
+        SNOWFLAKE_CONFIG.SPAWN_Y_OFFSET -
+        Math.random() * SNOWFLAKE_CONFIG.SPAWN_Y_RANDOM,
       rotation: 0,
       scale: drawCanvasRef.current.getZoom(),
       pattern: 'custom',
       data: null,
       imageData: processedImageData,
-      fallSpeed: SNOWFLAKE_CONFIG.MIN_FALL_SPEED + Math.random() * (SNOWFLAKE_CONFIG.MAX_FALL_SPEED - SNOWFLAKE_CONFIG.MIN_FALL_SPEED),
+      fallSpeed:
+        SNOWFLAKE_CONFIG.MIN_FALL_SPEED +
+        Math.random() *
+          (SNOWFLAKE_CONFIG.MAX_FALL_SPEED - SNOWFLAKE_CONFIG.MIN_FALL_SPEED),
       isFalling: true,
-      driftSpeed: (Math.random() - 0.5) * (SNOWFLAKE_CONFIG.MAX_DRIFT_SPEED - SNOWFLAKE_CONFIG.MIN_DRIFT_SPEED),
+      driftSpeed:
+        (Math.random() - 0.5) *
+        (SNOWFLAKE_CONFIG.MAX_DRIFT_SPEED - SNOWFLAKE_CONFIG.MIN_DRIFT_SPEED),
       driftPhase: Math.random() * SNOWFLAKE_CONFIG.PI_MULTIPLIER,
     };
 
@@ -186,15 +212,19 @@ export const DrawPage: React.FC = () => {
         setSimilarity(null);
         return;
       }
-      
+
       const imageData = drawCanvasRef.current.getImageDataForAnalysis();
       if (!imageData) {
         setSimilarity(null);
         return;
       }
-      
-      const analysis = analyzeSnowflake(imageData, ANALYSIS_CONFIG.CANVAS_WIDTH, ANALYSIS_CONFIG.CANVAS_HEIGHT);
-      
+
+      const analysis = analyzeSnowflake(
+        imageData,
+        ANALYSIS_CONFIG.CANVAS_WIDTH,
+        ANALYSIS_CONFIG.CANVAS_HEIGHT
+      );
+
       setSimilarity(Math.max(0, analysis.similarity));
     } catch (error) {
       console.error('Analysis error:', error);
@@ -203,9 +233,7 @@ export const DrawPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    let timeoutId: number;
     let isAnalyzing = false;
-    let intervalId: number;
 
     const analyze = () => {
       if (isAnalyzing || !drawCanvasRef.current) {
@@ -213,24 +241,26 @@ export const DrawPage: React.FC = () => {
       }
 
       isAnalyzing = true;
-      
+
       const runAnalysis = () => {
         performAnalysis();
         isAnalyzing = false;
       };
 
       if ('requestIdleCallback' in window) {
-        requestIdleCallback(runAnalysis, { timeout: ANALYSIS_CONFIG.IDLE_TIMEOUT });
+        requestIdleCallback(runAnalysis, {
+          timeout: ANALYSIS_CONFIG.IDLE_TIMEOUT,
+        });
       } else {
         setTimeout(runAnalysis, ANALYSIS_CONFIG.STROKE_END_DELAY);
       }
     };
 
-    intervalId = window.setInterval(() => {
+    const intervalId = window.setInterval(() => {
       analyze();
     }, ANALYSIS_CONFIG.UPDATE_INTERVAL);
 
-    timeoutId = window.setTimeout(analyze, ANALYSIS_CONFIG.INITIAL_DELAY);
+    const timeoutId = window.setTimeout(analyze, ANALYSIS_CONFIG.INITIAL_DELAY);
 
     return () => {
       if (timeoutId) {
@@ -259,7 +289,7 @@ export const DrawPage: React.FC = () => {
       }}
     >
       <Header />
-      
+
       <Box
         sx={{
           flex: 1,
@@ -283,12 +313,18 @@ export const DrawPage: React.FC = () => {
             overflow: 'hidden',
           }}
         >
-          <Box sx={{ backgroundColor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
+          <Box
+            sx={{
+              backgroundColor: 'background.paper',
+              borderBottom: 1,
+              borderColor: 'divider',
+            }}
+          >
             <Toolbar
               drawCanvasRef={drawCanvasRef}
               currentTab={0}
               zoom={zoom}
-              onZoomChange={setZoom}
+              onZoomChange={(newZoom: number) => setZoom(newZoom)}
               hideGoToTreeButton
             />
           </Box>
@@ -301,10 +337,10 @@ export const DrawPage: React.FC = () => {
               backgroundColor: CANVAS_CONFIG.BACKGROUND_COLOR,
             }}
           >
-            <Canvas 
-              ref={drawCanvasRef} 
-              zoom={zoom} 
-              onZoomChange={setZoom} 
+            <Canvas
+              ref={drawCanvasRef}
+              zoom={zoom}
+              onZoomChange={(newZoom: number) => setZoom(newZoom)}
               onStrokeEnd={handleStrokeEnd}
             />
           </Box>
@@ -323,11 +359,12 @@ export const DrawPage: React.FC = () => {
               <Typography
                 variant="h6"
                 sx={{
-                  color: similarity > UI_CONFIG.SIMILARITY_HIGH 
-                    ? UI_CONFIG.COLOR_HIGH 
-                    : similarity > UI_CONFIG.SIMILARITY_MEDIUM 
-                    ? UI_CONFIG.COLOR_MEDIUM 
-                    : UI_CONFIG.COLOR_LOW,
+                  color:
+                    similarity > UI_CONFIG.SIMILARITY_HIGH
+                      ? UI_CONFIG.COLOR_HIGH
+                      : similarity > UI_CONFIG.SIMILARITY_MEDIUM
+                        ? UI_CONFIG.COLOR_MEDIUM
+                        : UI_CONFIG.COLOR_LOW,
                   fontWeight: 'bold',
                   fontSize: '1.3rem',
                 }}
@@ -335,7 +372,7 @@ export const DrawPage: React.FC = () => {
                 {t('drawPage.similarity', { value: similarity.toFixed(1) })}
               </Typography>
             )}
-            
+
             <Button
               variant="contained"
               color="primary"

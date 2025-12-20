@@ -42,6 +42,8 @@ backend/prisma/migrations/
 
 # Testing
 .jest-cache/
+playwright-report/
+test-results/
 
 # Temporary files
 *.tmp

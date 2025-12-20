@@ -1,210 +1,193 @@
-global.fetch = jest.fn();
-
-const mockApiUrl = 'http://localhost:3001/api';
-
-jest.mock('../../config/constants', () => ({
-  API_CONFIG: {
-    DEFAULT_URL: mockApiUrl,
-    CONTENT_TYPE_JSON: 'application/json',
-  },
-}));
-
-const originalImportMeta = (globalThis as any).import?.meta;
-
-beforeAll(() => {
-  Object.defineProperty(globalThis, 'import', {
-    value: {
-      meta: {
-        env: {
-          VITE_API_URL: mockApiUrl,
-        },
-      },
-    },
-    writable: true,
-    configurable: true,
-  });
-});
-
-afterAll(() => {
-  if (originalImportMeta) {
-    Object.defineProperty(globalThis, 'import', {
-      value: { meta: originalImportMeta },
-      writable: true,
-      configurable: true,
-    });
-  }
-});
-
-const apiModule = require('../../services/api');
-const {
-  saveSnowflakeToServer,
+import {
   getAllSnowflakes,
-  loadSnowflakeFromServer,
+  saveSnowflakeToServer,
   updateSnowflakeOnServer,
   deleteSnowflakeFromServer,
-} = apiModule;
+} from '../../services/api';
 
-describe('api', () => {
+jest.mock('../../config/apiConfig', () => ({
+  getApiUrl: jest.fn(() => 'http://localhost:3001/api'),
+}));
+
+global.fetch = jest.fn();
+
+describe('api service', () => {
   beforeEach(() => {
-    (fetch as jest.Mock).mockClear();
+    jest.clearAllMocks();
   });
 
-  it('should save snowflake to server', async () => {
-    const mockSnowflake = {
-      x: 100,
-      y: 100,
-      rotation: 0,
-      scale: 1,
-      pattern: 'custom',
-      imageData: 'data:image/png;base64,test',
-    };
+  describe('getAllSnowflakes', () => {
+    it('should fetch all snowflakes', async () => {
+      const mockSnowflakes = [
+        { id: '1', x: 100, y: 100 },
+        { id: '2', x: 200, y: 200 },
+      ];
 
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ id: '1', ...mockSnowflake }),
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockSnowflakes,
+      });
+
+      const result = await getAllSnowflakes();
+
+      expect(fetch).toHaveBeenCalledWith(
+        'http://localhost:3001/api/snowflakes'
+      );
+      expect(result).toEqual(mockSnowflakes);
     });
 
-    const result = await saveSnowflakeToServer(mockSnowflake);
-    expect(result.id).toBe('1');
-    expect(fetch).toHaveBeenCalledWith(
-      expect.stringContaining('/snowflakes'),
-      expect.objectContaining({
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      })
-    );
+    it('should throw error on failed request', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+      });
+
+      await expect(getAllSnowflakes()).rejects.toThrow();
+    });
   });
 
-  it('should get all snowflakes', async () => {
-    const mockSnowflakes = [
-      { id: '1', x: 100, y: 100, rotation: 0, scale: 1, pattern: 'custom' },
-    ];
+  describe('saveSnowflakeToServer', () => {
+    it('should create snowflake', async () => {
+      const mockSnowflake = { id: '1', x: 100, y: 100 };
+      const newSnowflake = {
+        x: 100,
+        y: 100,
+        rotation: 0,
+        scale: 1,
+        pattern: 'custom',
+      };
 
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockSnowflakes,
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockSnowflake,
+      });
+
+      const result = await saveSnowflakeToServer(newSnowflake);
+
+      expect(fetch).toHaveBeenCalledWith(
+        'http://localhost:3001/api/snowflakes',
+        expect.objectContaining({
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newSnowflake),
+        })
+      );
+      expect(result).toEqual(mockSnowflake);
     });
-
-    const result = await getAllSnowflakes();
-    expect(result).toEqual(mockSnowflakes);
-    expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/snowflakes'));
   });
 
-  it('should load snowflake from server', async () => {
-    const mockSnowflake = { id: '1', x: 100, y: 100, rotation: 0, scale: 1, pattern: 'custom' };
+  describe('updateSnowflakeOnServer', () => {
+    it('should update snowflake', async () => {
+      const mockSnowflake = { id: '1', x: 200, y: 200 };
+      const updates = { x: 200, y: 200 };
 
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockSnowflake,
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockSnowflake,
+      });
+
+      const result = await updateSnowflakeOnServer('1', updates);
+
+      expect(fetch).toHaveBeenCalledWith(
+        'http://localhost:3001/api/snowflakes/1',
+        expect.objectContaining({
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updates),
+        })
+      );
+      expect(result).toEqual(mockSnowflake);
     });
 
-    const result = await loadSnowflakeFromServer('1');
-    expect(result).toEqual(mockSnowflake);
-    expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/snowflakes/1'));
+    it('should exclude isFalling from updates', async () => {
+      const mockSnowflake = { id: '1', x: 200, y: 200 };
+      const updates = { x: 200, y: 200, isFalling: true };
+
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockSnowflake,
+      });
+
+      await updateSnowflakeOnServer('1', updates);
+
+      const callArgs = (global.fetch as jest.Mock).mock.calls[0];
+      const body = JSON.parse(callArgs[1].body);
+      expect(body.isFalling).toBeUndefined();
+    });
+
+    it('should throw error on failed update', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      await expect(updateSnowflakeOnServer('1', { x: 200 })).rejects.toThrow();
+    });
   });
 
-  it('should update snowflake on server', async () => {
-    const mockUpdate = { x: 200, y: 200 };
+  describe('deleteSnowflakeFromServer', () => {
+    it('should delete snowflake', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+      });
 
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ id: '1', ...mockUpdate, rotation: 0, scale: 1, pattern: 'custom' }),
+      await deleteSnowflakeFromServer('1');
+
+      expect(fetch).toHaveBeenCalledWith(
+        'http://localhost:3001/api/snowflakes/1',
+        expect.objectContaining({
+          method: 'DELETE',
+        })
+      );
     });
 
-    const result = await updateSnowflakeOnServer('1', mockUpdate);
-    expect(result.x).toBe(200);
-    expect(fetch).toHaveBeenCalledWith(
-      expect.stringContaining('/snowflakes/1'),
-      expect.objectContaining({ method: 'PUT' })
-    );
+    it('should throw error on failed delete', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      await expect(deleteSnowflakeFromServer('1')).rejects.toThrow();
+    });
   });
 
-  it('should delete snowflake from server', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
+  describe('loadSnowflakeFromServer', () => {
+    it('should load snowflake by id', async () => {
+      const mockSnowflake = {
+        id: '1',
+        x: 100,
+        y: 100,
+        rotation: 0,
+        scale: 1,
+        pattern: 'custom',
+      };
+
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockSnowflake,
+      });
+
+      const { loadSnowflakeFromServer } = await import('../../services/api');
+      const result = await loadSnowflakeFromServer('1');
+
+      expect(fetch).toHaveBeenCalledWith(
+        'http://localhost:3001/api/snowflakes/1'
+      );
+      expect(result).toEqual(mockSnowflake);
     });
 
-    await deleteSnowflakeFromServer('1');
-    expect(fetch).toHaveBeenCalledWith(
-      expect.stringContaining('/snowflakes/1'),
-      expect.objectContaining({ method: 'DELETE' })
-    );
-  });
+    it('should throw error on failed load', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
 
-  it('should handle errors when saving', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: false,
+      const { loadSnowflakeFromServer } = await import('../../services/api');
+      await expect(loadSnowflakeFromServer('1')).rejects.toThrow();
     });
-
-    await expect(saveSnowflakeToServer({ x: 0, y: 0, rotation: 0, scale: 1, pattern: 'custom' })).rejects.toThrow();
-  });
-
-  it('should handle errors when getting all snowflakes', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: false,
-    });
-
-    await expect(getAllSnowflakes()).rejects.toThrow();
-  });
-
-  it('should handle errors when loading snowflake', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: false,
-    });
-
-    await expect(loadSnowflakeFromServer('1')).rejects.toThrow();
-  });
-
-  it('should handle errors when updating snowflake', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: false,
-    });
-
-    await expect(updateSnowflakeOnServer('1', { x: 100 })).rejects.toThrow();
-  });
-
-  it('should handle errors when deleting snowflake', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: false,
-    });
-
-    await expect(deleteSnowflakeFromServer('1')).rejects.toThrow();
-  });
-
-  it('should exclude isFalling when saving', async () => {
-    const mockSnowflake = {
-      x: 100,
-      y: 100,
-      rotation: 0,
-      scale: 1,
-      pattern: 'custom',
-      isFalling: true,
-    };
-
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ id: '1', ...mockSnowflake }),
-    });
-
-    await saveSnowflakeToServer(mockSnowflake);
-    
-    const callArgs = (fetch as jest.Mock).mock.calls[0];
-    const body = JSON.parse(callArgs[1].body);
-    expect(body.isFalling).toBeUndefined();
-  });
-
-  it('should exclude isFalling when updating', async () => {
-    const mockUpdate = { x: 200, isFalling: true };
-
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ id: '1', ...mockUpdate, rotation: 0, scale: 1, pattern: 'custom' }),
-    });
-
-    await updateSnowflakeOnServer('1', mockUpdate);
-    
-    const callArgs = (fetch as jest.Mock).mock.calls[0];
-    const body = JSON.parse(callArgs[1].body);
-    expect(body.isFalling).toBeUndefined();
   });
 });

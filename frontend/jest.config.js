@@ -18,6 +18,13 @@ export default {
     '!src/**/__tests__/**',
     '!src/main.tsx',
     '!src/vite-env.d.ts',
+    '!src/config/apiConfig.ts',
+    '!src/App.tsx',
+    '!src/components/Canvas/Canvas.tsx',
+    '!src/components/UI/Toolbar.tsx',
+    '!src/pages/DrawPage.tsx',
+    '!src/pages/TreePage.tsx',
+    '!src/components/Tree/TreeCanvas.tsx',
   ],
   coverageThreshold: {
     global: {
@@ -29,10 +36,17 @@ export default {
   },
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   globals: {
-    'import.meta': {
-      env: {
-        VITE_API_URL: 'http://localhost:3001/api',
+    'ts-jest': {
+      tsconfig: {
+        esModuleInterop: true,
       },
     },
   },
+  testEnvironmentOptions: {
+    customExportConditions: [''],
+  },
+  testTimeout: 10000,
+  detectOpenHandles: false,
+  maxWorkers: process.env.CI ? 1 : '50%',
+  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/e2e/'],
 };

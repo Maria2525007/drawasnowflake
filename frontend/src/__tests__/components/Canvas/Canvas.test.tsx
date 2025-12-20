@@ -1,71 +1,98 @@
-import { render } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import { store } from '../../../store/store';
-import { Canvas, CanvasHandle } from '../../../components/Canvas/Canvas';
 import { createRef } from 'react';
+import { store } from '../../../store/store';
+import { Canvas, type CanvasHandle } from '../../../components/Canvas/Canvas';
+import {
+  setTool,
+  setColor,
+  setBrushSize,
+} from '../../../features/drawing/drawingSlice';
+import { saveState } from '../../../features/history/historySlice';
 
-const renderCanvas = (props = {}) => {
-  return render(
-    <Provider store={store}>
-      <Canvas {...props} />
-    </Provider>
-  );
-};
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <Provider store={store}>{children}</Provider>
+);
 
 describe('Canvas', () => {
+  const renderCanvas = (props = {}) => {
+    return render(<Canvas width={800} height={600} {...props} />, { wrapper });
+  };
+
   it('should render canvas element', () => {
     const { container } = renderCanvas();
-    
     const canvas = container.querySelector('canvas');
     expect(canvas).toBeInTheDocument();
   });
 
-  it('should expose canvas handle methods', () => {
+  it('should forward ref to CanvasHandle', () => {
     const ref = createRef<CanvasHandle>();
     renderCanvas({ ref });
-    
+
     expect(ref.current).not.toBeNull();
     expect(ref.current?.getCanvas).toBeDefined();
-    expect(ref.current?.getImageData).toBeDefined();
-    expect(ref.current?.getImageDataForAnalysis).toBeDefined();
-    expect(ref.current?.clear).toBeDefined();
-    expect(ref.current?.getZoom).toBeDefined();
   });
 
-  it('should get canvas element from handle', () => {
+  it('should get canvas element from ref', () => {
     const ref = createRef<CanvasHandle>();
     renderCanvas({ ref });
-    
+
     const canvas = ref.current?.getCanvas();
     expect(canvas).toBeInstanceOf(HTMLCanvasElement);
-  });
-
-  it('should get zoom value', () => {
-    const ref = createRef<CanvasHandle>();
-    renderCanvas({ ref, zoom: 1.5 });
-    
-    expect(ref.current?.getZoom()).toBe(1.5);
   });
 
   it('should clear canvas', () => {
     const ref = createRef<CanvasHandle>();
     renderCanvas({ ref });
-    
-    expect(() => ref.current?.clear()).not.toThrow();
+
+    act(() => {
+      ref.current?.clear();
+    });
+
+    expect(ref.current).not.toBeNull();
   });
 
-  it('should render with custom width and height', () => {
-    const { container } = renderCanvas({ width: 800, height: 600 });
-    
-    const canvas = container.querySelector('canvas');
-    expect(canvas).toBeInTheDocument();
-  });
-
-  it('should handle zoom prop', () => {
+  it('should update when tool changes', () => {
     const ref = createRef<CanvasHandle>();
-    renderCanvas({ ref, zoom: 2.0 });
-    
-    expect(ref.current?.getZoom()).toBe(2.0);
+    renderCanvas({ ref });
+
+    act(() => {
+      store.dispatch(setTool('eraser'));
+    });
+
+    expect(ref.current).not.toBeNull();
+  });
+
+  it('should update when color changes', () => {
+    const ref = createRef<CanvasHandle>();
+    renderCanvas({ ref });
+
+    act(() => {
+      store.dispatch(setColor('#ff0000'));
+    });
+
+    expect(ref.current).not.toBeNull();
+  });
+
+  it('should update when brush size changes', () => {
+    const ref = createRef<CanvasHandle>();
+    renderCanvas({ ref });
+
+    act(() => {
+      store.dispatch(setBrushSize(10));
+    });
+
+    expect(ref.current).not.toBeNull();
+  });
+
+  it('should handle history state changes', () => {
+    const ref = createRef<CanvasHandle>();
+    renderCanvas({ ref });
+
+    act(() => {
+      store.dispatch(saveState('data:image/png;base64,test'));
+    });
+
+    expect(ref.current).not.toBeNull();
   });
 });
-

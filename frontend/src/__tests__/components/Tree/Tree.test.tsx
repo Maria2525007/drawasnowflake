@@ -4,30 +4,26 @@ import { Provider } from 'react-redux';
 import { store } from '../../../store/store';
 import { Tree } from '../../../components/Tree/Tree';
 
-const renderTree = (props = {}) => {
-  return render(
-    <Provider store={store}>
-      <Tree {...props} />
-    </Provider>
-  );
-};
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <Provider store={store}>{children}</Provider>
+);
 
 describe('Tree', () => {
+  it('should render TreeCanvas', () => {
+    const { container } = render(<Tree />, { wrapper });
+    const canvas = container.querySelector('canvas');
+    expect(canvas).toBeInTheDocument();
+  });
+
+  it('should render TreeCanvas with ref', () => {
+    const ref = createRef<HTMLCanvasElement>();
+    const { container } = render(<Tree ref={ref} />, { wrapper });
+    const canvas = container.querySelector('canvas');
+    expect(canvas).toBeInTheDocument();
+  });
+
   it('should render without ref', () => {
-    const { container } = renderTree();
+    const { container } = render(<Tree />, { wrapper });
     expect(container).toBeInTheDocument();
-  });
-
-  it('should render with ref', () => {
-    const ref = createRef<HTMLCanvasElement>();
-    const { container } = renderTree({ ref });
-    expect(container).toBeInTheDocument();
-  });
-
-  it('should pass ref to TreeCanvas', () => {
-    const ref = createRef<HTMLCanvasElement>();
-    renderTree({ ref });
-    expect(ref).toBeDefined();
   });
 });
-

@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/react';
 import { initSentry, captureException } from '../../utils/sentry';
 
 jest.mock('@sentry/react', () => ({
@@ -8,34 +7,56 @@ jest.mock('@sentry/react', () => ({
   replayIntegration: jest.fn(() => ({})),
 }));
 
-describe('sentry', () => {
+describe('sentry utilities', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should initialize sentry with dsn', () => {
-    const dsn = 'https://test@sentry.io/123';
-    initSentry(dsn);
-    expect(Sentry.init).toHaveBeenCalledWith(
-      expect.objectContaining({
-        dsn,
-      })
-    );
+  describe('initSentry', () => {
+    it('should initialize Sentry with DSN', async () => {
+      const sentry = await import('@sentry/react');
+
+      initSentry('https://test@sentry.io/test');
+
+      expect(sentry.init).toHaveBeenCalledWith(
+        expect.objectContaining({
+          dsn: 'https://test@sentry.io/test',
+        })
+      );
+    });
+
+    it('should not initialize Sentry without DSN', async () => {
+      const sentry = await import('@sentry/react');
+
+      initSentry(undefined);
+
+      expect(sentry.init).not.toHaveBeenCalled();
+    });
   });
 
-  it('should not initialize sentry without dsn', () => {
-    initSentry();
-    expect(Sentry.init).not.toHaveBeenCalled();
-  });
+  describe('captureException', () => {
+    it('should capture exception', async () => {
+      const sentry = await import('@sentry/react');
+      const error = new Error('Test error');
 
-  it('should capture exception', () => {
-    const error = new Error('Test error');
-    const context = { url: '/test', method: 'GET' };
-    
-    captureException(error, context);
-    expect(Sentry.captureException).toHaveBeenCalledWith(error, {
-      extra: context,
+      captureException(error);
+
+      expect(sentry.captureException).toHaveBeenCalled();
+      const calls = (sentry.captureException as jest.Mock).mock.calls;
+      expect(calls[0][0]).toBe(error);
+      expect(calls[0][1]).toEqual({ extra: undefined });
+    });
+
+    it('should capture exception with context', async () => {
+      const sentry = await import('@sentry/react');
+      const error = new Error('Test error');
+      const context = { key: 'value' };
+
+      captureException(error, context);
+
+      expect(sentry.captureException).toHaveBeenCalledWith(error, {
+        extra: context,
+      });
     });
   });
 });
-

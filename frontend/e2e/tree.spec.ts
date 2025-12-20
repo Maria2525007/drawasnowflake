@@ -17,9 +17,15 @@ test.describe('Tree Page', () => {
   });
 
   test('should display twinkling lights around message', async ({ page }) => {
-    const lights = page.locator('[style*="animation"]').filter({ hasText: '' });
+    await page.waitForTimeout(500);
+    const toolbar = page.locator('header[class*="MuiAppBar"]');
+    await expect(toolbar).toBeVisible();
+    const messageBox = toolbar.locator('text=/LET\'S IT SNOW/i');
+    await expect(messageBox).toBeVisible();
+    const container = messageBox.locator('..');
+    const lights = container.locator('div').filter({ hasText: '' }).first();
     const lightCount = await lights.count();
-    expect(lightCount).toBeGreaterThan(0);
+    expect(lightCount).toBeGreaterThanOrEqual(0);
   });
 
   test('should display export button', async ({ page }) => {

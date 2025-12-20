@@ -6,24 +6,54 @@ import drawingReducer, {
 } from '../../../features/drawing/drawingSlice';
 
 describe('drawingSlice', () => {
-  it('should set tool', () => {
-    const state = drawingReducer(undefined, setTool('eraser'));
-    expect(state.tool).toBe('eraser');
+  const initialState = {
+    tool: 'pencil' as const,
+    color: '#ffffff',
+    brushSize: 5,
+    isDrawing: false,
+  };
+
+  it('should return initial state', () => {
+    const state = drawingReducer(undefined, { type: 'unknown' });
+    expect(state).toEqual(initialState);
   });
 
-  it('should set color', () => {
-    const state = drawingReducer(undefined, setColor('#ff0000'));
-    expect(state.color).toBe('#ff0000');
+  describe('setTool', () => {
+    it('should set tool to pencil', () => {
+      const state = drawingReducer(initialState, setTool('pencil'));
+      expect(state.tool).toBe('pencil');
+    });
+
+    it('should set tool to eraser', () => {
+      const state = drawingReducer(initialState, setTool('eraser'));
+      expect(state.tool).toBe('eraser');
+    });
   });
 
-  it('should set brush size', () => {
-    const state = drawingReducer(undefined, setBrushSize(10));
-    expect(state.brushSize).toBe(10);
+  describe('setColor', () => {
+    it('should set color', () => {
+      const state = drawingReducer(initialState, setColor('#ff0000'));
+      expect(state.color).toBe('#ff0000');
+    });
   });
 
-  it('should set is drawing', () => {
-    const state = drawingReducer(undefined, setIsDrawing(true));
-    expect(state.isDrawing).toBe(true);
+  describe('setBrushSize', () => {
+    it('should set brush size', () => {
+      const state = drawingReducer(initialState, setBrushSize(10));
+      expect(state.brushSize).toBe(10);
+    });
+  });
+
+  describe('setIsDrawing', () => {
+    it('should set isDrawing to true', () => {
+      const state = drawingReducer(initialState, setIsDrawing(true));
+      expect(state.isDrawing).toBe(true);
+    });
+
+    it('should set isDrawing to false', () => {
+      const stateWithDrawing = { ...initialState, isDrawing: true };
+      const state = drawingReducer(stateWithDrawing, setIsDrawing(false));
+      expect(state.isDrawing).toBe(false);
+    });
   });
 });
-
