@@ -79,11 +79,9 @@ describe('Toolbar Undo/Redo', () => {
   });
 
   it('should disable redo when future is empty', () => {
-    // Ensure future is empty
     act(() => {
       const state = store.getState();
       if (state.history.future.length > 0) {
-        // Clear future by doing redo if needed
         while (state.history.future.length > 0) {
           store.dispatch({ type: 'history/redo' });
         }

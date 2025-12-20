@@ -4,7 +4,6 @@ import { TextEncoder, TextDecoder } from 'util';
 global.TextEncoder = TextEncoder as typeof global.TextEncoder;
 global.TextDecoder = TextDecoder as typeof global.TextDecoder;
 
-// Mock import.meta.env for Vite
 Object.defineProperty(globalThis, 'import', {
   value: {
     meta: {
@@ -17,11 +16,9 @@ Object.defineProperty(globalThis, 'import', {
   configurable: true,
 });
 
-// Mock URL.createObjectURL and revokeObjectURL
 global.URL.createObjectURL = jest.fn(() => 'blob:http://localhost/test');
 global.URL.revokeObjectURL = jest.fn();
 
-// Mock ClipboardItem
 global.ClipboardItem = jest.fn((items: Record<string, Blob>) => {
   return {
     types: Object.keys(items),
@@ -29,7 +26,6 @@ global.ClipboardItem = jest.fn((items: Record<string, Blob>) => {
   } as unknown as ClipboardItem;
 }) as unknown as typeof ClipboardItem;
 
-// Mock HTMLCanvasElement methods
 Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
   value: jest.fn(() => ({
     fillRect: jest.fn(),
@@ -66,14 +62,12 @@ Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
   })),
 });
 
-// Mock toDataURL
 Object.defineProperty(HTMLCanvasElement.prototype, 'toDataURL', {
   value: jest.fn(() => 'data:image/png;base64,test'),
   writable: true,
   configurable: true,
 });
 
-// Mock toBlob
 Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
   value: jest.fn(function (callback) {
     if (callback) {

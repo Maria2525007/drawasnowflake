@@ -50,7 +50,6 @@ describe('Toolbar Copy', () => {
 
   it('should handle copy failure', async () => {
     const user = userEvent.setup();
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { copyCanvasToClipboard } = require('../../../utils/export');
     copyCanvasToClipboard.mockResolvedValue(false);
 
@@ -89,7 +88,6 @@ describe('Toolbar Copy', () => {
     const copyButton = screen.getByLabelText(/copy/i);
     await user.click(copyButton);
 
-    // Should not show snackbar when canvasRef is null
     await waitFor(
       () => {
         const snackbar = screen.queryByRole('alert');
