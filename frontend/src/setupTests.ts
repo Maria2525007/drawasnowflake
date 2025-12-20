@@ -26,7 +26,7 @@ global.ClipboardItem = jest.fn((items: Record<string, Blob>) => {
     types: Object.keys(items),
     getType: jest.fn((type: string) => Promise.resolve(items[type])),
   } as unknown as ClipboardItem;
-}) as typeof ClipboardItem;
+}) as unknown as typeof ClipboardItem;
 
 Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
   value: jest.fn(() => ({
