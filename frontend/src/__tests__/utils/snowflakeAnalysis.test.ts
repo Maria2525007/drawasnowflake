@@ -135,5 +135,29 @@ describe('snowflakeAnalysis', () => {
 
       expect(result.coverage).toBe(0);
     });
+
+    it('should handle large canvas with sampling', () => {
+      const imageData = createImageData(2000, 2000, (x, y) => {
+        const centerX = 1000;
+        const centerY = 1000;
+        const dist = Math.sqrt(
+          Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
+        );
+        if (dist < 100) {
+          return { r: 255, g: 255, b: 255, a: 255 };
+        }
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, 2000, 2000);
+
+      expect(result.coverage).toBeGreaterThanOrEqual(0);
+      expect(result.coverage).toBeLessThanOrEqual(100);
+    });
   });
 });
