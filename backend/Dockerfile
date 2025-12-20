@@ -8,15 +8,53 @@ WORKDIR /app
 # Install OpenSSL for Prisma (required for Prisma client generation)
 RUN apk add --no-cache openssl libc6-compat
 
+# Set environment variables for Prisma
+# Disable telemetry and set proper engine paths
+ENV PRISMA_SKIP_POSTINSTALL_GENERATE=1
+ENV PRISMA_TELEMETRY_DISABLED=1
+
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies first (without Prisma generation)
+# Install dependencies (this will install Prisma CLI and engines)
+# Using --ignore-scripts to skip postinstall hooks that might fail
 RUN npm ci --ignore-scripts
 
-# Copy Prisma schema and generate client with correct binary targets
+# Explicitly install Prisma engines to ensure they are available
+# This helps avoid network issues during generation
+RUN npx prisma --version || true
+
+# Copy Prisma schema
 COPY prisma ./prisma/
-RUN npx prisma generate --schema=./prisma/schema.prisma
+
+# Generate Prisma client with robust retry logic
+# Prisma needs to download binary engines, so we retry on network failures
+RUN set -e; \
+    MAX_ATTEMPTS=5; \
+    ATTEMPT=1; \
+    while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do \
+        echo "=== Prisma generate attempt $ATTEMPT/$MAX_ATTEMPTS ==="; \
+        if npx prisma generate --schema=./prisma/schema.prisma; then \
+            echo "✓ Prisma client generated successfully"; \
+            break; \
+        else \
+            EXIT_CODE=$?; \
+            echo "✗ Attempt $ATTEMPT failed with exit code $EXIT_CODE"; \
+            if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then \
+                echo "ERROR: All $MAX_ATTEMPTS attempts failed. Last exit code: $EXIT_CODE"; \
+                exit 1; \
+            fi; \
+            WAIT_TIME=$((ATTEMPT * 3)); \
+            echo "Waiting ${WAIT_TIME}s before retry..."; \
+            sleep $WAIT_TIME; \
+            ATTEMPT=$((ATTEMPT + 1)); \
+        fi; \
+    done; \
+    if [ ! -d "./node_modules/.prisma/client" ]; then \
+        echo "ERROR: Prisma client directory not found after generation"; \
+        exit 1; \
+    fi; \
+    echo "✓ Prisma client verification passed"
 
 # Build stage
 FROM base AS builder
