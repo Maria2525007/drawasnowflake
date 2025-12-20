@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from '../../store/store';
@@ -22,6 +22,10 @@ const renderTreePage = () => {
 describe('TreePage Extended', () => {
   beforeEach(() => {
     (getAllSnowflakes as jest.Mock).mockClear();
+  });
+
+  afterEach(() => {
+    cleanup();
   });
 
   it('should load snowflakes from server on mount', async () => {
