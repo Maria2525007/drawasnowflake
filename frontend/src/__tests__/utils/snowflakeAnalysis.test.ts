@@ -1,76 +1,371 @@
 import { analyzeSnowflake } from '../../utils/snowflakeAnalysis';
+import { CANVAS_CONFIG } from '../../config/constants';
 
 describe('snowflakeAnalysis', () => {
   const createImageData = (
     width: number,
     height: number,
-    fillColor: { r: number; g: number; b: number; a: number }
+    pixelFn?: (_x: number, _y: number) => { r: number; g: number; b: number; a: number }
   ): ImageData => {
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      throw new Error('Could not get canvas context');
+    const data = new Uint8ClampedArray(width * height * 4);
+    
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = (y * width + x) * 4;
+        if (pixelFn) {
+          const pixel = pixelFn(x, y);
+          data[idx] = pixel.r;
+          data[idx + 1] = pixel.g;
+          data[idx + 2] = pixel.b;
+          data[idx + 3] = pixel.a;
+        } else {
+          // Default: background color
+          data[idx] = CANVAS_CONFIG.BACKGROUND_R;
+          data[idx + 1] = CANVAS_CONFIG.BACKGROUND_G;
+          data[idx + 2] = CANVAS_CONFIG.BACKGROUND_B;
+          data[idx + 3] = 255;
+        }
+      }
     }
-    ctx.fillStyle = `rgba(${fillColor.r}, ${fillColor.g}, ${fillColor.b}, ${fillColor.a / 255})`;
-    ctx.fillRect(0, 0, width, height);
-    return ctx.getImageData(0, 0, width, height);
+    
+    return new ImageData(data, width, height);
   };
 
-  it('should return zero similarity for empty canvas', () => {
-    const imageData = createImageData(2000, 2000, {
-      r: 10,
-      g: 25,
-      b: 41,
-      a: 255,
+  describe('analyzeSnowflake', () => {
+    it('should return zero analysis for empty canvas', () => {
+      const imageData = createImageData(100, 100);
+      const result = analyzeSnowflake(imageData, 100, 100);
+
+      expect(result).toEqual({
+        similarity: 0,
+        symmetry: 0,
+        structure: 0,
+        coverage: 0,
+      });
     });
-    const result = analyzeSnowflake(imageData, 2000, 2000);
-    expect(result.similarity).toBe(0);
-    expect(result.symmetry).toBe(0);
-    expect(result.structure).toBe(0);
-    expect(result.coverage).toBe(0);
-  });
 
-  it('should analyze snowflake with white pixels', () => {
-    const imageData = createImageData(2000, 2000, {
-      r: 10,
-      g: 25,
-      b: 41,
-      a: 255,
+    it('should calculate similarity for symmetric pattern', () => {
+      const imageData = createImageData(200, 200, (x, y) => {
+        const centerX = 100;
+        const centerY = 100;
+        const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+        const angle = Math.atan2(y - centerY, x - centerX);
+        
+        // Create 6-fold symmetric pattern
+        if (dist < 50 && dist > 20) {
+          const sector = Math.floor((angle + Math.PI) / (Math.PI / 3)) % 6;
+          if (sector % 2 === 0) {
+            return { r: 255, g: 255, b: 255, a: 255 };
+          }
+        }
+        
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, 200, 200);
+
+      expect(result.similarity).toBeGreaterThan(0);
+      expect(result.similarity).toBeLessThanOrEqual(100);
+      expect(result.symmetry).toBeGreaterThan(0);
+      expect(result.structure).toBeGreaterThan(0);
+      expect(result.coverage).toBeGreaterThan(0);
     });
-    const data = imageData.data;
 
-    for (let i = 0; i < 1000; i += 4) {
-      data[i] = 255;
-      data[i + 1] = 255;
-      data[i + 2] = 255;
-      data[i + 3] = 255;
-    }
+    it('should handle small canvas correctly', () => {
+      const imageData = createImageData(100, 100, (x, y) => {
+        const centerX = 50;
+        const centerY = 50;
+        const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+        if (dist < 30) {
+          return { r: 255, g: 255, b: 255, a: 255 };
+        }
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
 
-    const result = analyzeSnowflake(imageData, 2000, 2000);
-    expect(result.similarity).toBeGreaterThanOrEqual(0);
-    expect(result.similarity).toBeLessThanOrEqual(100);
-    expect(result.symmetry).toBeGreaterThanOrEqual(0);
-    expect(result.structure).toBeGreaterThanOrEqual(0);
-    expect(result.coverage).toBeGreaterThanOrEqual(0);
-  });
+      const result = analyzeSnowflake(imageData, 100, 100);
 
-  it('should return valid analysis structure', () => {
-    const imageData = createImageData(2000, 2000, {
-      r: 10,
-      g: 25,
-      b: 41,
-      a: 255,
+      expect(result.similarity).toBeGreaterThanOrEqual(0);
+      expect(result.similarity).toBeLessThanOrEqual(100);
     });
-    const result = analyzeSnowflake(imageData, 2000, 2000);
-    expect(result).toHaveProperty('similarity');
-    expect(result).toHaveProperty('symmetry');
-    expect(result).toHaveProperty('structure');
-    expect(result).toHaveProperty('coverage');
-    expect(typeof result.similarity).toBe('number');
-    expect(typeof result.symmetry).toBe('number');
-    expect(typeof result.structure).toBe('number');
-    expect(typeof result.coverage).toBe('number');
+
+    it('should handle large canvas with sampling', () => {
+      const width = 1500;
+      const height = 1500;
+      const imageData = createImageData(width, height, (x, y) => {
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+        if (dist < 100) {
+          return { r: 255, g: 255, b: 255, a: 255 };
+        }
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, width, height);
+
+      expect(result.similarity).toBeGreaterThanOrEqual(0);
+      expect(result.similarity).toBeLessThanOrEqual(100);
+    });
+
+    it('should filter out background pixels', () => {
+      const imageData = createImageData(200, 200, () => {
+        // All background pixels
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, 200, 200);
+
+      expect(result.coverage).toBe(0);
+      expect(result.similarity).toBe(0);
+    });
+
+    it('should handle pixels with low alpha', () => {
+      const imageData = createImageData(200, 200, (x, y) => {
+        const centerX = 100;
+        const centerY = 100;
+        const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+        if (dist < 50) {
+          // Low alpha pixels should be ignored
+          return { r: 255, g: 255, b: 255, a: 5 };
+        }
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, 200, 200);
+
+      // Low alpha pixels should not contribute to analysis
+      expect(result.coverage).toBe(0);
+    });
+
+    it('should calculate coverage correctly', () => {
+      const imageData = createImageData(200, 200, (x, y) => {
+        // Fill 25% of canvas
+        if (x < 100 && y < 100) {
+          return { r: 255, g: 255, b: 255, a: 255 };
+        }
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, 200, 200);
+
+      expect(result.coverage).toBeGreaterThan(0);
+      expect(result.coverage).toBeLessThanOrEqual(100);
+    });
+
+    it('should return values in valid ranges', () => {
+      const imageData = createImageData(200, 200, (x, y) => {
+        const centerX = 100;
+        const centerY = 100;
+        const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+        if (dist < 50) {
+          return { r: 255, g: 255, b: 255, a: 255 };
+        }
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, 200, 200);
+
+      expect(result.similarity).toBeGreaterThanOrEqual(0);
+      expect(result.similarity).toBeLessThanOrEqual(100);
+      expect(result.symmetry).toBeGreaterThanOrEqual(0);
+      expect(result.symmetry).toBeLessThanOrEqual(100);
+      expect(result.structure).toBeGreaterThanOrEqual(0);
+      expect(result.structure).toBeLessThanOrEqual(100);
+      expect(result.coverage).toBeGreaterThanOrEqual(0);
+      expect(result.coverage).toBeLessThanOrEqual(100);
+    });
+
+    it('should handle asymmetric pattern', () => {
+      const imageData = createImageData(200, 200, (x, y) => {
+        // Only draw on one side
+        if (x > 100 && x < 150 && y > 50 && y < 150) {
+          return { r: 255, g: 255, b: 255, a: 255 };
+        }
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, 200, 200);
+
+      // Asymmetric pattern should have lower symmetry score
+      expect(result.similarity).toBeGreaterThanOrEqual(0);
+      expect(result.similarity).toBeLessThanOrEqual(100);
+      expect(result.symmetry).toBeLessThan(100);
+    });
+
+    it('should handle high brightness pixels', () => {
+      const imageData = createImageData(200, 200, (x, y) => {
+        const centerX = 100;
+        const centerY = 100;
+        const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+        if (dist < 50) {
+          // High brightness white pixels
+          return { r: 255, g: 255, b: 255, a: 255 };
+        }
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, 200, 200);
+
+      // High brightness should contribute to similarity
+      expect(result.similarity).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should handle background colors within tolerance', () => {
+      const imageData = createImageData(200, 200, () => {
+        // Use background color within tolerance
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R + 5,
+          g: CANVAS_CONFIG.BACKGROUND_G + 5,
+          b: CANVAS_CONFIG.BACKGROUND_B + 5,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, 200, 200);
+
+      // Should be treated as background
+      expect(result.coverage).toBe(0);
+    });
+
+    it('should round similarity, symmetry, structure, and coverage', () => {
+      const imageData = createImageData(200, 200, (x, y) => {
+        const centerX = 100;
+        const centerY = 100;
+        const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+        if (dist < 50) {
+          return { r: 255, g: 255, b: 255, a: 255 };
+        }
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, 200, 200);
+
+      // Values should be integers (rounded)
+      expect(Number.isInteger(result.similarity)).toBe(true);
+      expect(Number.isInteger(result.symmetry)).toBe(true);
+      expect(Number.isInteger(result.structure)).toBe(true);
+      expect(Number.isInteger(result.coverage)).toBe(true);
+    });
+
+    it('should cap similarity at 100', () => {
+      // Create a perfect symmetric pattern with high coverage
+      const imageData = createImageData(200, 200, (x, y) => {
+        const centerX = 100;
+        const centerY = 100;
+        const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+        const angle = Math.atan2(y - centerY, x - centerX);
+        
+        // Create highly symmetric 6-fold pattern
+        if (dist < 80) {
+          const sector = Math.floor((angle + Math.PI) / (Math.PI / 3)) % 6;
+          if (dist > 20 || sector % 2 === 0) {
+            return { r: 255, g: 255, b: 255, a: 255 };
+          }
+        }
+        
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, 200, 200);
+
+      expect(result.similarity).toBeLessThanOrEqual(100);
+    });
+
+    it('should cap coverage at 100', () => {
+      // Fill entire canvas
+      const imageData = createImageData(200, 200, () => {
+        return { r: 255, g: 255, b: 255, a: 255 };
+      });
+
+      const result = analyzeSnowflake(imageData, 200, 200);
+
+      expect(result.coverage).toBeLessThanOrEqual(100);
+    });
+
+    it('should handle different canvas sizes', () => {
+      const sizes = [
+        { w: 100, h: 100 },
+        { w: 500, h: 500 },
+        { w: 1000, h: 1000 },
+        { w: 2000, h: 2000 },
+      ];
+
+      sizes.forEach(({ w, h }) => {
+        const imageData = createImageData(w, h, (_x, _y) => {
+          const centerX = w / 2;
+          const centerY = h / 2;
+          const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+          if (dist < w / 4) {
+            return { r: 255, g: 255, b: 255, a: 255 };
+          }
+          return {
+            r: CANVAS_CONFIG.BACKGROUND_R,
+            g: CANVAS_CONFIG.BACKGROUND_G,
+            b: CANVAS_CONFIG.BACKGROUND_B,
+            a: 255,
+          };
+        });
+
+        const result = analyzeSnowflake(imageData, w, h);
+
+        expect(result.similarity).toBeGreaterThanOrEqual(0);
+        expect(result.similarity).toBeLessThanOrEqual(100);
+      });
+    });
   });
 });
