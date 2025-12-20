@@ -7,6 +7,7 @@ export const getApiUrl = (): string => {
       return viteUrl;
     }
   } catch {
+    // Fallback to default URL
   }
   return API_CONFIG.DEFAULT_URL;
 };
