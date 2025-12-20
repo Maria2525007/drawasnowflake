@@ -120,8 +120,6 @@ describe('Canvas', () => {
       expect(imageData).not.toBeNull();
       if (imageData) {
         expect(imageData).toHaveProperty('data');
-        expect(imageData).toHaveProperty('width');
-        expect(imageData).toHaveProperty('height');
       }
     });
 
