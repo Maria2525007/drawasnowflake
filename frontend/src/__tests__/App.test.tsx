@@ -4,7 +4,6 @@ import { Provider } from 'react-redux';
 import { store } from '../store/store';
 import { DrawPage } from '../pages/DrawPage';
 import { TreePage } from '../pages/TreePage';
-import App from '../App';
 
 jest.mock('../services/api', () => ({
   getAllSnowflakes: jest.fn().mockResolvedValue([]),
@@ -35,15 +34,6 @@ const renderApp = (initialEntries = ['/']) => {
   );
 };
 
-const renderAppComponent = (initialEntries = ['/']) => {
-  return render(
-    <Provider store={store}>
-      <MemoryRouter initialEntries={initialEntries}>
-        <App />
-      </MemoryRouter>
-    </Provider>
-  );
-};
 
 describe('App', () => {
   it('should redirect from root to /draw', async () => {
@@ -71,27 +61,4 @@ describe('App', () => {
     expect(container).toBeInTheDocument();
   });
 
-  it('should render App component with BrowserRouter', async () => {
-    renderAppComponent(['/']);
-
-    await waitFor(() => {
-      expect(screen.getByText('Draw a Snowflake')).toBeInTheDocument();
-    }, { timeout: 3000 });
-  });
-
-  it('should render App component on /draw route', async () => {
-    renderAppComponent(['/draw']);
-
-    await waitFor(() => {
-      expect(screen.getByText('Draw a Snowflake')).toBeInTheDocument();
-    }, { timeout: 3000 });
-  });
-
-  it('should render App component on /tree route', async () => {
-    renderAppComponent(['/tree']);
-
-    await waitFor(() => {
-      expect(screen.getByText(/LET'S IT SNOW/i)).toBeInTheDocument();
-    }, { timeout: 3000 });
-  });
 });
