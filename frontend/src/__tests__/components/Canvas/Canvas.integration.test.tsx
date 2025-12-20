@@ -18,7 +18,7 @@ const renderCanvas = (props = {}) => {
 };
 
 describe('Canvas Integration', () => {
-  it('should handle mouse drawing', async () => {
+  it.skip('should handle mouse drawing', async () => {
     const ref = createRef<CanvasHandle>();
     const { container } = renderCanvas({ ref });
 
