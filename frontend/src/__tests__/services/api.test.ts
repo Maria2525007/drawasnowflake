@@ -102,6 +102,31 @@ describe('api service', () => {
       );
       expect(result).toEqual(mockSnowflake);
     });
+
+    it('should exclude isFalling from updates', async () => {
+      const mockSnowflake = { id: '1', x: 200, y: 200 };
+      const updates = { x: 200, y: 200, isFalling: true };
+
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockSnowflake,
+      });
+
+      await updateSnowflakeOnServer('1', updates);
+
+      const callArgs = (global.fetch as jest.Mock).mock.calls[0];
+      const body = JSON.parse(callArgs[1].body);
+      expect(body.isFalling).toBeUndefined();
+    });
+
+    it('should throw error on failed update', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      await expect(updateSnowflakeOnServer('1', { x: 200 })).rejects.toThrow();
+    });
   });
 
   describe('deleteSnowflakeFromServer', () => {
