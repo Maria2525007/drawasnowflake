@@ -5,7 +5,8 @@ export const getApiUrl = (): string => {
   // In browser/Vite, use import.meta.env
   // In Jest, this will throw and we'll catch it
   try {
-    // @ts-expect-error - import.meta is not available in Jest
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - import.meta is not available in Jest
     const viteUrl = import.meta?.env?.VITE_API_URL;
     if (viteUrl) {
       return viteUrl;
