@@ -24,37 +24,12 @@ RUN npm ci --ignore-scripts
 # This helps avoid network issues during generation
 RUN npx prisma --version || true
 
-# Copy Prisma schema
+# Copy Prisma schema and generation script
 COPY prisma ./prisma/
+COPY generate-prisma.sh ./generate-prisma.sh
 
-# Generate Prisma client with robust retry logic
-# Prisma needs to download binary engines, so we retry on network failures
-RUN set -e; \
-    MAX_ATTEMPTS=5; \
-    ATTEMPT=1; \
-    while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do \
-        echo "=== Prisma generate attempt $ATTEMPT/$MAX_ATTEMPTS ==="; \
-        if npx prisma generate --schema=./prisma/schema.prisma; then \
-            echo "✓ Prisma client generated successfully"; \
-            break; \
-        else \
-            EXIT_CODE=$?; \
-            echo "✗ Attempt $ATTEMPT failed with exit code $EXIT_CODE"; \
-            if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then \
-                echo "ERROR: All $MAX_ATTEMPTS attempts failed. Last exit code: $EXIT_CODE"; \
-                exit 1; \
-            fi; \
-            WAIT_TIME=$((ATTEMPT * 3)); \
-            echo "Waiting ${WAIT_TIME}s before retry..."; \
-            sleep $WAIT_TIME; \
-            ATTEMPT=$((ATTEMPT + 1)); \
-        fi; \
-    done; \
-    if [ ! -d "./node_modules/.prisma/client" ]; then \
-        echo "ERROR: Prisma client directory not found after generation"; \
-        exit 1; \
-    fi; \
-    echo "✓ Prisma client verification passed"
+# Make script executable and generate Prisma client with retry logic
+RUN chmod +x ./generate-prisma.sh && ./generate-prisma.sh
 
 # Build stage
 FROM base AS builder
