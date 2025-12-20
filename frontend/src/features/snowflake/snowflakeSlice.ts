@@ -39,12 +39,7 @@ const snowflakeSlice = createSlice({
     addSnowflake: (state, action: PayloadAction<Snowflake>) => {
       state.snowflakes.unshift(action.payload);
       if (state.snowflakes.length > SNOWFLAKE_CONFIG.MAX_SNOWFLAKES_ON_TREE) {
-        const removed = state.snowflakes.pop();
-        if (removed?.id) {
-          import('../../services/api').then(({ deleteSnowflakeFromServer }) => {
-            deleteSnowflakeFromServer(removed.id).catch(() => {});
-          });
-        }
+        state.snowflakes.pop();
       }
     },
     removeSnowflake: (state, action: PayloadAction<string>) => {

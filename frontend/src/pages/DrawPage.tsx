@@ -6,8 +6,16 @@ import { useAppDispatch } from '../hooks/useAppDispatch';
 import { Canvas, type CanvasHandle } from '../components/Canvas/Canvas';
 import { Toolbar } from '../components/UI/Toolbar';
 import { Header } from '../components/UI/Header';
-import { addSnowflake, Snowflake } from '../features/snowflake/snowflakeSlice';
-import { saveSnowflakeToServer } from '../services/api';
+import {
+  addSnowflake,
+  Snowflake,
+  removeSnowflake,
+} from '../features/snowflake/snowflakeSlice';
+import {
+  saveSnowflakeToServer,
+  deleteSnowflakeFromServer,
+} from '../services/api';
+import { useAppSelector } from '../hooks/useAppSelector';
 import { analyzeSnowflake } from '../utils/snowflakeAnalysis';
 import {
   CANVAS_CONFIG,
@@ -24,6 +32,7 @@ export const DrawPage: React.FC = () => {
   const drawCanvasRef = useRef<CanvasHandle>(null);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const snowflakes = useAppSelector((state) => state.snowflake.snowflakes);
 
   const handleGoToTree = () => {
     if (!drawCanvasRef?.current) {
@@ -184,6 +193,14 @@ export const DrawPage: React.FC = () => {
       timeOffset: Math.random() * 20,
       startDelay: Math.random() * 3,
     };
+
+    if (snowflakes.length >= SNOWFLAKE_CONFIG.MAX_SNOWFLAKES_ON_TREE) {
+      const oldestSnowflake = snowflakes[snowflakes.length - 1];
+      if (oldestSnowflake?.id) {
+        deleteSnowflakeFromServer(oldestSnowflake.id).catch(() => {});
+        dispatch(removeSnowflake(oldestSnowflake.id));
+      }
+    }
 
     saveSnowflakeToServer(newSnowflake)
       .then((savedSnowflake) => {
