@@ -1,4 +1,5 @@
 import { render, screen, act } from '@testing-library/react';
+import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { store } from '../../../store/store';
@@ -58,14 +59,21 @@ describe('Toolbar Undo/Redo', () => {
       store.dispatch(saveState('state1'));
     });
 
-    render(
+    const { rerender } = render(
       <Provider store={store}>
         <Toolbar currentTab={0} />
       </Provider>
     );
 
     const undoButton = screen.getByLabelText(/undo/i);
+    expect(undoButton).not.toBeDisabled();
     await user.click(undoButton);
+
+    rerender(
+      <Provider store={store}>
+        <Toolbar currentTab={0} />
+      </Provider>
+    );
 
     const state = store.getState();
     expect(state.history.past).toHaveLength(0);
