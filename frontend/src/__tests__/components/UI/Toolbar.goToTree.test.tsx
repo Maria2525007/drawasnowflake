@@ -174,11 +174,11 @@ describe('Toolbar GoToTree', () => {
       const img = new originalImage();
       setTimeout(() => {
         if (img.onload) {
-          img.onload(new Event('load') as any);
+          img.onload(new Event('load') as unknown as Event);
         }
       }, 0);
       return img;
-    }) as any;
+    }) as unknown as typeof Image;
 
     render(
       <Provider store={store}>

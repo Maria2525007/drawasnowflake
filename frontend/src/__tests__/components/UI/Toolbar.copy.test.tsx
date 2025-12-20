@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { store } from '../../../store/store';
 import { Toolbar } from '../../../components/UI/Toolbar';
 import { createRef } from 'react';
+import * as exportUtils from '../../../utils/export';
 
 jest.mock('../../../utils/export', () => ({
   exportCanvasAsImage: jest.fn(),
@@ -50,8 +51,8 @@ describe('Toolbar Copy', () => {
 
   it('should handle copy failure', async () => {
     const user = userEvent.setup();
-    const { copyCanvasToClipboard } = require('../../../utils/export');
-    copyCanvasToClipboard.mockResolvedValue(false);
+    const mockCopy = jest.mocked(exportUtils.copyCanvasToClipboard);
+    mockCopy.mockResolvedValue(false);
 
     const canvas = document.createElement('canvas');
     canvas.width = 100;
