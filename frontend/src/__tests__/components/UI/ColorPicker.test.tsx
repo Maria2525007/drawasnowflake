@@ -27,10 +27,15 @@ describe('ColorPicker', () => {
     ) as HTMLInputElement;
     expect(colorInput).toBeInTheDocument();
 
-    colorInput.value = '#00ff00';
-    colorInput.dispatchEvent(new Event('change', { bubbles: true }));
+    if (colorInput) {
+      Object.defineProperty(colorInput, 'value', {
+        writable: true,
+        value: '#00ff00',
+      });
+      colorInput.dispatchEvent(new Event('change', { bubbles: true }));
 
-    expect(mockOnColorChange).toHaveBeenCalledWith('#00ff00');
+      expect(mockOnColorChange).toHaveBeenCalledWith('#00ff00');
+    }
   });
 
   it('should display current color', () => {
