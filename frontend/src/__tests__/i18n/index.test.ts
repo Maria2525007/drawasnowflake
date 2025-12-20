@@ -22,12 +22,17 @@ describe('i18n', () => {
 
   describe('getLocale', () => {
     it('should return default locale', () => {
+      localStorage.removeItem('locale');
+      setLocale('en');
       expect(getLocale()).toBe('en');
     });
 
     it('should return locale from localStorage', () => {
-      localStorage.setItem('locale', 'ru');
+      setLocale('ru');
       expect(getLocale()).toBe('ru');
+
+      setLocale('en');
+      expect(getLocale()).toBe('en');
     });
   });
 
