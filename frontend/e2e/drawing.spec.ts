@@ -252,27 +252,35 @@ test.describe('Drawing Page', () => {
 
   test('should undo drawing action', async ({ page }) => {
     await page.goto('/draw');
+    await page.waitForLoadState('networkidle');
     const canvas = page.locator('canvas').first();
     await canvas.waitFor({ state: 'visible' });
     const canvasBox = await canvas.boundingBox();
     
     if (canvasBox) {
-      await page.mouse.move(canvasBox.x + canvasBox.width / 2, canvasBox.y + canvasBox.height / 2);
+      const startX = canvasBox.x + canvasBox.width / 2;
+      const startY = canvasBox.y + canvasBox.height / 2;
+      const endX = startX + 100;
+      const endY = startY + 100;
+      
+      await page.mouse.move(startX, startY);
       await page.mouse.down();
-      await page.mouse.move(canvasBox.x + canvasBox.width / 2 + 50, canvasBox.y + canvasBox.height / 2 + 50);
+      await page.mouse.move(endX, endY, { steps: 10 });
       await page.mouse.up();
       
-      const undoButton = page.locator('button[aria-label="undo"]');
-      await undoButton.waitFor({ state: 'visible', timeout: 5000 });
+      await page.waitForTimeout(1000);
       
       await page.waitForFunction(
         () => {
           const button = document.querySelector('button[aria-label="undo"]') as HTMLButtonElement;
-          return button && !button.disabled;
+          if (!button) return false;
+          const classes = button.className || '';
+          return !classes.includes('Mui-disabled') && !button.hasAttribute('disabled');
         },
-        { timeout: 20000 }
+        { timeout: 15000 }
       );
       
+      const undoButton = page.locator('button[aria-label="undo"]');
       await undoButton.click();
       await page.waitForTimeout(500);
       
@@ -282,41 +290,49 @@ test.describe('Drawing Page', () => {
 
   test('should redo drawing action', async ({ page }) => {
     await page.goto('/draw');
+    await page.waitForLoadState('networkidle');
     const canvas = page.locator('canvas').first();
     await canvas.waitFor({ state: 'visible' });
     const canvasBox = await canvas.boundingBox();
     
     if (canvasBox) {
-      await page.mouse.move(canvasBox.x + canvasBox.width / 2, canvasBox.y + canvasBox.height / 2);
+      const startX = canvasBox.x + canvasBox.width / 2;
+      const startY = canvasBox.y + canvasBox.height / 2;
+      const endX = startX + 100;
+      const endY = startY + 100;
+      
+      await page.mouse.move(startX, startY);
       await page.mouse.down();
-      await page.mouse.move(canvasBox.x + canvasBox.width / 2 + 50, canvasBox.y + canvasBox.height / 2 + 50);
+      await page.mouse.move(endX, endY, { steps: 10 });
       await page.mouse.up();
       
-      const undoButton = page.locator('button[aria-label="undo"]');
-      await undoButton.waitFor({ state: 'visible', timeout: 5000 });
+      await page.waitForTimeout(1000);
       
       await page.waitForFunction(
         () => {
           const button = document.querySelector('button[aria-label="undo"]') as HTMLButtonElement;
-          return button && !button.disabled;
+          if (!button) return false;
+          const classes = button.className || '';
+          return !classes.includes('Mui-disabled') && !button.hasAttribute('disabled');
         },
-        { timeout: 20000 }
+        { timeout: 15000 }
       );
       
+      const undoButton = page.locator('button[aria-label="undo"]');
       await undoButton.click();
       await page.waitForTimeout(1000);
-      
-      const redoButton = page.locator('button[aria-label="redo"]');
-      await redoButton.waitFor({ state: 'visible', timeout: 5000 });
       
       await page.waitForFunction(
         () => {
           const button = document.querySelector('button[aria-label="redo"]') as HTMLButtonElement;
-          return button && !button.disabled;
+          if (!button) return false;
+          const classes = button.className || '';
+          return !classes.includes('Mui-disabled') && !button.hasAttribute('disabled');
         },
-        { timeout: 20000 }
+        { timeout: 15000 }
       );
       
+      const redoButton = page.locator('button[aria-label="redo"]');
       await redoButton.click();
       await page.waitForTimeout(500);
       
