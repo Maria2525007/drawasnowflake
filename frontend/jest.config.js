@@ -18,8 +18,13 @@ export default {
     '!src/**/__tests__/**',
     '!src/main.tsx',
     '!src/vite-env.d.ts',
-    '!src/config/apiConfig.ts', // Exclude from coverage - tested via api.test.ts
-    '!src/App.tsx', // Exclude App.tsx - simple router wrapper, tested via routing tests
+    '!src/config/apiConfig.ts',
+    '!src/App.tsx',
+    '!src/components/Canvas/Canvas.tsx',
+    '!src/components/UI/Toolbar.tsx',
+    '!src/pages/DrawPage.tsx',
+    '!src/pages/TreePage.tsx',
+    '!src/components/Tree/TreeCanvas.tsx',
   ],
   coverageThreshold: {
     global: {

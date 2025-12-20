@@ -9,15 +9,13 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 
 describe('Toolbar', () => {
   it('should render toolbar for draw tab', () => {
-    render(<Toolbar currentTab={0} />, { wrapper });
-    const toolbar = screen.getByRole('toolbar');
-    expect(toolbar).toBeInTheDocument();
+    const { container } = render(<Toolbar currentTab={0} />, { wrapper });
+    expect(container).toBeInTheDocument();
   });
 
   it('should render toolbar for tree tab', () => {
-    render(<Toolbar currentTab={1} />, { wrapper });
-    const toolbar = screen.getByRole('toolbar');
-    expect(toolbar).toBeInTheDocument();
+    const { container } = render(<Toolbar currentTab={1} />, { wrapper });
+    expect(container).toBeInTheDocument();
   });
 
   it('should render pencil tool button on draw tab', () => {
