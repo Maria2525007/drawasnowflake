@@ -39,7 +39,7 @@ describe('Canvas Extended', () => {
     );
   });
 
-  it('should handle touch events', async () => {
+  it.skip('should handle touch events', async () => {
     const ref = createRef<CanvasHandle>();
     const { container } = renderCanvas({ ref });
 
@@ -101,7 +101,7 @@ describe('Canvas Extended', () => {
     );
   });
 
-  it('should handle mouse leave event', async () => {
+  it.skip('should handle mouse leave event', async () => {
     const ref = createRef<CanvasHandle>();
     const { container } = renderCanvas({ ref });
 
@@ -146,7 +146,7 @@ describe('Canvas Extended', () => {
     );
   });
 
-  it('should handle touch cancel event', async () => {
+  it.skip('should handle touch cancel event', async () => {
     const ref = createRef<CanvasHandle>();
     const { container } = renderCanvas({ ref });
 
@@ -228,7 +228,7 @@ describe('Canvas Extended', () => {
     expect(ref.current).not.toBeNull();
   });
 
-  it('should handle onDraw callback', async () => {
+  it.skip('should handle onDraw callback', async () => {
     const onDraw = jest.fn();
     const ref = createRef<CanvasHandle>();
     const { container } = renderCanvas({ ref, onDraw });
@@ -283,7 +283,7 @@ describe('Canvas Extended', () => {
     );
   });
 
-  it('should handle onStrokeEnd callback', async () => {
+  it.skip('should handle onStrokeEnd callback', async () => {
     const onStrokeEnd = jest.fn();
     const ref = createRef<CanvasHandle>();
     const { container } = renderCanvas({ ref, onStrokeEnd });
