@@ -51,7 +51,7 @@ describe('Toolbar Extract Width Height', () => {
       Object.defineProperty(img, 'width', { value: 200, configurable: true });
       Object.defineProperty(img, 'height', { value: 200, configurable: true });
       return img;
-    }) as any;
+    }) as unknown as typeof Image;
 
     render(
       <Provider store={store}>
@@ -116,7 +116,7 @@ describe('Toolbar Extract Width Height', () => {
       Object.defineProperty(img, 'width', { value: 200, configurable: true });
       Object.defineProperty(img, 'height', { value: 200, configurable: true });
       return img;
-    }) as any;
+    }) as unknown as typeof Image;
 
     render(
       <Provider store={store}>
