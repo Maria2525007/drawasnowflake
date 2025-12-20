@@ -58,9 +58,12 @@ describe('Toolbar Export', () => {
     await user.click(exportButton);
 
     // Should not show snackbar when canvasRef is null
-    await waitFor(() => {
-      const snackbar = screen.queryByRole('alert');
-      expect(snackbar).not.toBeInTheDocument();
-    }, { timeout: 500 });
+    await waitFor(
+      () => {
+        const snackbar = screen.queryByRole('alert');
+        expect(snackbar).not.toBeInTheDocument();
+      },
+      { timeout: 500 }
+    );
   });
 });
