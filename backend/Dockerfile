@@ -7,12 +7,12 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
+
+# Install dependencies first (without Prisma generation)
+RUN npm ci --ignore-scripts
+
+# Copy Prisma schema and generate client with correct binary targets
 COPY prisma ./prisma/
-
-# Install dependencies
-RUN npm ci
-
-# Generate Prisma Client with correct binary target for Alpine
 RUN npx prisma generate --schema=./prisma/schema.prisma
 
 # Build stage
