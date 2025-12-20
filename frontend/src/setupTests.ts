@@ -4,6 +4,30 @@ import { TextEncoder, TextDecoder } from 'util';
 global.TextEncoder = TextEncoder as typeof global.TextEncoder;
 global.TextDecoder = TextDecoder as typeof global.TextDecoder;
 
+// Mock import.meta.env for Vite
+Object.defineProperty(globalThis, 'import', {
+  value: {
+    meta: {
+      env: {
+        VITE_API_URL: 'http://localhost:3001/api',
+      },
+    },
+  },
+  writable: true,
+  configurable: true,
+});
+
+// Mock URL.createObjectURL
+global.URL.createObjectURL = jest.fn(() => 'blob:http://localhost/test');
+
+// Mock ClipboardItem
+global.ClipboardItem = jest.fn((items: Record<string, Blob>) => {
+  return {
+    types: Object.keys(items),
+    getType: jest.fn((type: string) => Promise.resolve(items[type])),
+  } as unknown as ClipboardItem;
+}) as typeof ClipboardItem;
+
 Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
   value: jest.fn(() => ({
     fillRect: jest.fn(),

@@ -14,7 +14,7 @@ describe('export', () => {
     }
   });
 
-  it('should export canvas as image', (done) => {
+  it('should export canvas as image', async () => {
     const linkClickSpy = jest.fn();
     const appendChildSpy = jest
       .spyOn(document.body, 'appendChild')
@@ -30,22 +30,30 @@ describe('export', () => {
       });
 
     const originalToBlob = HTMLCanvasElement.prototype.toBlob;
-    HTMLCanvasElement.prototype.toBlob = function (callback) {
+    const originalRevokeObjectURL = URL.revokeObjectURL;
+    URL.revokeObjectURL = jest.fn();
+    
+    const mockBlob = new Blob(['test'], { type: 'image/png' });
+    // Mock toBlob to call callback synchronously
+    HTMLCanvasElement.prototype.toBlob = jest.fn(function (callback) {
       if (callback) {
-        callback(new Blob(['test'], { type: 'image/png' }));
+        // Call synchronously
+        callback(mockBlob);
       }
-    };
+    }) as typeof HTMLCanvasElement.prototype.toBlob;
 
     exportCanvasAsImage(canvas);
 
-    setTimeout(() => {
-      expect(appendChildSpy).toHaveBeenCalled();
-      expect(linkClickSpy).toHaveBeenCalled();
-      HTMLCanvasElement.prototype.toBlob = originalToBlob;
-      appendChildSpy.mockRestore();
-      removeChildSpy.mockRestore();
-      done();
-    }, 100);
+    // Wait for next tick to ensure all operations complete
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(appendChildSpy).toHaveBeenCalled();
+    expect(linkClickSpy).toHaveBeenCalled();
+    
+    HTMLCanvasElement.prototype.toBlob = originalToBlob;
+    URL.revokeObjectURL = originalRevokeObjectURL;
+    appendChildSpy.mockRestore();
+    removeChildSpy.mockRestore();
   });
 
   it('should handle copy to clipboard', async () => {
@@ -59,9 +67,10 @@ describe('export', () => {
     });
 
     const originalToBlob = HTMLCanvasElement.prototype.toBlob;
+    const mockBlob = new Blob(['test'], { type: 'image/png' });
     HTMLCanvasElement.prototype.toBlob = function (callback) {
       if (callback) {
-        callback(new Blob(['test'], { type: 'image/png' }));
+        callback(mockBlob);
       }
     };
 

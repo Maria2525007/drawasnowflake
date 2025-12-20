@@ -29,10 +29,13 @@ export default {
   },
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   globals: {
-    'import.meta': {
-      env: {
-        VITE_API_URL: 'http://localhost:3001/api',
+    'ts-jest': {
+      tsconfig: {
+        esModuleInterop: true,
       },
     },
+  },
+  testEnvironmentOptions: {
+    customExportConditions: [''],
   },
 };
