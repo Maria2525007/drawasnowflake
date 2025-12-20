@@ -6,7 +6,6 @@ import { createRef } from 'react';
 import { saveState } from '../../../features/history/historySlice';
 import { setTool, setColor, setBrushSize } from '../../../features/drawing/drawingSlice';
 
-// Mock dispatch for testing
 jest.mock('../../../hooks/useAppDispatch', () => ({
   useAppDispatch: () => jest.fn(),
 }));
@@ -21,7 +20,6 @@ const renderCanvas = (props = {}) => {
 
 describe('Canvas', () => {
   beforeEach(() => {
-    // Reset devicePixelRatio
     Object.defineProperty(window, 'devicePixelRatio', {
       writable: true,
       configurable: true,
@@ -77,8 +75,6 @@ describe('Canvas', () => {
       const ref = createRef<CanvasHandle>();
       const { unmount } = renderCanvas({ ref });
       
-      // After unmount, canvas should still exist in ref temporarily
-      // but getCanvas should handle it gracefully
       expect(ref.current?.getCanvas()).toBeInstanceOf(HTMLCanvasElement);
       unmount();
     });
@@ -101,7 +97,6 @@ describe('Canvas', () => {
       const ref = createRef<CanvasHandle>();
       renderCanvas({ ref });
 
-      // Should not throw when clearing
       expect(() => ref.current?.clear()).not.toThrow();
     });
 
@@ -127,7 +122,6 @@ describe('Canvas', () => {
       const ref = createRef<CanvasHandle>();
       renderCanvas({ ref });
 
-      // ImageData should still return a value
       const imageData = ref.current?.getImageData();
       expect(imageData).not.toBeNull();
     });
@@ -172,7 +166,6 @@ describe('Canvas', () => {
 
       store.dispatch(setTool('eraser'));
 
-      // Component should handle state updates
       expect(ref.current).not.toBeNull();
     });
 
@@ -203,7 +196,6 @@ describe('Canvas', () => {
       const testState = 'data:image/png;base64,test';
       store.dispatch(saveState(testState));
 
-      // Component should handle history updates
       expect(ref.current).not.toBeNull();
     });
 
@@ -211,11 +203,9 @@ describe('Canvas', () => {
       const ref = createRef<CanvasHandle>();
       renderCanvas({ ref });
 
-      // Save initial state
       store.dispatch(saveState('state1'));
       store.dispatch(saveState('state2'));
 
-      // Component should respond to history changes
       expect(ref.current).not.toBeNull();
     });
   });
@@ -239,7 +229,6 @@ describe('Canvas', () => {
       const ref = createRef<CanvasHandle>();
       renderCanvas({ ref });
 
-      // Offscreen canvas should be initialized
       const imageData = ref.current?.getImageDataForAnalysis();
       expect(imageData).not.toBeNull();
     });
@@ -251,7 +240,6 @@ describe('Canvas', () => {
       const ref = createRef<CanvasHandle>();
       renderCanvas({ ref, onDraw });
 
-      // onDraw is called during drawing interactions
       expect(onDraw).toBeDefined();
     });
 
@@ -267,7 +255,6 @@ describe('Canvas', () => {
       const onZoomChange = jest.fn();
       renderCanvas({ onZoomChange });
 
-      // Callback is defined but may not be used directly in component
       expect(onZoomChange).toBeDefined();
     });
   });
@@ -285,7 +272,6 @@ describe('Canvas', () => {
       const ref = createRef<CanvasHandle>();
       renderCanvas({ ref });
 
-      // Should still return valid data
       const imageData = ref.current?.getImageData();
       expect(imageData).not.toBeNull();
     });

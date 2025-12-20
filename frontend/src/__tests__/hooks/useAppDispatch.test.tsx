@@ -63,7 +63,6 @@ describe('useAppDispatch', () => {
     it('should accept AppDispatch type', () => {
       const { result } = renderHook(() => useAppDispatch(), { wrapper });
       
-      // TypeScript should ensure this works
       expect(typeof result.current).toBe('function');
       expect(() => result.current(setTool('pencil'))).not.toThrow();
     });

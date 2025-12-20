@@ -19,7 +19,6 @@ describe('snowflakeAnalysis', () => {
           data[idx + 2] = pixel.b;
           data[idx + 3] = pixel.a;
         } else {
-          // Default: background color
           data[idx] = CANVAS_CONFIG.BACKGROUND_R;
           data[idx + 1] = CANVAS_CONFIG.BACKGROUND_G;
           data[idx + 2] = CANVAS_CONFIG.BACKGROUND_B;
@@ -51,7 +50,6 @@ describe('snowflakeAnalysis', () => {
         const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
         const angle = Math.atan2(y - centerY, x - centerX);
         
-        // Create 6-fold symmetric pattern
         if (dist < 50 && dist > 20) {
           const sector = Math.floor((angle + Math.PI) / (Math.PI / 3)) % 6;
           if (sector % 2 === 0) {
@@ -124,7 +122,6 @@ describe('snowflakeAnalysis', () => {
 
     it('should filter out background pixels', () => {
       const imageData = createImageData(200, 200, () => {
-        // All background pixels
         return {
           r: CANVAS_CONFIG.BACKGROUND_R,
           g: CANVAS_CONFIG.BACKGROUND_G,
@@ -145,7 +142,6 @@ describe('snowflakeAnalysis', () => {
         const centerY = 100;
         const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
         if (dist < 50) {
-          // Low alpha pixels should be ignored
           return { r: 255, g: 255, b: 255, a: 5 };
         }
         return {
@@ -158,13 +154,11 @@ describe('snowflakeAnalysis', () => {
 
       const result = analyzeSnowflake(imageData, 200, 200);
 
-      // Low alpha pixels should not contribute to analysis
       expect(result.coverage).toBe(0);
     });
 
     it('should calculate coverage correctly', () => {
       const imageData = createImageData(200, 200, (x, y) => {
-        // Fill 25% of canvas
         if (x < 100 && y < 100) {
           return { r: 255, g: 255, b: 255, a: 255 };
         }
@@ -212,7 +206,6 @@ describe('snowflakeAnalysis', () => {
 
     it('should handle asymmetric pattern', () => {
       const imageData = createImageData(200, 200, (x, y) => {
-        // Only draw on one side
         if (x > 100 && x < 150 && y > 50 && y < 150) {
           return { r: 255, g: 255, b: 255, a: 255 };
         }
@@ -226,7 +219,6 @@ describe('snowflakeAnalysis', () => {
 
       const result = analyzeSnowflake(imageData, 200, 200);
 
-      // Asymmetric pattern should have lower symmetry score
       expect(result.similarity).toBeGreaterThanOrEqual(0);
       expect(result.similarity).toBeLessThanOrEqual(100);
       expect(result.symmetry).toBeLessThan(100);
@@ -238,7 +230,6 @@ describe('snowflakeAnalysis', () => {
         const centerY = 100;
         const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
         if (dist < 50) {
-          // High brightness white pixels
           return { r: 255, g: 255, b: 255, a: 255 };
         }
         return {
@@ -251,13 +242,11 @@ describe('snowflakeAnalysis', () => {
 
       const result = analyzeSnowflake(imageData, 200, 200);
 
-      // High brightness should contribute to similarity
       expect(result.similarity).toBeGreaterThanOrEqual(0);
     });
 
     it('should handle background colors within tolerance', () => {
       const imageData = createImageData(200, 200, () => {
-        // Use background color within tolerance
         return {
           r: CANVAS_CONFIG.BACKGROUND_R + 5,
           g: CANVAS_CONFIG.BACKGROUND_G + 5,
@@ -268,7 +257,6 @@ describe('snowflakeAnalysis', () => {
 
       const result = analyzeSnowflake(imageData, 200, 200);
 
-      // Should be treated as background
       expect(result.coverage).toBe(0);
     });
 
@@ -290,7 +278,6 @@ describe('snowflakeAnalysis', () => {
 
       const result = analyzeSnowflake(imageData, 200, 200);
 
-      // Values should be integers (rounded)
       expect(Number.isInteger(result.similarity)).toBe(true);
       expect(Number.isInteger(result.symmetry)).toBe(true);
       expect(Number.isInteger(result.structure)).toBe(true);
@@ -298,14 +285,12 @@ describe('snowflakeAnalysis', () => {
     });
 
     it('should cap similarity at 100', () => {
-      // Create a perfect symmetric pattern with high coverage
       const imageData = createImageData(200, 200, (x, y) => {
         const centerX = 100;
         const centerY = 100;
         const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
         const angle = Math.atan2(y - centerY, x - centerX);
         
-        // Create highly symmetric 6-fold pattern
         if (dist < 80) {
           const sector = Math.floor((angle + Math.PI) / (Math.PI / 3)) % 6;
           if (dist > 20 || sector % 2 === 0) {
@@ -327,7 +312,6 @@ describe('snowflakeAnalysis', () => {
     });
 
     it('should cap coverage at 100', () => {
-      // Fill entire canvas
       const imageData = createImageData(200, 200, () => {
         return { r: 255, g: 255, b: 255, a: 255 };
       });
@@ -346,7 +330,7 @@ describe('snowflakeAnalysis', () => {
       ];
 
       sizes.forEach(({ w, h }) => {
-        const imageData = createImageData(w, h, (_x, _y) => {
+        const imageData = createImageData(w, h, (x, y) => {
           const centerX = w / 2;
           const centerY = h / 2;
           const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));

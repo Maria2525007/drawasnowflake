@@ -9,31 +9,25 @@ describe('export utilities', () => {
   let mockLink: HTMLAnchorElement;
 
   beforeEach(() => {
-    // Create mock canvas
     mockCanvas = document.createElement('canvas');
     mockCanvas.width = 100;
     mockCanvas.height = 100;
 
-    // Create mock blob
     mockBlob = new Blob(['test'], { type: 'image/png' });
 
-    // Create mock link element
     mockLink = document.createElement('a');
     document.body.appendChild = jest.fn();
     document.body.removeChild = jest.fn();
 
-    // Mock URL methods
     global.URL.createObjectURL = jest.fn(() => 'blob:mock-url');
     global.URL.revokeObjectURL = jest.fn();
 
-    // Mock canvas.toBlob
     mockCanvas.toBlob = jest.fn((callback) => {
       if (callback) {
         callback(mockBlob);
       }
     });
 
-    // Mock document.createElement for anchor
     jest.spyOn(document, 'createElement').mockImplementation((tagName) => {
       if (tagName === 'a') {
         return mockLink;
@@ -41,7 +35,6 @@ describe('export utilities', () => {
       return document.createElement(tagName);
     });
 
-    // Mock link.click
     mockLink.click = jest.fn();
   });
 
@@ -109,7 +102,6 @@ describe('export utilities', () => {
 
   describe('copyCanvasToClipboard', () => {
     beforeEach(() => {
-      // Mock navigator.clipboard
       global.navigator.clipboard = {
         write: jest.fn().mockResolvedValue(undefined),
       } as unknown as Clipboard;
@@ -169,10 +161,8 @@ describe('export utilities', () => {
     it('should handle toBlob promise rejection', async () => {
       mockCanvas.toBlob = jest.fn();
 
-      // toBlob should call callback, but if it doesn't, the promise should resolve
       const result = await copyCanvasToClipboard(mockCanvas);
 
-      // Since toBlob didn't call callback, blob should be null
       expect(result).toBe(false);
     });
 

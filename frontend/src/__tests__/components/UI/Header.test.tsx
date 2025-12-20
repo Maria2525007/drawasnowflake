@@ -35,11 +35,9 @@ describe('Header', () => {
     it('should render Typography components', () => {
       render(<Header />);
       
-      // Should have heading
       const heading = screen.getByRole('heading', { level: 1 });
       expect(heading).toBeInTheDocument();
       
-      // Should have description text
       const description = screen.getByText(/Draw a snowflake and watch it fall/i);
       expect(description).toBeInTheDocument();
     });
@@ -56,10 +54,8 @@ describe('Header', () => {
       setLocale('ru');
       const { rerender } = render(<Header />);
       
-      // Force re-render to pick up locale change
       rerender(<Header />);
       
-      // Should show Russian title
       expect(screen.getByText(/Нарисуй Снежинку/i)).toBeInTheDocument();
     });
 
@@ -78,7 +74,6 @@ describe('Header', () => {
       const box = container.querySelector('div[class*="MuiBox"]');
       expect(box).toBeInTheDocument();
       
-      // Check if box has styling
       expect(box).toHaveStyle({
         textAlign: 'center',
       });
@@ -88,7 +83,6 @@ describe('Header', () => {
       const { container } = render(<Header />);
       const box = container.querySelector('div[class*="MuiBox"]');
       
-      // Box should have center text alignment
       expect(box).toBeInTheDocument();
     });
   });

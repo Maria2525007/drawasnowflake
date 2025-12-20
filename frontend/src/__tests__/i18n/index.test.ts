@@ -4,7 +4,6 @@ import { ru } from '../../i18n/locales/ru';
 
 describe('i18n', () => {
   beforeEach(() => {
-    // Reset locale to default
     localStorage.clear();
     setLocale('en');
   });
@@ -75,7 +74,6 @@ describe('i18n', () => {
 
     it('should handle multiple parameters', () => {
       setLocale('en');
-      // Assuming there's a key with multiple params, or test with existing key
       const translated = t('drawPage.similarity', { value: '90' });
       expect(translated).toBeTruthy();
     });
@@ -94,8 +92,6 @@ describe('i18n', () => {
 
     it('should return key if value is not a string', () => {
       setLocale('en');
-      // This tests the case where a key exists but value is not a string
-      // We'll use a key that might not exist to trigger this path
       const translated = t('invalid.key.path');
       expect(translated).toBe('invalid.key.path');
     });
@@ -103,7 +99,6 @@ describe('i18n', () => {
     it('should handle missing parameter values', () => {
       setLocale('en');
       const translated = t('drawPage.similarity', {});
-      // Should replace with {value} placeholder if param is missing
       expect(translated).toBeTruthy();
     });
 
@@ -121,7 +116,6 @@ describe('i18n', () => {
 
     it('should handle deeply nested keys', () => {
       setLocale('en');
-      // Test with a key that exists in the locale files
       const translated = t('header.title');
       expect(translated).toBeTruthy();
       expect(typeof translated).toBe('string');
@@ -131,8 +125,6 @@ describe('i18n', () => {
   describe('Locale persistence', () => {
     it('should load locale from localStorage on initialization', () => {
       localStorage.setItem('locale', 'ru');
-      // Since getLocale reads from module-level variable, we need to test the localStorage reading
-      // The module initializes currentLocale from localStorage
       expect(localStorage.getItem('locale')).toBe('ru');
     });
 

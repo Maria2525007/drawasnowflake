@@ -198,7 +198,6 @@ describe('historySlice', () => {
         state = historyReducer(state, saveState(`state${i}`));
       }
       
-      // Oldest states should be removed
       expect(state.past.length).toBe(50);
       expect(state.past[0]).not.toBe('state0');
       expect(state.present).toBe('state55');
@@ -222,11 +221,9 @@ describe('historySlice', () => {
       state = historyReducer(state, saveState('state2'));
       state = historyReducer(state, saveState('state3'));
       
-      // Undo twice
       state = historyReducer(state, undo());
       state = historyReducer(state, undo());
       
-      // Redo once
       state = historyReducer(state, redo());
       
       expect(state.present).toBe('state2');
