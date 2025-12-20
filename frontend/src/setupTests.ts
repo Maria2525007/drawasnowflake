@@ -78,3 +78,8 @@ Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
   writable: true,
   configurable: true,
 });
+
+afterEach(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+});
