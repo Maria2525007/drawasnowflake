@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { snowflakeController } from '../controllers/snowflakeController';
+import { snowflakeController } from '../controllers/snowflakeController.js';
 
 export const snowflakeRouter = Router();
 
