@@ -30,9 +30,10 @@ Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
   value: jest.fn(() => ({
     fillRect: jest.fn(),
     clearRect: jest.fn(),
-    getImageData: jest.fn(() => ({
-      data: new Uint8ClampedArray(4),
-    })),
+    getImageData: jest.fn((sx, sy, sw, sh) => {
+      const data = new Uint8ClampedArray((sw || 1) * (sh || 1) * 4);
+      return new ImageData(data, sw || 1, sh || 1);
+    }),
     putImageData: jest.fn(),
     createImageData: jest.fn(() => ({
       data: new Uint8ClampedArray(4),
