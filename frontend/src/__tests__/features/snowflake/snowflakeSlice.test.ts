@@ -59,13 +59,21 @@ describe('snowflakeSlice', () => {
           addSnowflake({ ...mockSnowflake, id: `snowflake-${i}` })
         );
       }
-      expect(state.snowflakes).toHaveLength(SNOWFLAKE_CONFIG.MAX_SNOWFLAKES_ON_TREE);
-      expect(state.snowflakes[0].id).toBe(`snowflake-${SNOWFLAKE_CONFIG.MAX_SNOWFLAKES_ON_TREE - 1}`);
+      expect(state.snowflakes).toHaveLength(
+        SNOWFLAKE_CONFIG.MAX_SNOWFLAKES_ON_TREE
+      );
+      expect(state.snowflakes[0].id).toBe(
+        `snowflake-${SNOWFLAKE_CONFIG.MAX_SNOWFLAKES_ON_TREE - 1}`
+      );
       const newSnowflake = { ...mockSnowflake, id: 'new-snowflake' };
       state = snowflakeReducer(state, addSnowflake(newSnowflake));
-      expect(state.snowflakes).toHaveLength(SNOWFLAKE_CONFIG.MAX_SNOWFLAKES_ON_TREE);
+      expect(state.snowflakes).toHaveLength(
+        SNOWFLAKE_CONFIG.MAX_SNOWFLAKES_ON_TREE
+      );
       expect(state.snowflakes[0].id).toBe('new-snowflake');
-      expect(state.snowflakes[state.snowflakes.length - 1].id).toBe('snowflake-1');
+      expect(state.snowflakes[state.snowflakes.length - 1].id).toBe(
+        'snowflake-1'
+      );
     });
   });
 
@@ -231,7 +239,9 @@ describe('snowflakeSlice', () => {
         })
       );
 
-      expect(state.snowflakes[0].rotation).toBeLessThan(SNOWFLAKE_CONFIG.FULL_ROTATION);
+      expect(state.snowflakes[0].rotation).toBeLessThan(
+        SNOWFLAKE_CONFIG.FULL_ROTATION
+      );
     });
 
     it('should animate drift with driftSpeed and driftPhase', () => {
@@ -290,7 +300,9 @@ describe('snowflakeSlice', () => {
         })
       );
 
-      expect(state.snowflakes[0].x).toBeGreaterThanOrEqual(SNOWFLAKE_CONFIG.BORDER_PADDING);
+      expect(state.snowflakes[0].x).toBeGreaterThanOrEqual(
+        SNOWFLAKE_CONFIG.BORDER_PADDING
+      );
     });
 
     it('should clamp x position to MAX_X when drift moves right', () => {
