@@ -88,7 +88,7 @@ global.requestAnimationFrame = jest.fn((cb) => {
 
 global.cancelAnimationFrame = jest.fn();
 
-global.requestIdleCallback = jest.fn((cb, options?) => {
+global.requestIdleCallback = jest.fn((cb) => {
   if (typeof cb === 'function') {
     setTimeout(cb, 0);
   }
@@ -96,3 +96,26 @@ global.requestIdleCallback = jest.fn((cb, options?) => {
 });
 
 global.cancelIdleCallback = jest.fn();
+
+if (typeof ImageData === 'undefined') {
+  global.ImageData = class ImageData {
+    data: Uint8ClampedArray;
+    width: number;
+    height: number;
+    constructor(
+      dataOrWidth: Uint8ClampedArray | number,
+      widthOrHeight?: number,
+      height?: number
+    ) {
+      if (typeof dataOrWidth === 'number') {
+        this.width = dataOrWidth;
+        this.height = widthOrHeight || dataOrWidth;
+        this.data = new Uint8ClampedArray(this.width * this.height * 4);
+      } else {
+        this.data = dataOrWidth;
+        this.width = widthOrHeight || 0;
+        this.height = height || 0;
+      }
+    }
+  } as typeof ImageData;
+}

@@ -17,10 +17,10 @@ describe('analytics', () => {
   describe('initAnalytics', () => {
     it('should initialize analytics with measurement ID', () => {
       initAnalytics('GA_TEST_ID');
-      
+
       const scripts = document.head.querySelectorAll('script');
       expect(scripts.length).toBeGreaterThan(0);
-      
+
       expect(window.gtag).toBeDefined();
       expect(typeof window.gtag).toBe('function');
     });
@@ -34,26 +34,27 @@ describe('analytics', () => {
     it('should not initialize if window is undefined', () => {
       const originalWindow = global.window;
       delete (global as { window?: Window }).window;
-      
+
       expect(() => initAnalytics('GA_TEST_ID')).not.toThrow();
-      
+
       global.window = originalWindow;
     });
 
     it('should append scripts to document head', () => {
-      const initialScriptCount = document.head.querySelectorAll('script').length;
+      const initialScriptCount =
+        document.head.querySelectorAll('script').length;
       initAnalytics('GA_TEST_ID');
       const finalScriptCount = document.head.querySelectorAll('script').length;
-      
+
       expect(finalScriptCount).toBeGreaterThan(initialScriptCount);
     });
 
     it('should configure gtag with measurement ID', () => {
       const mockDataLayer: unknown[] = [];
       window.dataLayer = mockDataLayer;
-      
+
       initAnalytics('GA_TEST_ID');
-      
+
       expect(mockDataLayer.length).toBeGreaterThan(0);
     });
 
@@ -63,7 +64,7 @@ describe('analytics', () => {
       const gtagScript = Array.from(scripts).find((s) =>
         s.src.includes('googletagmanager.com')
       );
-      
+
       expect(gtagScript?.async).toBe(true);
     });
   });
@@ -75,7 +76,11 @@ describe('analytics', () => {
 
     it('should call gtag with event name', () => {
       trackEvent('test_event');
-      expect(window.gtag).toHaveBeenCalledWith('event', 'test_event', undefined);
+      expect(window.gtag).toHaveBeenCalledWith(
+        'event',
+        'test_event',
+        undefined
+      );
     });
 
     it('should call gtag with event name and params', () => {
@@ -91,7 +96,11 @@ describe('analytics', () => {
 
     it('should handle undefined params', () => {
       trackEvent('test_event', undefined);
-      expect(window.gtag).toHaveBeenCalledWith('event', 'test_event', undefined);
+      expect(window.gtag).toHaveBeenCalledWith(
+        'event',
+        'test_event',
+        undefined
+      );
     });
 
     it('should handle empty params object', () => {
@@ -102,9 +111,9 @@ describe('analytics', () => {
     it('should not throw if window is undefined', () => {
       const originalWindow = global.window;
       delete (global as { window?: Window }).window;
-      
+
       expect(() => trackEvent('test_event')).not.toThrow();
-      
+
       global.window = originalWindow;
     });
   });
@@ -116,7 +125,11 @@ describe('analytics', () => {
 
     it('should track snowflake_created event', () => {
       trackSnowflakeCreated();
-      expect(window.gtag).toHaveBeenCalledWith('event', 'snowflake_created', undefined);
+      expect(window.gtag).toHaveBeenCalledWith(
+        'event',
+        'snowflake_created',
+        undefined
+      );
     });
 
     it('should not throw if gtag is not defined', () => {
@@ -132,7 +145,11 @@ describe('analytics', () => {
 
     it('should track work_saved event', () => {
       trackWorkSaved();
-      expect(window.gtag).toHaveBeenCalledWith('event', 'work_saved', undefined);
+      expect(window.gtag).toHaveBeenCalledWith(
+        'event',
+        'work_saved',
+        undefined
+      );
     });
 
     it('should not throw if gtag is not defined', () => {
@@ -148,7 +165,11 @@ describe('analytics', () => {
 
     it('should track image_exported event', () => {
       trackImageExported();
-      expect(window.gtag).toHaveBeenCalledWith('event', 'image_exported', undefined);
+      expect(window.gtag).toHaveBeenCalledWith(
+        'event',
+        'image_exported',
+        undefined
+      );
     });
 
     it('should not throw if gtag is not defined', () => {
