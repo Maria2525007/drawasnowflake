@@ -33,14 +33,14 @@ describe('Tree', () => {
     it('should render TreeCanvas when ref is provided', () => {
       const ref = createRef<HTMLCanvasElement>();
       const { container } = renderTree({ ref });
-      
+
       expect(container.querySelector('canvas')).toBeInTheDocument();
       expect(ref).toBeDefined();
     });
 
     it('should render TreeCanvas when ref is not provided', () => {
       const { container } = renderTree();
-      
+
       expect(container.querySelector('canvas')).toBeInTheDocument();
     });
   });
@@ -49,7 +49,7 @@ describe('Tree', () => {
     it('should pass ref to TreeCanvas when ref has current property', () => {
       const ref = createRef<HTMLCanvasElement>();
       renderTree({ ref });
-      
+
       expect(ref).toBeDefined();
       expect(typeof ref).toBe('object');
     });
@@ -57,7 +57,7 @@ describe('Tree', () => {
     it('should handle ref object correctly', () => {
       const ref = createRef<HTMLCanvasElement>();
       const { container } = renderTree({ ref });
-      
+
       expect(container).toBeInTheDocument();
     });
   });

@@ -8,11 +8,21 @@ import {
   setBrushSize,
 } from '../../features/drawing/drawingSlice';
 import { selectSnowflake } from '../../features/snowflake/snowflakeSlice';
+import { clearHistory } from '../../features/history/historySlice';
 
 describe('useAppSelector', () => {
   const wrapper = ({ children }: { children: React.ReactNode }) => (
     <Provider store={store}>{children}</Provider>
   );
+
+  beforeEach(() => {
+    act(() => {
+      store.dispatch(setColor('#ffffff'));
+      store.dispatch(setTool('pencil'));
+      store.dispatch(setBrushSize(5));
+      store.dispatch(clearHistory());
+    });
+  });
 
   describe('Basic Functionality', () => {
     it('should return selected state', () => {
@@ -28,7 +38,7 @@ describe('useAppSelector', () => {
         () => useAppSelector((state) => state.drawing),
         { wrapper }
       );
-      
+
       expect(result.current.tool).toBe('pencil');
       expect(result.current.color).toBe('#ffffff');
       expect(result.current.brushSize).toBe(5);
@@ -41,7 +51,7 @@ describe('useAppSelector', () => {
         () => useAppSelector((state) => state.drawing.tool),
         { wrapper }
       );
-      
+
       expect(result.current).toBe('pencil');
 
       act(() => {
@@ -121,6 +131,10 @@ describe('useAppSelector', () => {
     });
 
     it('should select nested properties', () => {
+      act(() => {
+        store.dispatch(setColor('#ffffff'));
+      });
+
       const { result } = renderHook(
         () => useAppSelector((state) => state.drawing.color),
         { wrapper }
@@ -131,10 +145,7 @@ describe('useAppSelector', () => {
 
     it('should select computed values', () => {
       const { result } = renderHook(
-        () =>
-          useAppSelector(
-            (state) => state.snowflake.snowflakes.length
-          ),
+        () => useAppSelector((state) => state.snowflake.snowflakes.length),
         { wrapper }
       );
 
@@ -149,7 +160,7 @@ describe('useAppSelector', () => {
         () => useAppSelector((state) => state.drawing.tool),
         { wrapper }
       );
-      
+
       const { result: colorResult } = renderHook(
         () => useAppSelector((state) => state.drawing.color),
         { wrapper }

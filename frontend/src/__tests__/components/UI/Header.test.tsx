@@ -34,11 +34,13 @@ describe('Header', () => {
 
     it('should render Typography components', () => {
       render(<Header />);
-      
+
       const heading = screen.getByRole('heading', { level: 1 });
       expect(heading).toBeInTheDocument();
-      
-      const description = screen.getByText(/Draw a snowflake and watch it fall/i);
+
+      const description = screen.getByText(
+        /Draw a snowflake and watch it fall/i
+      );
       expect(description).toBeInTheDocument();
     });
   });
@@ -52,18 +54,19 @@ describe('Header', () => {
 
     it('should render title in Russian when locale is changed', () => {
       setLocale('ru');
-      const { rerender } = render(<Header />);
-      
-      rerender(<Header />);
-      
-      expect(screen.getByText(/Нарисуй Снежинку/i)).toBeInTheDocument();
+      render(<Header />);
+
+      const heading = screen.getByRole('heading', { level: 1 });
+      expect(heading).toHaveTextContent(/Нарисуй Снежинку/i);
     });
 
     it('should render description in correct language', () => {
       setLocale('en');
       render(<Header />);
-      
-      const description = screen.getByText(/Draw a snowflake and watch it fall/i);
+
+      const description = screen.getByText(
+        /Draw a snowflake and watch it fall/i
+      );
       expect(description).toBeInTheDocument();
     });
   });
@@ -73,7 +76,7 @@ describe('Header', () => {
       const { container } = render(<Header />);
       const box = container.querySelector('div[class*="MuiBox"]');
       expect(box).toBeInTheDocument();
-      
+
       expect(box).toHaveStyle({
         textAlign: 'center',
       });
@@ -82,7 +85,7 @@ describe('Header', () => {
     it('should have correct text alignment', () => {
       const { container } = render(<Header />);
       const box = container.querySelector('div[class*="MuiBox"]');
-      
+
       expect(box).toBeInTheDocument();
     });
   });
@@ -97,11 +100,13 @@ describe('Header', () => {
 
     it('should have descriptive text content', () => {
       render(<Header />);
-      
+
       const title = screen.getByText('Draw a Snowflake');
       expect(title).toBeInTheDocument();
-      
-      const description = screen.getByText(/Draw a snowflake and watch it fall/i);
+
+      const description = screen.getByText(
+        /Draw a snowflake and watch it fall/i
+      );
       expect(description).toBeInTheDocument();
     });
   });

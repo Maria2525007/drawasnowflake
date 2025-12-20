@@ -2,7 +2,11 @@ import { renderHook } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { store } from '../../store/store';
-import { setTool, setColor, setBrushSize } from '../../features/drawing/drawingSlice';
+import {
+  setTool,
+  setColor,
+  setBrushSize,
+} from '../../features/drawing/drawingSlice';
 
 describe('useAppDispatch', () => {
   const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -16,11 +20,13 @@ describe('useAppDispatch', () => {
     });
 
     it('should return the same dispatch function on re-render', () => {
-      const { result, rerender } = renderHook(() => useAppDispatch(), { wrapper });
+      const { result, rerender } = renderHook(() => useAppDispatch(), {
+        wrapper,
+      });
       const firstDispatch = result.current;
-      
+
       rerender();
-      
+
       expect(result.current).toBe(firstDispatch);
     });
   });
@@ -28,7 +34,7 @@ describe('useAppDispatch', () => {
   describe('Action Dispatching', () => {
     it('should dispatch actions correctly', () => {
       const { result } = renderHook(() => useAppDispatch(), { wrapper });
-      
+
       result.current(setTool('eraser'));
 
       const state = store.getState();
@@ -37,7 +43,7 @@ describe('useAppDispatch', () => {
 
     it('should dispatch multiple actions', () => {
       const { result } = renderHook(() => useAppDispatch(), { wrapper });
-      
+
       result.current(setTool('pencil'));
       result.current(setColor('#ff0000'));
       result.current(setBrushSize(10));
@@ -50,7 +56,7 @@ describe('useAppDispatch', () => {
 
     it('should handle action creators correctly', () => {
       const { result } = renderHook(() => useAppDispatch(), { wrapper });
-      
+
       const action = setTool('eraser');
       result.current(action);
 
@@ -62,7 +68,7 @@ describe('useAppDispatch', () => {
   describe('Type Safety', () => {
     it('should accept AppDispatch type', () => {
       const { result } = renderHook(() => useAppDispatch(), { wrapper });
-      
+
       expect(typeof result.current).toBe('function');
       expect(() => result.current(setTool('pencil'))).not.toThrow();
     });

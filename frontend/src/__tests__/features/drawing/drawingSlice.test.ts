@@ -120,7 +120,7 @@ describe('drawingSlice', () => {
     });
 
     it('should handle rapid state changes', () => {
-      let state = initialState;
+      let state = drawingReducer(undefined, { type: 'unknown' });
       for (let i = 0; i < 10; i++) {
         state = drawingReducer(state, setBrushSize(i));
         state = drawingReducer(state, setColor(`#${i.toString(16).repeat(6)}`));
