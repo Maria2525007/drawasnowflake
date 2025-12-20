@@ -10,6 +10,7 @@ import snowflakeReducer, {
   animateSnowflakes,
   Snowflake,
 } from '../../../features/snowflake/snowflakeSlice';
+import { SNOWFLAKE_CONFIG } from '../../../config/constants';
 
 describe('snowflakeSlice', () => {
   const initialState = {
@@ -48,6 +49,31 @@ describe('snowflakeSlice', () => {
       const snowflake2 = { ...mockSnowflake, id: '2' };
       state = snowflakeReducer(state, addSnowflake(snowflake2));
       expect(state.snowflakes).toHaveLength(2);
+    });
+
+    it('should remove oldest snowflake when MAX_SNOWFLAKES_ON_TREE is exceeded', () => {
+      let state = initialState;
+      for (let i = 0; i < SNOWFLAKE_CONFIG.MAX_SNOWFLAKES_ON_TREE; i++) {
+        state = snowflakeReducer(
+          state,
+          addSnowflake({ ...mockSnowflake, id: `snowflake-${i}` })
+        );
+      }
+      expect(state.snowflakes).toHaveLength(
+        SNOWFLAKE_CONFIG.MAX_SNOWFLAKES_ON_TREE
+      );
+      expect(state.snowflakes[0].id).toBe(
+        `snowflake-${SNOWFLAKE_CONFIG.MAX_SNOWFLAKES_ON_TREE - 1}`
+      );
+      const newSnowflake = { ...mockSnowflake, id: 'new-snowflake' };
+      state = snowflakeReducer(state, addSnowflake(newSnowflake));
+      expect(state.snowflakes).toHaveLength(
+        SNOWFLAKE_CONFIG.MAX_SNOWFLAKES_ON_TREE
+      );
+      expect(state.snowflakes[0].id).toBe('new-snowflake');
+      expect(state.snowflakes[state.snowflakes.length - 1].id).toBe(
+        'snowflake-1'
+      );
     });
   });
 
@@ -191,6 +217,153 @@ describe('snowflakeSlice', () => {
       expect(state.snowflakes[0].rotation).toBeGreaterThan(0);
     });
 
+    it('should reset rotation when it exceeds FULL_ROTATION', () => {
+      const snowflakeWithHighRotation = {
+        ...mockSnowflake,
+        rotation: SNOWFLAKE_CONFIG.FULL_ROTATION - 1,
+        isFalling: true,
+        fallSpeed: 1,
+      };
+      const stateWithSnowflake = {
+        ...initialState,
+        snowflakes: [snowflakeWithHighRotation],
+        animationSpeed: 100,
+      };
+
+      const state = snowflakeReducer(
+        stateWithSnowflake,
+        animateSnowflakes({
+          deltaTime: 0.1,
+          canvasHeight: 1000,
+          canvasWidth: 800,
+        })
+      );
+
+      expect(state.snowflakes[0].rotation).toBeLessThan(
+        SNOWFLAKE_CONFIG.FULL_ROTATION
+      );
+    });
+
+    it('should animate drift with driftSpeed and driftPhase', () => {
+      const snowflakeWithDrift = {
+        ...mockSnowflake,
+        x: 400,
+        isFalling: true,
+        fallSpeed: 1,
+        driftSpeed: 10,
+        driftPhase: 0,
+        timeOffset: 0,
+      };
+      const stateWithSnowflake = {
+        ...initialState,
+        snowflakes: [snowflakeWithDrift],
+        animationSpeed: 1.5,
+      };
+
+      const initialStateX = stateWithSnowflake.snowflakes[0].x;
+      const state = snowflakeReducer(
+        stateWithSnowflake,
+        animateSnowflakes({
+          deltaTime: 0.1,
+          canvasHeight: 1000,
+          canvasWidth: 800,
+          currentTime: 10,
+        })
+      );
+
+      expect(state.snowflakes[0].x).not.toBe(initialStateX);
+    });
+
+    it('should clamp x position to MIN_X when drift moves left', () => {
+      const snowflakeAtLeftEdge = {
+        ...mockSnowflake,
+        x: SNOWFLAKE_CONFIG.BORDER_PADDING + 5,
+        isFalling: true,
+        fallSpeed: 1,
+        driftSpeed: -1000,
+        driftPhase: Math.PI,
+        timeOffset: 0,
+      };
+      const stateWithSnowflake = {
+        ...initialState,
+        snowflakes: [snowflakeAtLeftEdge],
+        animationSpeed: 1.5,
+      };
+
+      const state = snowflakeReducer(
+        stateWithSnowflake,
+        animateSnowflakes({
+          deltaTime: 0.1,
+          canvasHeight: 1000,
+          canvasWidth: 800,
+          currentTime: 10,
+        })
+      );
+
+      expect(state.snowflakes[0].x).toBeGreaterThanOrEqual(
+        SNOWFLAKE_CONFIG.BORDER_PADDING
+      );
+    });
+
+    it('should clamp x position to MAX_X when drift moves right', () => {
+      const canvasWidth = 800;
+      const maxX = canvasWidth - SNOWFLAKE_CONFIG.BORDER_PADDING;
+      const snowflakeAtRightEdge = {
+        ...mockSnowflake,
+        x: maxX - 5,
+        isFalling: true,
+        fallSpeed: 1,
+        driftSpeed: 1000,
+        driftPhase: 0,
+        timeOffset: 0,
+      };
+      const stateWithSnowflake = {
+        ...initialState,
+        snowflakes: [snowflakeAtRightEdge],
+        animationSpeed: 1.5,
+      };
+
+      const state = snowflakeReducer(
+        stateWithSnowflake,
+        animateSnowflakes({
+          deltaTime: 0.1,
+          canvasHeight: 1000,
+          canvasWidth,
+          currentTime: 10,
+        })
+      );
+
+      expect(state.snowflakes[0].x).toBeLessThanOrEqual(maxX);
+    });
+
+    it('should initialize timeOffset when undefined during reset', () => {
+      const fallingSnowflake = {
+        ...mockSnowflake,
+        y: 1100,
+        isFalling: true,
+        fallSpeed: 1,
+        driftPhase: 0,
+        timeOffset: undefined,
+      };
+      const stateWithSnowflake = {
+        ...initialState,
+        snowflakes: [fallingSnowflake],
+        animationSpeed: 1.5,
+      };
+
+      const state = snowflakeReducer(
+        stateWithSnowflake,
+        animateSnowflakes({
+          deltaTime: 0.1,
+          canvasHeight: 1000,
+          canvasWidth: 800,
+        })
+      );
+
+      expect(state.snowflakes[0].timeOffset).toBeDefined();
+      expect(typeof state.snowflakes[0].timeOffset).toBe('number');
+    });
+
     it('should reset snowflake position when it falls below canvas', () => {
       const fallingSnowflake = {
         ...mockSnowflake,
@@ -215,6 +388,85 @@ describe('snowflakeSlice', () => {
       );
 
       expect(state.snowflakes[0].y).toBeLessThan(100);
+    });
+
+    it('should apply startDelay before starting animation', () => {
+      const snowflakeWithDelay = {
+        ...mockSnowflake,
+        y: 100,
+        isFalling: true,
+        fallSpeed: 10,
+        startDelay: 2,
+      };
+      const stateWithSnowflake = {
+        ...initialState,
+        snowflakes: [snowflakeWithDelay],
+        animationSpeed: 1.5,
+      };
+
+      const initialStateY = stateWithSnowflake.snowflakes[0].y;
+      const state = snowflakeReducer(
+        stateWithSnowflake,
+        animateSnowflakes({
+          deltaTime: 0.1,
+          canvasHeight: 1000,
+          canvasWidth: 800,
+          currentTime: 1,
+        })
+      );
+
+      expect(state.snowflakes[0].y).toBe(initialStateY);
+
+      const stateAfterDelay = snowflakeReducer(
+        stateWithSnowflake,
+        animateSnowflakes({
+          deltaTime: 0.1,
+          canvasHeight: 1000,
+          canvasWidth: 800,
+          currentTime: 3,
+        })
+      );
+
+      expect(stateAfterDelay.snowflakes[0].y).toBeGreaterThan(initialStateY);
+    });
+
+    it('should use currentTime when provided', () => {
+      const snowflakeWithTimeOffset = {
+        ...mockSnowflake,
+        x: 400,
+        isFalling: true,
+        fallSpeed: 1,
+        driftSpeed: 10,
+        driftPhase: 0,
+        timeOffset: 5,
+      };
+      const stateWithSnowflake = {
+        ...initialState,
+        snowflakes: [snowflakeWithTimeOffset],
+        animationSpeed: 1.5,
+      };
+
+      const state1 = snowflakeReducer(
+        stateWithSnowflake,
+        animateSnowflakes({
+          deltaTime: 0.1,
+          canvasHeight: 1000,
+          canvasWidth: 800,
+          currentTime: 10,
+        })
+      );
+
+      const state2 = snowflakeReducer(
+        stateWithSnowflake,
+        animateSnowflakes({
+          deltaTime: 0.1,
+          canvasHeight: 1000,
+          canvasWidth: 800,
+          currentTime: 20,
+        })
+      );
+
+      expect(state1.snowflakes[0].x).not.toBe(state2.snowflakes[0].x);
     });
   });
 });

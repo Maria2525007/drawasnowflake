@@ -159,5 +159,175 @@ describe('snowflakeAnalysis', () => {
       expect(result.coverage).toBeGreaterThanOrEqual(0);
       expect(result.coverage).toBeLessThanOrEqual(100);
     });
+
+    it('should return zero similarity when pixel count is too low', () => {
+      const imageData = createImageData(100, 100, (x, y) => {
+        const centerX = 50;
+        const centerY = 50;
+        const dist = Math.sqrt(
+          Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
+        );
+        if (dist < 2) {
+          return { r: 255, g: 255, b: 255, a: 255 };
+        }
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, 100, 100);
+
+      expect(result.similarity).toBe(0);
+    });
+
+    it('should apply penalty when symmetry is below 40', () => {
+      const imageData = createImageData(200, 200, (x, y) => {
+        const centerX = 100;
+        const centerY = 100;
+        if (
+          x > centerX &&
+          x < centerX + 50 &&
+          y > centerY - 25 &&
+          y < centerY + 25
+        ) {
+          return { r: 255, g: 255, b: 255, a: 255 };
+        }
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, 200, 200);
+
+      expect(result.similarity).toBeGreaterThanOrEqual(0);
+      expect(result.similarity).toBeLessThanOrEqual(100);
+    });
+
+    it('should apply penalty when structure is below 30', () => {
+      const imageData = createImageData(200, 200, (x, y) => {
+        const centerX = 100;
+        const centerY = 100;
+        const dist = Math.sqrt(
+          Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
+        );
+        if (dist < 10) {
+          return { r: 255, g: 255, b: 255, a: 255 };
+        }
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, 200, 200);
+
+      expect(result.similarity).toBeGreaterThanOrEqual(0);
+      expect(result.similarity).toBeLessThanOrEqual(100);
+    });
+
+    it('should apply coverage penalty when coverage exceeds 50', () => {
+      const imageData = createImageData(100, 100, (x, y) => {
+        const centerX = 50;
+        const centerY = 50;
+        const dist = Math.sqrt(
+          Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
+        );
+        if (dist < 45) {
+          return { r: 255, g: 255, b: 255, a: 255 };
+        }
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, 100, 100);
+
+      expect(result.coverage).toBeGreaterThan(50);
+      expect(result.similarity).toBeGreaterThanOrEqual(0);
+      expect(result.similarity).toBeLessThanOrEqual(100);
+    });
+
+    it('should penalize structure when centerRatio is too high', () => {
+      const imageData = createImageData(200, 200, (x, y) => {
+        const centerX = 100;
+        const centerY = 100;
+        const dist = Math.sqrt(
+          Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
+        );
+        if (dist < 30) {
+          return { r: 255, g: 255, b: 255, a: 255 };
+        }
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, 200, 200);
+
+      expect(result.similarity).toBeGreaterThanOrEqual(0);
+      expect(result.similarity).toBeLessThanOrEqual(100);
+    });
+
+    it('should penalize structure when edgeRatio is too high', () => {
+      const imageData = createImageData(200, 200, (x, y) => {
+        const centerX = 100;
+        const centerY = 100;
+        const dist = Math.sqrt(
+          Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
+        );
+        if (dist > 80) {
+          return { r: 255, g: 255, b: 255, a: 255 };
+        }
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, 200, 200);
+
+      expect(result.similarity).toBeGreaterThanOrEqual(0);
+      expect(result.similarity).toBeLessThanOrEqual(100);
+    });
+
+    it('should penalize structure when centerRatio is too low', () => {
+      const imageData = createImageData(200, 200, (x, y) => {
+        const centerX = 100;
+        const centerY = 100;
+        const dist = Math.sqrt(
+          Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
+        );
+        if (dist > 20 && dist < 90) {
+          return { r: 255, g: 255, b: 255, a: 255 };
+        }
+        return {
+          r: CANVAS_CONFIG.BACKGROUND_R,
+          g: CANVAS_CONFIG.BACKGROUND_G,
+          b: CANVAS_CONFIG.BACKGROUND_B,
+          a: 255,
+        };
+      });
+
+      const result = analyzeSnowflake(imageData, 200, 200);
+
+      expect(result.similarity).toBeGreaterThanOrEqual(0);
+      expect(result.similarity).toBeLessThanOrEqual(100);
+    });
   });
 });

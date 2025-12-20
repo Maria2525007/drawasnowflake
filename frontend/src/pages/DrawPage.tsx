@@ -8,10 +8,14 @@ import { Toolbar } from '../components/UI/Toolbar';
 import { Header } from '../components/UI/Header';
 import {
   addSnowflake,
-  updateSnowflake,
   Snowflake,
+  removeSnowflake,
 } from '../features/snowflake/snowflakeSlice';
-import { saveSnowflakeToServer } from '../services/api';
+import {
+  saveSnowflakeToServer,
+  deleteSnowflakeFromServer,
+} from '../services/api';
+import { useAppSelector } from '../hooks/useAppSelector';
 import { analyzeSnowflake } from '../utils/snowflakeAnalysis';
 import {
   CANVAS_CONFIG,
@@ -28,6 +32,7 @@ export const DrawPage: React.FC = () => {
   const drawCanvasRef = useRef<CanvasHandle>(null);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const snowflakes = useAppSelector((state) => state.snowflake.snowflakes);
 
   const handleGoToTree = () => {
     if (!drawCanvasRef?.current) {
@@ -189,23 +194,35 @@ export const DrawPage: React.FC = () => {
       startDelay: Math.random() * 3,
     };
 
+    if (snowflakes.length >= SNOWFLAKE_CONFIG.MAX_SNOWFLAKES_ON_TREE) {
+      const oldestSnowflake = snowflakes[snowflakes.length - 1];
+      if (oldestSnowflake?.id) {
+        deleteSnowflakeFromServer(oldestSnowflake.id).catch(() => {});
+        dispatch(removeSnowflake(oldestSnowflake.id));
+      }
+    }
+
     saveSnowflakeToServer(newSnowflake)
       .then((savedSnowflake) => {
         if (savedSnowflake?.id) {
-          dispatch(updateSnowflake({ id: newSnowflake.id, ...savedSnowflake }));
+          const updatedSnowflake = { ...newSnowflake, id: savedSnowflake.id };
+          dispatch(addSnowflake(updatedSnowflake));
+        } else {
+          dispatch(addSnowflake(newSnowflake));
         }
+        if (drawCanvasRef?.current) {
+          drawCanvasRef.current.clear();
+        }
+        navigate('/tree');
       })
       .catch((error) => {
         console.error('Failed to save snowflake to server:', error);
+        dispatch(addSnowflake(newSnowflake));
+        if (drawCanvasRef?.current) {
+          drawCanvasRef.current.clear();
+        }
+        navigate('/tree');
       });
-
-    dispatch(addSnowflake(newSnowflake));
-
-    if (drawCanvasRef?.current) {
-      drawCanvasRef.current.clear();
-    }
-
-    navigate('/tree');
   };
 
   const performAnalysis = useCallback(() => {
