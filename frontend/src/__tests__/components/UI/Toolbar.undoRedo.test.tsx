@@ -119,5 +119,4 @@ describe('Toolbar Undo/Redo', () => {
     const state = store.getState();
     expect(state.history.future).toHaveLength(0);
   });
-
 });
