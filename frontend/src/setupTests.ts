@@ -17,8 +17,9 @@ Object.defineProperty(globalThis, 'import', {
   configurable: true,
 });
 
-// Mock URL.createObjectURL
+// Mock URL.createObjectURL and revokeObjectURL
 global.URL.createObjectURL = jest.fn(() => 'blob:http://localhost/test');
+global.URL.revokeObjectURL = jest.fn();
 
 // Mock ClipboardItem
 global.ClipboardItem = jest.fn((items: Record<string, Blob>) => {
@@ -28,6 +29,7 @@ global.ClipboardItem = jest.fn((items: Record<string, Blob>) => {
   } as unknown as ClipboardItem;
 }) as unknown as typeof ClipboardItem;
 
+// Mock HTMLCanvasElement methods
 Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
   value: jest.fn(() => ({
     fillRect: jest.fn(),
@@ -62,4 +64,23 @@ Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
     })),
     ellipse: jest.fn(),
   })),
+});
+
+// Mock toDataURL
+Object.defineProperty(HTMLCanvasElement.prototype, 'toDataURL', {
+  value: jest.fn(() => 'data:image/png;base64,test'),
+  writable: true,
+  configurable: true,
+});
+
+// Mock toBlob
+Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
+  value: jest.fn(function (callback) {
+    if (callback) {
+      const blob = new Blob(['test'], { type: 'image/png' });
+      callback(blob);
+    }
+  }),
+  writable: true,
+  configurable: true,
 });
