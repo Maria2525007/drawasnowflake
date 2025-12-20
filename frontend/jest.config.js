@@ -48,11 +48,5 @@ export default {
   testTimeout: 10000,
   detectOpenHandles: false,
   maxWorkers: process.env.CI ? 1 : '50%',
-  testPathIgnorePatterns: [
-    '/node_modules/',
-    '/dist/',
-    '/e2e/',
-    'App.test.tsx',
-    'TreePage.test.tsx',
-  ],
+  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/e2e/'],
 };
