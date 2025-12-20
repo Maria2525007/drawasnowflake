@@ -27,7 +27,7 @@ describe('Toolbar Update', () => {
       </Provider>
     );
 
-    expect(screen.getByLabelText(/zoom/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('zoom')).toBeInTheDocument();
   });
 
   it('should render with default zoom', () => {
@@ -37,7 +37,7 @@ describe('Toolbar Update', () => {
       </Provider>
     );
 
-    expect(screen.getByLabelText(/zoom/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('zoom')).toBeInTheDocument();
   });
 
   it('should render with custom zoom', () => {
@@ -47,7 +47,7 @@ describe('Toolbar Update', () => {
       </Provider>
     );
 
-    expect(screen.getByLabelText(/zoom/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('zoom')).toBeInTheDocument();
   });
 
   it('should render hideGoToTreeButton when true', () => {
