@@ -1,4 +1,4 @@
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { store } from '../../../store/store';
@@ -62,6 +62,7 @@ describe('Toolbar ExtractSnowflake', () => {
       Object.defineProperty(img, 'width', { value: 200, configurable: true });
       Object.defineProperty(img, 'height', { value: 200, configurable: true });
       return img;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }) as any;
 
     render(
@@ -127,6 +128,7 @@ describe('Toolbar ExtractSnowflake', () => {
       Object.defineProperty(img, 'width', { value: 200, configurable: true });
       Object.defineProperty(img, 'height', { value: 200, configurable: true });
       return img;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }) as any;
 
     render(
@@ -201,6 +203,7 @@ describe('Toolbar ExtractSnowflake', () => {
       Object.defineProperty(img, 'width', { value: 200, configurable: true });
       Object.defineProperty(img, 'height', { value: 200, configurable: true });
       return img;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }) as any;
 
     render(

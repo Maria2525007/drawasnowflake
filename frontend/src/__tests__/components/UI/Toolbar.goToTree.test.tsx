@@ -1,4 +1,4 @@
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { store } from '../../../store/store';
@@ -175,10 +175,12 @@ describe('Toolbar GoToTree', () => {
       const img = new originalImage();
       setTimeout(() => {
         if (img.onload) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           img.onload(new Event('load') as any);
         }
       }, 0);
       return img;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }) as any;
 
     render(
