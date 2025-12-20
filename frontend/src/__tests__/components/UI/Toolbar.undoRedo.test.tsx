@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { store } from '../../../store/store';
 import { Toolbar } from '../../../components/UI/Toolbar';
-import { saveState, undo, redo } from '../../../features/history/historySlice';
+import { saveState, undo } from '../../../features/history/historySlice';
 
 jest.mock('../../../utils/export', () => ({
   exportCanvasAsImage: jest.fn(),
