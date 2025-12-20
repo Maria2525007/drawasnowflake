@@ -42,4 +42,5 @@ export default {
   },
   testTimeout: 10000,
   detectOpenHandles: false,
+  maxWorkers: process.env.CI ? 1 : '50%',
 };
