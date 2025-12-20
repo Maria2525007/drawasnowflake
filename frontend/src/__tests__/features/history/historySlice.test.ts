@@ -49,6 +49,17 @@ describe('historySlice', () => {
       const state = historyReducer(initialState, undo());
       expect(state).toEqual(initialState);
     });
+
+    it('should not undo when present is null', () => {
+      const stateWithNullPresent = {
+        ...initialState,
+        past: ['state1'],
+        present: null,
+      };
+      const state = historyReducer(stateWithNullPresent, undo());
+      expect(state.present).toBeNull();
+      expect(state.past).toHaveLength(1);
+    });
   });
 
   describe('redo', () => {
@@ -66,6 +77,17 @@ describe('historySlice', () => {
     it('should not redo when future is empty', () => {
       const state = historyReducer(initialState, redo());
       expect(state).toEqual(initialState);
+    });
+
+    it('should not redo when present is null', () => {
+      const stateWithNullPresent = {
+        ...initialState,
+        future: ['state1'],
+        present: null,
+      };
+      const state = historyReducer(stateWithNullPresent, redo());
+      expect(state.present).toBeNull();
+      expect(state.future).toHaveLength(1);
     });
   });
 

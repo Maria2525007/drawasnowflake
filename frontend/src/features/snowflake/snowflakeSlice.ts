@@ -37,7 +37,10 @@ const snowflakeSlice = createSlice({
   initialState,
   reducers: {
     addSnowflake: (state, action: PayloadAction<Snowflake>) => {
-      state.snowflakes.push(action.payload);
+      state.snowflakes.unshift(action.payload);
+      if (state.snowflakes.length > SNOWFLAKE_CONFIG.MAX_SNOWFLAKES_ON_TREE) {
+        state.snowflakes.pop();
+      }
     },
     removeSnowflake: (state, action: PayloadAction<string>) => {
       state.snowflakes = state.snowflakes.filter(

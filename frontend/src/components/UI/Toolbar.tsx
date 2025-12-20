@@ -36,7 +36,9 @@ import {
 import {
   addSnowflake,
   Snowflake,
+  removeSnowflake,
 } from '../../features/snowflake/snowflakeSlice';
+import { SNOWFLAKE_CONFIG } from '../../config/constants';
 import { undo, redo } from '../../features/history/historySlice';
 import { ColorPicker } from './ColorPicker';
 import { exportCanvasAsImage, copyCanvasToClipboard } from '../../utils/export';
@@ -46,7 +48,6 @@ import { Button } from '@mui/material';
 import {
   CANVAS_CONFIG,
   ANALYSIS_CONFIG,
-  SNOWFLAKE_CONFIG,
   ZOOM_CONFIG,
   BRUSH_CONFIG,
   ANIMATION_CONFIG,
@@ -164,6 +165,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   const dispatch = useAppDispatch();
   const { tool, color, brushSize } = useAppSelector((state) => state.drawing);
   const { past, future } = useAppSelector((state) => state.history);
+  const snowflakes = useAppSelector((state) => state.snowflake.snowflakes);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -376,30 +378,45 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       startDelay: Math.random() * 3,
     };
 
+    if (snowflakes.length >= SNOWFLAKE_CONFIG.MAX_SNOWFLAKES_ON_TREE) {
+      const oldestSnowflake = snowflakes[snowflakes.length - 1];
+      if (oldestSnowflake?.id) {
+        const { deleteSnowflakeFromServer } =
+          await import('../../services/api');
+        deleteSnowflakeFromServer(oldestSnowflake.id).catch(() => {});
+        dispatch(removeSnowflake(oldestSnowflake.id));
+      }
+    }
+
     try {
       const { saveSnowflakeToServer } = await import('../../services/api');
       const savedSnowflake = await saveSnowflakeToServer(newSnowflake);
       if (savedSnowflake?.id) {
-        newSnowflake.id = savedSnowflake.id;
-        dispatch(addSnowflake(newSnowflake));
+        const updatedSnowflake = { ...newSnowflake, id: savedSnowflake.id };
+        dispatch(addSnowflake(updatedSnowflake));
       } else {
         dispatch(addSnowflake(newSnowflake));
       }
+      if (drawCanvasRef?.current) {
+        drawCanvasRef.current.clear();
+      }
+      if (onGoToTree) {
+        onGoToTree();
+      }
+      setSnackbarMessage(t('toolbar.snowflakeAdded'));
+      setSnackbarOpen(true);
     } catch (error) {
       console.error('Failed to save snowflake to server:', error);
       dispatch(addSnowflake(newSnowflake));
+      if (drawCanvasRef?.current) {
+        drawCanvasRef.current.clear();
+      }
+      if (onGoToTree) {
+        onGoToTree();
+      }
+      setSnackbarMessage(t('toolbar.snowflakeAdded'));
+      setSnackbarOpen(true);
     }
-
-    if (drawCanvasRef?.current) {
-      drawCanvasRef.current.clear();
-    }
-
-    if (onGoToTree) {
-      onGoToTree();
-    }
-
-    setSnackbarMessage(t('toolbar.snowflakeAdded'));
-    setSnackbarOpen(true);
   };
 
   return (
