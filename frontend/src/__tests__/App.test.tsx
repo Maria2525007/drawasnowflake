@@ -34,7 +34,6 @@ const renderApp = (initialEntries = ['/']) => {
   );
 };
 
-
 describe('App', () => {
   it('should redirect from root to /draw', async () => {
     renderApp(['/']);
@@ -60,5 +59,4 @@ describe('App', () => {
     const { container } = renderApp(['/draw']);
     expect(container).toBeInTheDocument();
   });
-
 });
