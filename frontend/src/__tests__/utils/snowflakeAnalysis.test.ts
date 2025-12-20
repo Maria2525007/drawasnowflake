@@ -161,7 +161,6 @@ describe('snowflakeAnalysis', () => {
     });
 
     it('should return zero similarity when pixel count is too low', () => {
-      const { ANALYSIS_CONFIG } = require('../../config/constants');
       const imageData = createImageData(100, 100, (x, y) => {
         const centerX = 50;
         const centerY = 50;

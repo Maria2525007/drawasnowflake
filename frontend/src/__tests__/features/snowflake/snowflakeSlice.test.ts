@@ -10,6 +10,7 @@ import snowflakeReducer, {
   animateSnowflakes,
   Snowflake,
 } from '../../../features/snowflake/snowflakeSlice';
+import { SNOWFLAKE_CONFIG } from '../../../config/constants';
 
 describe('snowflakeSlice', () => {
   const initialState = {
@@ -51,7 +52,6 @@ describe('snowflakeSlice', () => {
     });
 
     it('should remove oldest snowflake when MAX_SNOWFLAKES_ON_TREE is exceeded', () => {
-      const { SNOWFLAKE_CONFIG } = require('../../../config/constants');
       let state = initialState;
       for (let i = 0; i < SNOWFLAKE_CONFIG.MAX_SNOWFLAKES_ON_TREE; i++) {
         state = snowflakeReducer(
@@ -210,7 +210,6 @@ describe('snowflakeSlice', () => {
     });
 
     it('should reset rotation when it exceeds FULL_ROTATION', () => {
-      const { SNOWFLAKE_CONFIG } = require('../../../config/constants');
       const snowflakeWithHighRotation = {
         ...mockSnowflake,
         rotation: SNOWFLAKE_CONFIG.FULL_ROTATION - 1,
@@ -266,7 +265,6 @@ describe('snowflakeSlice', () => {
     });
 
     it('should clamp x position to MIN_X when drift moves left', () => {
-      const { SNOWFLAKE_CONFIG } = require('../../../config/constants');
       const snowflakeAtLeftEdge = {
         ...mockSnowflake,
         x: SNOWFLAKE_CONFIG.BORDER_PADDING + 5,
@@ -296,7 +294,6 @@ describe('snowflakeSlice', () => {
     });
 
     it('should clamp x position to MAX_X when drift moves right', () => {
-      const { SNOWFLAKE_CONFIG } = require('../../../config/constants');
       const canvasWidth = 800;
       const maxX = canvasWidth - SNOWFLAKE_CONFIG.BORDER_PADDING;
       const snowflakeAtRightEdge = {
@@ -328,7 +325,6 @@ describe('snowflakeSlice', () => {
     });
 
     it('should initialize timeOffset when undefined during reset', () => {
-      const { SNOWFLAKE_CONFIG } = require('../../../config/constants');
       const fallingSnowflake = {
         ...mockSnowflake,
         y: 1100,
@@ -438,7 +434,6 @@ describe('snowflakeSlice', () => {
         animationSpeed: 1.5,
       };
 
-      const initialStateX = stateWithSnowflake.snowflakes[0].x;
       const state1 = snowflakeReducer(
         stateWithSnowflake,
         animateSnowflakes({
