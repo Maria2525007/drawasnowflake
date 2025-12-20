@@ -1,0 +1,140 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, master]
+  push:
+    branches: [develop, master]
+
+jobs:
+  lint-format:
+    name: Lint and Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+      
+      - name: Install backend dependencies
+        run: cd backend && npm ci
+      
+      - name: Run frontend lint
+        run: cd frontend && npm run lint
+      
+      - name: Run backend lint
+        run: cd backend && npm run lint
+      
+      - name: Check frontend format
+        run: cd frontend && npm run format:check
+      
+      - name: Check backend format
+        run: cd backend && npm run format:check
+      
+      - name: Run frontend stylelint
+        run: cd frontend && npm run stylelint
+
+  # Unit tests job - runs unit tests for frontend and backend
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+      
+      - name: Install backend dependencies
+        run: cd backend && npm ci
+      
+      - name: Run frontend unit tests
+        run: cd frontend && npm test -- --coverage --ci
+      
+      - name: Run backend unit tests
+        run: cd backend && npm test -- --coverage --ci
+      
+      # Coverage check - ensures test coverage is >= 80%
+      - name: Check coverage threshold
+        run: |
+          cd frontend && npm test -- --coverage --ci --coverageThreshold='{"global":{"branches":80,"functions":80,"lines":80,"statements":80}}'
+          cd backend && npm test -- --coverage --ci --coverageThreshold='{"global":{"branches":80,"functions":80,"lines":80,"statements":80}}'
+      
+      - name: Upload frontend coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./frontend/coverage/lcov.info
+          flags: frontend
+          name: frontend-coverage
+      
+      - name: Upload backend coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./backend/coverage/lcov.info
+          flags: backend
+          name: backend-coverage
+
+  # E2E tests job - runs Playwright end-to-end tests
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+      
+      - name: Install Playwright browsers
+        run: cd frontend && npx playwright install --with-deps
+      
+      - name: Run E2E tests
+        run: cd frontend && npm run test:e2e
+      
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
+          retention-days: 30
+
+  # Build verification job - ensures frontend and backend build successfully
+  build:
+    name: Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+      
+      - name: Install backend dependencies
+        run: cd backend && npm ci
+      
+      - name: Generate Prisma client
+        run: cd backend && npx prisma generate
+      
+      - name: Build frontend
+        run: cd frontend && npm run build
+      
+      - name: Build backend
+        run: cd backend && npm run build
