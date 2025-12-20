@@ -15,7 +15,6 @@ jest.mock('../utils/snowflakeAnalysis', () => ({
 
 // Create a test version of App without BrowserRouter
 const TestApp = () => {
-  const { Routes, Route, Navigate } = require('react-router-dom');
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/draw" replace />} />
