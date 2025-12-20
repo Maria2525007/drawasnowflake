@@ -58,7 +58,7 @@ jobs:
         run: cd backend && npm ci
       
       - name: Run frontend unit tests
-        run: cd frontend && npm test -- --coverage --ci
+        run: cd frontend && npm test -- --coverage --ci --forceExit
       
       - name: Run backend unit tests
         run: cd backend && npm test -- --coverage --ci
