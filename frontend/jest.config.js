@@ -41,4 +41,5 @@ export default {
     customExportConditions: [''],
   },
   testTimeout: 10000,
+  detectOpenHandles: false,
 };
