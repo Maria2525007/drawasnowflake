@@ -9,7 +9,6 @@ import {
 
 describe('analytics', () => {
   beforeEach(() => {
-    // Clear window.gtag and dataLayer
     delete (window as { gtag?: unknown }).gtag;
     delete (window as { dataLayer?: unknown }).dataLayer;
     document.head.innerHTML = '';
@@ -19,11 +18,9 @@ describe('analytics', () => {
     it('should initialize analytics with measurement ID', () => {
       initAnalytics('GA_TEST_ID');
       
-      // Check if script was added to head
       const scripts = document.head.querySelectorAll('script');
       expect(scripts.length).toBeGreaterThan(0);
       
-      // Check if gtag function was created
       expect(window.gtag).toBeDefined();
       expect(typeof window.gtag).toBe('function');
     });
@@ -36,10 +33,8 @@ describe('analytics', () => {
 
     it('should not initialize if window is undefined', () => {
       const originalWindow = global.window;
-      // @ts-expect-error - Testing window undefined scenario
-      delete global.window;
+      delete (global as { window?: Window }).window;
       
-      // Should not throw
       expect(() => initAnalytics('GA_TEST_ID')).not.toThrow();
       
       global.window = originalWindow;
@@ -59,7 +54,6 @@ describe('analytics', () => {
       
       initAnalytics('GA_TEST_ID');
       
-      // Check if config was called
       expect(mockDataLayer.length).toBeGreaterThan(0);
     });
 
@@ -107,8 +101,7 @@ describe('analytics', () => {
 
     it('should not throw if window is undefined', () => {
       const originalWindow = global.window;
-      // @ts-expect-error - Testing window undefined scenario
-      delete global.window;
+      delete (global as { window?: Window }).window;
       
       expect(() => trackEvent('test_event')).not.toThrow();
       
