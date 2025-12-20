@@ -9,7 +9,6 @@ describe('theme', () => {
     });
 
     it('should be a valid MUI theme', () => {
-      // theme is already created with createTheme, but we can validate it
       expect(theme).toBeDefined();
       expect(theme.palette).toBeDefined();
       expect(theme.typography).toBeDefined();
@@ -71,7 +70,6 @@ describe('theme', () => {
 
   describe('Theme Validation', () => {
     it('should be compatible with MUI createTheme', () => {
-      // Theme is already created, but we can validate its structure
       const muiTheme = createTheme(theme);
       expect(muiTheme).toBeDefined();
       expect(muiTheme.palette).toBeDefined();

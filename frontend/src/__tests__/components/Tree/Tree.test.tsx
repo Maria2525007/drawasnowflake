@@ -27,7 +27,6 @@ describe('Tree', () => {
 
     it('should render TreeCanvas component', () => {
       const { container } = renderTree();
-      // TreeCanvas renders a Box and canvas element
       expect(container.querySelector('canvas')).toBeInTheDocument();
     });
 
@@ -51,7 +50,6 @@ describe('Tree', () => {
       const ref = createRef<HTMLCanvasElement>();
       renderTree({ ref });
       
-      // Ref should be passed to TreeCanvas
       expect(ref).toBeDefined();
       expect(typeof ref).toBe('object');
     });
@@ -60,7 +58,6 @@ describe('Tree', () => {
       const ref = createRef<HTMLCanvasElement>();
       const { container } = renderTree({ ref });
       
-      // Component should render successfully
       expect(container).toBeInTheDocument();
     });
   });

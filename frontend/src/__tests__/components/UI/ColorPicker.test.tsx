@@ -52,7 +52,6 @@ describe('ColorPicker', () => {
       colorInput.value = '#000000';
       colorInput.dispatchEvent(new Event('change', { bubbles: true }));
       
-      // Color input fires onChange event
       expect(mockOnColorChange).toHaveBeenCalled();
     });
 
@@ -68,7 +67,6 @@ describe('ColorPicker', () => {
       colorInput.value = '#00ff00';
       colorInput.dispatchEvent(new Event('change', { bubbles: true }));
       
-      // The onChange should be triggered
       expect(colorInput.value).toBe('#00ff00');
     });
 

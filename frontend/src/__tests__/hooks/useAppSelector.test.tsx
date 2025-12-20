@@ -80,7 +80,6 @@ describe('useAppSelector', () => {
         store.dispatch(selectSnowflake('some-id'));
       });
 
-      // Drawing tool should not change when snowflake selection changes
       expect(result.current).toBe(initialValue);
     });
   });

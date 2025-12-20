@@ -36,10 +36,6 @@ describe('sentry utilities', () => {
     it('should not initialize Sentry if DSN is empty string', () => {
       initSentry('');
 
-      // Empty string is falsy, so should not initialize
-      // But the function checks for truthy, so empty string would still call init
-      // Let's check the actual behavior - if dsn is empty string, it's truthy
-      // So we should test with undefined or null
       initSentry(undefined);
       expect(Sentry.init).not.toHaveBeenCalled();
     });
