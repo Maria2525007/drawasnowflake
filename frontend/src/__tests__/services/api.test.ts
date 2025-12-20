@@ -2,39 +2,16 @@ global.fetch = jest.fn();
 
 const mockApiUrl = 'http://localhost:3001/api';
 
+jest.mock('../../config/apiConfig', () => ({
+  getApiUrl: jest.fn(() => mockApiUrl),
+}));
+
 jest.mock('../../config/constants', () => ({
   API_CONFIG: {
     DEFAULT_URL: mockApiUrl,
     CONTENT_TYPE_JSON: 'application/json',
   },
 }));
-
-const originalImportMeta = (globalThis as { import?: { meta?: unknown } })
-  .import?.meta;
-
-beforeAll(() => {
-  Object.defineProperty(globalThis, 'import', {
-    value: {
-      meta: {
-        env: {
-          VITE_API_URL: mockApiUrl,
-        },
-      },
-    },
-    writable: true,
-    configurable: true,
-  });
-});
-
-afterAll(() => {
-  if (originalImportMeta) {
-    Object.defineProperty(globalThis, 'import', {
-      value: { meta: originalImportMeta },
-      writable: true,
-      configurable: true,
-    });
-  }
-});
 
 import {
   saveSnowflakeToServer,

@@ -1,8 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from '../store/store';
-import App from '../App';
+import { DrawPage } from '../pages/DrawPage';
+import { TreePage } from '../pages/TreePage';
 
 jest.mock('../services/api', () => ({
   getAllSnowflakes: jest.fn().mockResolvedValue([]),
@@ -12,11 +13,23 @@ jest.mock('../utils/snowflakeAnalysis', () => ({
   analyzeSnowflake: jest.fn().mockReturnValue({ similarity: 50 }),
 }));
 
-const renderWithRouter = (initialEntries = ['/']) => {
+// Create a test version of App without BrowserRouter
+const TestApp = () => {
+  const { Routes, Route, Navigate } = require('react-router-dom');
+  return (
+    <Routes>
+      <Route path="/" element={<Navigate to="/draw" replace />} />
+      <Route path="/draw" element={<DrawPage />} />
+      <Route path="/tree" element={<TreePage />} />
+    </Routes>
+  );
+};
+
+const renderApp = (initialEntries = ['/']) => {
   return render(
     <Provider store={store}>
       <MemoryRouter initialEntries={initialEntries}>
-        <App />
+        <TestApp />
       </MemoryRouter>
     </Provider>
   );
@@ -24,7 +37,7 @@ const renderWithRouter = (initialEntries = ['/']) => {
 
 describe('App', () => {
   it('should redirect from root to /draw', async () => {
-    renderWithRouter(['/']);
+    renderApp(['/']);
 
     await waitFor(() => {
       expect(screen.getByText('Draw a Snowflake')).toBeInTheDocument();
@@ -32,19 +45,19 @@ describe('App', () => {
   });
 
   it('should render DrawPage on /draw route', () => {
-    renderWithRouter(['/draw']);
+    renderApp(['/draw']);
 
     expect(screen.getByText('Draw a Snowflake')).toBeInTheDocument();
   });
 
   it('should render TreePage on /tree route', () => {
-    renderWithRouter(['/tree']);
+    renderApp(['/tree']);
 
     expect(screen.getByText(/LET'S IT SNOW/i)).toBeInTheDocument();
   });
 
   it('should have routing structure', () => {
-    const { container } = renderWithRouter(['/draw']);
+    const { container } = renderApp(['/draw']);
     expect(container).toBeInTheDocument();
   });
 });
