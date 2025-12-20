@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { useAppSelector } from '../../hooks/useAppSelector';
 import { store } from '../../store/store';
@@ -28,7 +28,9 @@ describe('useAppSelector', () => {
     );
     expect(result.current).toBe('pencil');
 
-    store.dispatch(setTool('eraser'));
+    act(() => {
+      store.dispatch(setTool('eraser'));
+    });
     rerender();
 
     expect(result.current).toBe('eraser');
