@@ -60,6 +60,25 @@ describe('export utilities', () => {
       expect(mockLink.click).toHaveBeenCalled();
       expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:test');
     });
+
+    it('should handle null blob', () => {
+      mockCanvas.toBlob = jest.fn((callback) => {
+        if (callback) {
+          callback(null);
+        }
+      });
+
+      exportCanvasAsImage(mockCanvas);
+
+      expect(mockCanvas.toBlob).toHaveBeenCalled();
+      expect(URL.createObjectURL).not.toHaveBeenCalled();
+    });
+
+    it('should use custom filename', () => {
+      exportCanvasAsImage(mockCanvas, 'custom.png');
+
+      expect(mockLink.download).toBe('custom.png');
+    });
   });
 
   describe('copyCanvasToClipboard', () => {
