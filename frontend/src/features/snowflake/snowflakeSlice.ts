@@ -86,7 +86,8 @@ const snowflakeSlice = createSlice({
         currentTime?: number;
       }>
     ) => {
-      const { deltaTime, canvasHeight, canvasWidth, currentTime } = action.payload;
+      const { deltaTime, canvasHeight, canvasWidth, currentTime } =
+        action.payload;
       const globalTime = currentTime ?? Date.now() / 1000;
 
       const MIN_X = SNOWFLAKE_CONFIG.BORDER_PADDING;

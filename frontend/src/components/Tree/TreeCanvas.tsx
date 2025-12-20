@@ -445,7 +445,9 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
         : window.innerWidth;
 
       const currentTime = performance.now() / 1000;
-      dispatch(animateSnowflakes({ deltaTime, canvasHeight, canvasWidth, currentTime }));
+      dispatch(
+        animateSnowflakes({ deltaTime, canvasHeight, canvasWidth, currentTime })
+      );
       render();
     } else {
       render();
