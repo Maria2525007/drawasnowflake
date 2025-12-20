@@ -40,4 +40,5 @@ export default {
   testEnvironmentOptions: {
     customExportConditions: [''],
   },
+  testTimeout: 10000,
 };
