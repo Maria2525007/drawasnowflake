@@ -5,6 +5,9 @@ FROM node:20-alpine AS base
 FROM base AS deps
 WORKDIR /app
 
+# Install OpenSSL for Prisma (required for Prisma client generation)
+RUN apk add --no-cache openssl libc6-compat
+
 # Copy package files
 COPY package*.json ./
 
@@ -36,13 +39,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Install OpenSSL 1.1 compatibility library for Prisma
-RUN apk add --no-cache libc6-compat && \
-    apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/v3.18/main openssl1.1-compat || \
-    (apk add --no-cache openssl && \
-     mkdir -p /usr/lib && \
-     find /usr/lib -name "libssl.so*" -exec ln -sf {} /usr/lib/libssl.so.1.1 \; && \
-     find /usr/lib -name "libcrypto.so*" -exec ln -sf {} /usr/lib/libcrypto.so.1.1 \; || true)
+# Install OpenSSL and required libraries for Prisma (OpenSSL 3.0.x for linux-musl)
+RUN apk add --no-cache openssl libc6-compat
 
 # Don't run as root
 RUN addgroup --system --gid 1001 nodejs && \

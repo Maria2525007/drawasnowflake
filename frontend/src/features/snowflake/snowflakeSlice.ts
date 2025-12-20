@@ -14,6 +14,8 @@ export interface Snowflake {
   isFalling?: boolean;
   driftSpeed?: number;
   driftPhase?: number;
+  timeOffset?: number;
+  startDelay?: number;
 }
 
 interface SnowflakeState {
@@ -81,31 +83,41 @@ const snowflakeSlice = createSlice({
         deltaTime: number;
         canvasHeight: number;
         canvasWidth: number;
+        currentTime?: number;
       }>
     ) => {
-      const { deltaTime, canvasHeight, canvasWidth } = action.payload;
+      const { deltaTime, canvasHeight, canvasWidth, currentTime } =
+        action.payload;
+      const globalTime = currentTime ?? Date.now() / 1000;
 
       const MIN_X = SNOWFLAKE_CONFIG.BORDER_PADDING;
       const MAX_X = canvasWidth - SNOWFLAKE_CONFIG.BORDER_PADDING;
 
       state.snowflakes.forEach((snowflake) => {
+        const startDelay = snowflake.startDelay ?? 0;
+        const effectiveGlobalTime = globalTime - startDelay;
+        const canAnimate = effectiveGlobalTime >= 0;
+
         snowflake.rotation +=
           deltaTime * state.animationSpeed * SNOWFLAKE_CONFIG.ROTATION_SPEED;
         if (snowflake.rotation >= SNOWFLAKE_CONFIG.FULL_ROTATION) {
           snowflake.rotation -= SNOWFLAKE_CONFIG.FULL_ROTATION;
         }
 
-        if (snowflake.isFalling && snowflake.fallSpeed) {
+        if (snowflake.isFalling && snowflake.fallSpeed && canAnimate) {
           snowflake.y += snowflake.fallSpeed * deltaTime;
 
           if (
             snowflake.driftSpeed !== undefined &&
             snowflake.driftPhase !== undefined
           ) {
-            const time = Date.now() / 1000;
+            const timeOffset = snowflake.timeOffset ?? Math.random() * 20;
+            snowflake.timeOffset = timeOffset;
+            const time = effectiveGlobalTime + timeOffset;
+            const phaseOffset = snowflake.driftPhase;
             const drift =
               Math.sin(
-                time * SNOWFLAKE_CONFIG.DRIFT_FREQUENCY + snowflake.driftPhase
+                time * SNOWFLAKE_CONFIG.DRIFT_FREQUENCY * 0.5 + phaseOffset
               ) *
               snowflake.driftSpeed *
               deltaTime;
@@ -129,6 +141,9 @@ const snowflakeSlice = createSlice({
             if (snowflake.driftPhase !== undefined) {
               snowflake.driftPhase =
                 Math.random() * SNOWFLAKE_CONFIG.PI_MULTIPLIER;
+            }
+            if (snowflake.timeOffset === undefined) {
+              snowflake.timeOffset = Math.random() * 20;
             }
           }
         }

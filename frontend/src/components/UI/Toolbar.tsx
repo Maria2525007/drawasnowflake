@@ -348,7 +348,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     tempImg.src = imageDataWithZoom;
   };
 
-  const createSnowflakeFromImage = (processedImageData: string) => {
+  const createSnowflakeFromImage = async (processedImageData: string) => {
     const randomX =
       Math.random() * window.innerWidth * 0.8 + window.innerWidth * 0.1;
 
@@ -372,9 +372,23 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         (Math.random() - 0.5) *
         (SNOWFLAKE_CONFIG.MAX_DRIFT_SPEED - SNOWFLAKE_CONFIG.MIN_DRIFT_SPEED),
       driftPhase: Math.random() * SNOWFLAKE_CONFIG.PI_MULTIPLIER,
+      timeOffset: Math.random() * 20,
+      startDelay: Math.random() * 3,
     };
 
-    dispatch(addSnowflake(newSnowflake));
+    try {
+      const { saveSnowflakeToServer } = await import('../../services/api');
+      const savedSnowflake = await saveSnowflakeToServer(newSnowflake);
+      if (savedSnowflake?.id) {
+        newSnowflake.id = savedSnowflake.id;
+        dispatch(addSnowflake(newSnowflake));
+      } else {
+        dispatch(addSnowflake(newSnowflake));
+      }
+    } catch (error) {
+      console.error('Failed to save snowflake to server:', error);
+      dispatch(addSnowflake(newSnowflake));
+    }
 
     if (drawCanvasRef?.current) {
       drawCanvasRef.current.clear();
