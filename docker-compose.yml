@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: drawasnowflake-db
+    environment:
+      POSTGRES_USER: drawasnowflake
+      POSTGRES_PASSWORD: drawasnowflake
+      POSTGRES_DB: drawasnowflake
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U drawasnowflake"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: drawasnowflake-backend
+    environment:
+      DATABASE_URL: postgresql://drawasnowflake:drawasnowflake@postgres:5432/drawasnowflake
+      PORT: 3001
+      FRONTEND_URL: http://localhost
+      NODE_ENV: production
+      SENTRY_DSN: ""
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:3001/api
+    container_name: drawasnowflake-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
