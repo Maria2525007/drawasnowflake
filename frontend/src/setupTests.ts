@@ -80,23 +80,49 @@ Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
   configurable: true,
 });
 
+const rafCallbacks = new Set<number>();
+let rafIdCounter = 0;
+
 global.requestAnimationFrame = jest.fn((cb) => {
+  rafIdCounter += 1;
+  const id = rafIdCounter;
   if (typeof cb === 'function') {
-    setTimeout(cb, 0);
+    rafCallbacks.add(id);
+    Promise.resolve().then(() => {
+      if (rafCallbacks.has(id)) {
+        cb(performance.now());
+        rafCallbacks.delete(id);
+      }
+    });
   }
-  return 1;
+  return id;
 });
 
-global.cancelAnimationFrame = jest.fn();
+global.cancelAnimationFrame = jest.fn((id) => {
+  rafCallbacks.delete(id);
+});
+
+const ricCallbacks = new Set<number>();
+let ricIdCounter = 0;
 
 global.requestIdleCallback = jest.fn((cb) => {
+  ricIdCounter += 1;
+  const id = ricIdCounter;
   if (typeof cb === 'function') {
-    setTimeout(cb, 0);
+    ricCallbacks.add(id);
+    Promise.resolve().then(() => {
+      if (ricCallbacks.has(id)) {
+        cb({ didTimeout: false, timeRemaining: () => 50 });
+        ricCallbacks.delete(id);
+      }
+    });
   }
-  return 1;
+  return id;
 });
 
-global.cancelIdleCallback = jest.fn();
+global.cancelIdleCallback = jest.fn((id) => {
+  ricCallbacks.delete(id);
+});
 
 if (typeof ImageData === 'undefined') {
   global.ImageData = class ImageData {
