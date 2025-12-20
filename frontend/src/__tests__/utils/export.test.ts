@@ -14,14 +14,16 @@ describe('export', () => {
     }
   });
 
-  it('should export canvas as image', async () => {
+  it('should export canvas as image', () => {
     const linkClickSpy = jest.fn();
+    let createdLink: HTMLAnchorElement | null = null;
+
     const appendChildSpy = jest
       .spyOn(document.body, 'appendChild')
-      .mockImplementation(() => {
-        const link = document.createElement('a');
-        link.click = linkClickSpy;
-        return link;
+      .mockImplementation((node) => {
+        createdLink = node as HTMLAnchorElement;
+        createdLink.click = linkClickSpy;
+        return node;
       });
     const removeChildSpy = jest
       .spyOn(document.body, 'removeChild')
@@ -32,24 +34,26 @@ describe('export', () => {
     const originalToBlob = HTMLCanvasElement.prototype.toBlob;
     const originalRevokeObjectURL = URL.revokeObjectURL;
     URL.revokeObjectURL = jest.fn();
-    
+
     const mockBlob = new Blob(['test'], { type: 'image/png' });
     // Mock toBlob to call callback synchronously
-    HTMLCanvasElement.prototype.toBlob = jest.fn(function (callback) {
-      if (callback) {
-        // Call synchronously
-        callback(mockBlob);
-      }
-    }) as typeof HTMLCanvasElement.prototype.toBlob;
+    const toBlobSpy = jest
+      .spyOn(HTMLCanvasElement.prototype, 'toBlob')
+      .mockImplementation(function (callback) {
+        if (callback) {
+          // Call synchronously
+          callback(mockBlob);
+        }
+      });
 
     exportCanvasAsImage(canvas);
 
-    // Wait for next tick to ensure all operations complete
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
+    expect(toBlobSpy).toHaveBeenCalled();
     expect(appendChildSpy).toHaveBeenCalled();
+    expect(createdLink).not.toBeNull();
     expect(linkClickSpy).toHaveBeenCalled();
-    
+
+    toBlobSpy.mockRestore();
     HTMLCanvasElement.prototype.toBlob = originalToBlob;
     URL.revokeObjectURL = originalRevokeObjectURL;
     appendChildSpy.mockRestore();
