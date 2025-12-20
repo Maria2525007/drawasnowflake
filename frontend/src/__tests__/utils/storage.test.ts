@@ -43,10 +43,7 @@ describe('storage utilities', () => {
 
   describe('loadFromLocalStorage', () => {
     it('should load data from localStorage', () => {
-      localStorage.setItem(
-        'drawasnowflake_data',
-        JSON.stringify(mockData)
-      );
+      localStorage.setItem('drawasnowflake_data', JSON.stringify(mockData));
 
       const loaded = loadFromLocalStorage();
 
@@ -68,10 +65,7 @@ describe('storage utilities', () => {
 
   describe('clearLocalStorage', () => {
     it('should clear data from localStorage', () => {
-      localStorage.setItem(
-        'drawasnowflake_data',
-        JSON.stringify(mockData)
-      );
+      localStorage.setItem('drawasnowflake_data', JSON.stringify(mockData));
 
       clearLocalStorage();
 
