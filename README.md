@@ -142,6 +142,25 @@ docker compose up -d
 
 Если при запуске возникают ошибки:
 
+**Ошибка "unexpected end of JSON input" (Windows):**
+Эта ошибка обычно связана с поврежденным кешем Docker или проблемами сети. Решение:
+
+```powershell
+# 1. Очистка кеша Docker
+docker system prune -a --volumes
+
+# 2. Перезапуск Docker Desktop (через системный трей)
+
+# 3. Попытка загрузить образ вручную
+docker pull postgres:16-alpine
+
+# 4. Если проблема сохраняется, попробуйте другой registry
+docker pull docker.io/library/postgres:16-alpine
+
+# 5. После успешной загрузки образа запустите проект
+docker compose up --build
+```
+
 **Ошибка с Prisma/OpenSSL:**
 ```bash
 # Полная пересборка образов
@@ -160,6 +179,21 @@ docker compose up -d
 **Проблемы с портами:**
 - Убедитесь, что порты 80, 3001 и 5432 не заняты другими приложениями
 - Измените порты в `docker-compose.yml` при необходимости
+- На Windows проверьте, не использует ли другой процесс эти порты:
+  ```powershell
+  netstat -ano | findstr :80
+  netstat -ano | findstr :3001
+  netstat -ano | findstr :5432
+  ```
+
+**Проблемы с сетью Docker (Windows):**
+```powershell
+# Сброс сетевых настроек Docker
+docker network prune -f
+
+# Проверка сетевых настроек Docker Desktop
+# Settings -> Resources -> Network -> Reset to defaults
+```
 
 **Просмотр подробных логов:**
 ```bash
