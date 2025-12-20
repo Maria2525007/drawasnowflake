@@ -12,8 +12,8 @@ COPY prisma ./prisma/
 # Install dependencies
 RUN npm ci
 
-# Generate Prisma Client
-RUN npx prisma generate
+# Generate Prisma Client with correct binary target for Alpine
+RUN npx prisma generate --schema=./prisma/schema.prisma
 
 # Build stage
 FROM base AS builder
@@ -36,8 +36,13 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Install OpenSSL for Prisma
-RUN apk add --no-cache openssl1.1-compat
+# Install OpenSSL 1.1 compatibility library for Prisma
+RUN apk add --no-cache libc6-compat && \
+    apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/v3.18/main openssl1.1-compat || \
+    (apk add --no-cache openssl && \
+     mkdir -p /usr/lib && \
+     find /usr/lib -name "libssl.so*" -exec ln -sf {} /usr/lib/libssl.so.1.1 \; && \
+     find /usr/lib -name "libcrypto.so*" -exec ln -sf {} /usr/lib/libcrypto.so.1.1 \; || true)
 
 # Don't run as root
 RUN addgroup --system --gid 1001 nodejs && \
