@@ -167,20 +167,16 @@ describe('snowflakeSlice', () => {
   });
 
   describe('animateSnowflakes', () => {
-    it('should animate snowflakes', () => {
-      const {
-        animateSnowflakes,
-      } = require('../../../features/snowflake/snowflakeSlice');
+    it('should animate snowflakes rotation', () => {
       const snowflakeWithAnimation = {
         ...mockSnowflake,
         isFalling: true,
         fallSpeed: 1,
-        driftSpeed: 0.5,
-        driftPhase: 0,
       };
       const stateWithSnowflake = {
         ...initialState,
         snowflakes: [snowflakeWithAnimation],
+        animationSpeed: 1.5,
       };
 
       const state = snowflakeReducer(
