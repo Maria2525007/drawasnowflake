@@ -16,6 +16,7 @@ export default defineConfig({
     trace: 'on-first-retry',
     actionTimeout: 10000,
     navigationTimeout: 30000,
+    hasTouch: false,
   },
 
   projects: process.env.CI
