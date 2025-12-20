@@ -18,12 +18,6 @@ jest.mock('../../../utils/analytics', () => ({
 describe('Toolbar Undo/Redo', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Reset store state
-    const state = store.getState();
-    if (state.history.past.length > 0 || state.history.future.length > 0) {
-      // Clear history by dispatching multiple actions
-      store.dispatch({ type: 'RESET' });
-    }
   });
 
   it('should disable undo when past is empty', () => {
@@ -42,7 +36,13 @@ describe('Toolbar Undo/Redo', () => {
       store.dispatch(saveState('state1'));
     });
 
-    render(
+    const { rerender } = render(
+      <Provider store={store}>
+        <Toolbar currentTab={0} />
+      </Provider>
+    );
+
+    rerender(
       <Provider store={store}>
         <Toolbar currentTab={0} />
       </Provider>
@@ -79,6 +79,17 @@ describe('Toolbar Undo/Redo', () => {
   });
 
   it('should disable redo when future is empty', () => {
+    // Ensure future is empty
+    act(() => {
+      const state = store.getState();
+      if (state.history.future.length > 0) {
+        // Clear future by doing redo if needed
+        while (state.history.future.length > 0) {
+          store.dispatch({ type: 'history/redo' });
+        }
+      }
+    });
+
     render(
       <Provider store={store}>
         <Toolbar currentTab={0} />
@@ -96,7 +107,13 @@ describe('Toolbar Undo/Redo', () => {
       store.dispatch(undo());
     });
 
-    render(
+    const { rerender } = render(
+      <Provider store={store}>
+        <Toolbar currentTab={0} />
+      </Provider>
+    );
+
+    rerender(
       <Provider store={store}>
         <Toolbar currentTab={0} />
       </Provider>
@@ -114,14 +131,21 @@ describe('Toolbar Undo/Redo', () => {
       store.dispatch(undo());
     });
 
-    render(
+    const { rerender } = render(
       <Provider store={store}>
         <Toolbar currentTab={0} />
       </Provider>
     );
 
     const redoButton = screen.getByLabelText(/redo/i);
+    expect(redoButton).not.toBeDisabled();
     await user.click(redoButton);
+
+    rerender(
+      <Provider store={store}>
+        <Toolbar currentTab={0} />
+      </Provider>
+    );
 
     const state = store.getState();
     expect(state.history.future).toHaveLength(0);
