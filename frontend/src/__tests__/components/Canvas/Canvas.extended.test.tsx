@@ -87,18 +87,23 @@ describe('Canvas Extended', () => {
       cancelable: true,
     });
 
-    canvas.dispatchEvent(touchStart);
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    canvas.dispatchEvent(touchMove);
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    canvas.dispatchEvent(touchEnd);
+    act(() => {
+      canvas.dispatchEvent(touchStart);
+    });
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
+    act(() => {
+      canvas.dispatchEvent(touchMove);
+    });
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
+    act(() => {
+      canvas.dispatchEvent(touchEnd);
+    });
 
-    await waitFor(
-      () => {
-        expect(ref.current).not.toBeNull();
-      },
-      { timeout: 2000 }
-    );
+    expect(ref.current).not.toBeNull();
   });
 
   it.skip('should handle mouse leave event', async () => {

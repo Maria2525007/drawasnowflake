@@ -10,10 +10,9 @@ describe('ColorPicker', () => {
 
   describe('Rendering', () => {
     it('should render color input', () => {
-      render(<ColorPicker color="#ffffff" onColorChange={mockOnColorChange} />);
+      const { container } = render(<ColorPicker color="#ffffff" onColorChange={mockOnColorChange} />);
 
-      const colorInput = screen.getByRole('textbox', { hidden: true }) || 
-        document.querySelector('input[type="color"]');
+      const colorInput = container.querySelector('input[type="color"]');
       expect(colorInput).toBeInTheDocument();
     });
 
