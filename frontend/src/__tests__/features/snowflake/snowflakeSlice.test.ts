@@ -56,10 +56,7 @@ describe('snowflakeSlice', () => {
         ...initialState,
         snowflakes: [mockSnowflake],
       };
-      const state = snowflakeReducer(
-        stateWithSnowflake,
-        removeSnowflake('1')
-      );
+      const state = snowflakeReducer(stateWithSnowflake, removeSnowflake('1'));
       expect(state.snowflakes).toHaveLength(0);
     });
 
