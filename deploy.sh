@@ -1,46 +1,42 @@
 #!/bin/bash
 set -e
 
-echo "🔄 Загрузка nvm..."
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-# Проверка версии Node.js
 NODE_VERSION=$(node --version)
-echo "📦 Используется Node.js: $NODE_VERSION"
+echo "Using Node.js: $NODE_VERSION"
 
-echo "🔄 Обновление кода из Git..."
+echo "Updating code from Git..."
 git fetch origin
-git reset --hard origin/fix/deploy
+git reset --hard origin/master
 
-echo "📦 Установка зависимостей frontend..."
+echo "Installing frontend dependencies..."
 cd frontend
-export NODE_OPTIONS="--max-old-space-size=4096"
-npm install --legacy-peer-deps
+export NODE_OPTIONS="--max-old-space-size=3072"
+npm install --legacy-peer-deps --no-audit --no-fund
 
-echo "🔨 Сборка frontend..."
+echo "Building frontend..."
 npm run build
 
-# Проверка, нужен ли backend
 if [ -d "../backend" ]; then
-    echo "📦 Установка зависимостей backend..."
+    echo "Installing backend dependencies..."
     cd ../backend
     npm install
 
-    echo "🔨 Сборка backend..."
+    echo "Building backend..."
     npm run build
 
-    echo "🔄 Перезапуск backend..."
+    echo "Restarting backend..."
     cd ..
     if pm2 list | grep -q "drawasnowflake-backend"; then
         pm2 restart drawasnowflake-backend
     else
-        echo "⚠️  Backend не запущен через PM2. Запустите вручную: pm2 start ecosystem.config.js"
+        echo "Backend not running via PM2. Start manually: pm2 start ecosystem.config.js"
     fi
 else
-    echo "ℹ️  Backend не найден, пропускаем..."
+    echo "Backend not found, skipping..."
     cd ..
 fi
 
-echo "✅ Деплой завершен!"
-
+echo "Deployment completed!"
