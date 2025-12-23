@@ -22,8 +22,6 @@ import {
   Redo,
   Directions,
   DeleteOutline,
-  Add,
-  Remove,
   ArrowBack,
 } from '@mui/icons-material';
 import { useAppSelector } from '../../hooks/useAppSelector';
@@ -51,6 +49,7 @@ import {
   ZOOM_CONFIG,
   BRUSH_CONFIG,
   ANIMATION_CONFIG,
+  HEADER_CONFIG,
 } from '../../config/constants';
 import { t } from '../../i18n';
 
@@ -147,7 +146,6 @@ interface ToolbarProps {
   onGoToTree?: () => void;
   currentTab?: number;
   zoom?: number;
-  onZoomChange?: (zoom: number) => void;
   hideGoToTreeButton?: boolean;
   onBackToDraw?: () => void;
 }
@@ -158,7 +156,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onGoToTree,
   currentTab = 0,
   zoom: zoomProp = ZOOM_CONFIG.DEFAULT,
-  onZoomChange,
   hideGoToTreeButton = false,
   onBackToDraw,
 }) => {
@@ -239,26 +236,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   const handleClearCanvas = () => {
     if (drawCanvasRef?.current) {
       drawCanvasRef.current.clear();
-      setSnackbarMessage(t('toolbar.canvasCleared'));
-      setSnackbarOpen(true);
     }
-  };
-
-  const handleZoomChange = (newZoom: number) => {
-    setZoom(newZoom);
-    if (onZoomChange) {
-      onZoomChange(newZoom);
-    }
-  };
-
-  const handleZoomIn = () => {
-    const newZoom = Math.min(zoom + ZOOM_CONFIG.STEP, ZOOM_CONFIG.MAX);
-    handleZoomChange(newZoom);
-  };
-
-  const handleZoomOut = () => {
-    const newZoom = Math.max(zoom - ZOOM_CONFIG.STEP, ZOOM_CONFIG.MIN);
-    handleZoomChange(newZoom);
   };
 
   const handleGoToTreeClick = () => {
@@ -568,8 +546,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                           width: 8,
                           height: 8,
                           borderRadius: '50%',
-                          backgroundColor: '#FFD700',
-                          boxShadow: '0 0 10px #FFD700, 0 0 20px #FFA500',
+                          backgroundColor: '#FFFFFF',
+                          boxShadow:
+                            '0 0 10px #FFFFFF, 0 0 20px rgba(255, 255, 255, 0.8)',
                           animation: `${twinkle} ${ANIMATION_CONFIG.LIGHT_ANIMATION_DURATION}s ease-in-out infinite`,
                           animationDelay: `${delay}s`,
                         }}
@@ -580,17 +559,16 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
                 <Box
                   sx={{
-                    fontFamily: 'cursive',
-                    fontSize: '1.5rem',
+                    fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
                     fontWeight: 'bold',
                     textTransform: 'uppercase',
-                    background:
-                      'linear-gradient(45deg, #C0C0C0 0%, #FFFFFF 50%, #E8E8E8 100%)',
+                    background: `linear-gradient(45deg, ${HEADER_CONFIG.TEXT_GRADIENT_START} 30%, ${HEADER_CONFIG.TEXT_GRADIENT_MID} 60%, ${HEADER_CONFIG.TEXT_GRADIENT_END} 90%)`,
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
-                    textShadow: '0 0 10px rgba(192, 192, 192, 0.8)',
-                    letterSpacing: '0.1em',
+                    textShadow:
+                      '0 0 15px rgba(129, 212, 250, 0.7), 0 0 25px rgba(255, 255, 255, 0.5)',
+                    letterSpacing: '0.08em',
                   }}
                 >
                   {t('toolbar.letsItSnow')}
@@ -624,8 +602,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                           width: 8,
                           height: 8,
                           borderRadius: '50%',
-                          backgroundColor: '#FFD700',
-                          boxShadow: '0 0 10px #FFD700, 0 0 20px #FFA500',
+                          backgroundColor: '#FFFFFF',
+                          boxShadow:
+                            '0 0 10px #FFFFFF, 0 0 20px rgba(255, 255, 255, 0.8)',
                           animation: `${twinkle} ${ANIMATION_CONFIG.LIGHT_ANIMATION_DURATION}s ease-in-out infinite`,
                           animationDelay: `${delay}s`,
                         }}
@@ -652,56 +631,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           )}
         </MuiToolbar>
       </AppBar>
-
-      {isDrawTab && (
-        <Box
-          sx={{
-            position: 'fixed',
-            right: 16,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            zIndex: 1000,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 1,
-            backgroundColor: 'background.paper',
-            padding: 1,
-            borderRadius: 2,
-            boxShadow: 2,
-          }}
-        >
-          <IconButton
-            size="small"
-            onClick={handleZoomIn}
-            disabled={zoom >= ZOOM_CONFIG.MAX}
-            aria-label={t('toolbar.ariaLabels.zoomIn')}
-          >
-            <Add />
-          </IconButton>
-          <Slider
-            orientation="vertical"
-            value={zoom}
-            onChange={(_, value) => handleZoomChange(value as number)}
-            min={ZOOM_CONFIG.MIN}
-            max={ZOOM_CONFIG.MAX}
-            step={ZOOM_CONFIG.STEP}
-            sx={{ height: 200 }}
-            aria-label={t('toolbar.ariaLabels.zoom')}
-          />
-          <IconButton
-            size="small"
-            onClick={handleZoomOut}
-            disabled={zoom <= ZOOM_CONFIG.MIN}
-            aria-label={t('toolbar.ariaLabels.zoomOut')}
-          >
-            <Remove />
-          </IconButton>
-          <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-            {Math.round(zoom * 100)}%
-          </Box>
-        </Box>
-      )}
 
       <Drawer
         anchor="right"
