@@ -239,7 +239,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     }
   };
 
-
   const handleGoToTreeClick = () => {
     if (onGoToTree) {
       onGoToTree();
@@ -548,7 +547,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                           height: 8,
                           borderRadius: '50%',
                           backgroundColor: '#FFFFFF',
-                          boxShadow: '0 0 10px #FFFFFF, 0 0 20px rgba(255, 255, 255, 0.8)',
+                          boxShadow:
+                            '0 0 10px #FFFFFF, 0 0 20px rgba(255, 255, 255, 0.8)',
                           animation: `${twinkle} ${ANIMATION_CONFIG.LIGHT_ANIMATION_DURATION}s ease-in-out infinite`,
                           animationDelay: `${delay}s`,
                         }}
@@ -603,7 +603,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                           height: 8,
                           borderRadius: '50%',
                           backgroundColor: '#FFFFFF',
-                          boxShadow: '0 0 10px #FFFFFF, 0 0 20px rgba(255, 255, 255, 0.8)',
+                          boxShadow:
+                            '0 0 10px #FFFFFF, 0 0 20px rgba(255, 255, 255, 0.8)',
                           animation: `${twinkle} ${ANIMATION_CONFIG.LIGHT_ANIMATION_DURATION}s ease-in-out infinite`,
                           animationDelay: `${delay}s`,
                         }}
@@ -630,7 +631,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           )}
         </MuiToolbar>
       </AppBar>
-
 
       <Drawer
         anchor="right"

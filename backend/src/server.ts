@@ -17,7 +17,6 @@ if (sentryDsn) {
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Trust proxy for correct IP addresses behind reverse proxy
 app.set('trust proxy', true);
 
 app.use(helmet());
@@ -31,7 +30,6 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Analytics middleware - track user sessions for DAU
 app.use(trackUserSession);
 
 const limiter = rateLimit({
@@ -60,7 +58,6 @@ app.use(
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
   
-  // Log database health on startup
   try {
     const { checkDbHealth, getDbStats } = await import('./utils/dbHealth.js');
     const health = await checkDbHealth();

@@ -72,15 +72,20 @@ export function analyzeSnowflake(
   });
   centerMassX /= pixels.length;
   centerMassY /= pixels.length;
-  const centerMassDistance = Math.sqrt(centerMassX * centerMassX + centerMassY * centerMassY);
+  const centerMassDistance = Math.sqrt(
+    centerMassX * centerMassX + centerMassY * centerMassY
+  );
   const maxCanvasDistance = Math.sqrt(width * width + height * height) / 2;
-  const centerAlignment = Math.max(0, 1 - (centerMassDistance / (maxCanvasDistance * 0.1)));
+  const centerAlignment = Math.max(
+    0,
+    1 - centerMassDistance / (maxCanvasDistance * 0.1)
+  );
 
   const distances = pixels.map((p) => Math.sqrt(p.x * p.x + p.y * p.y));
   const canvasSize = Math.min(width, height);
   const centerRadius = canvasSize * 0.3;
   const centerCheckRadius = canvasSize * 0.1;
-  
+
   let isolatedCount = 0;
   pixels.forEach((pixel, index) => {
     const distance = distances[index];
@@ -93,13 +98,13 @@ export function analyzeSnowflake(
         const pixelDistance = Math.sqrt(dx * dx + dy * dy);
         minDistToOther = Math.min(minDistToOther, pixelDistance);
       });
-      
+
       if (minDistToOther > canvasSize * 0.15) {
         isolatedCount++;
       }
     }
   });
-  
+
   const isolatedPixelPenalty = isolatedCount / Math.max(1, pixels.length);
 
   const centerPixels = pixels.filter(
@@ -225,11 +230,18 @@ function calculateSymmetry(
     const sorted = distances.sort((a, b) => a - b);
     const maxDist = Math.max(...sorted);
     const hasNearCenter = sorted[0] < maxDist * 0.4;
-    const hasVariation = sorted.length > 1 && (sorted[sorted.length - 1] - sorted[0]) > maxDist * 0.15;
+    const hasVariation =
+      sorted.length > 1 &&
+      sorted[sorted.length - 1] - sorted[0] > maxDist * 0.15;
     const hasMultipleLayers = sorted.length >= 3;
-    return (hasNearCenter ? 0.5 : 0) + (hasVariation ? 0.3 : 0) + (hasMultipleLayers ? 0.2 : 0);
+    return (
+      (hasNearCenter ? 0.5 : 0) +
+      (hasVariation ? 0.3 : 0) +
+      (hasMultipleLayers ? 0.2 : 0)
+    );
   });
-  const avgRayQuality = rayQuality.reduce((a, b) => a + b, 0) / rayQuality.length;
+  const avgRayQuality =
+    rayQuality.reduce((a, b) => a + b, 0) / rayQuality.length;
 
   const avgSectorSize = sectorPixels.reduce((a, b) => a + b, 0) / 6;
   let symmetryScore = 0;
@@ -260,8 +272,9 @@ function calculateSymmetry(
   const uniformity =
     maxVariance > 0 ? 1 - Math.min(1, sectorVariance / maxVariance) : 0;
 
-  const baseScore = symmetryScore * 0.6 + uniformity * 100 * 0.25 + avgRayQuality * 100 * 0.15;
-  
+  const baseScore =
+    symmetryScore * 0.6 + uniformity * 100 * 0.25 + avgRayQuality * 100 * 0.15;
+
   const rayBonus = avgRayQuality > 0.5 ? 1.1 : 1.0;
   return Math.min(100, baseScore * (0.75 + avgRayQuality * 0.25) * rayBonus);
 }
@@ -317,7 +330,10 @@ function calculateStructure(
   }
 
   const rayBonus = rayStructure > 50 ? 1.15 : 1.0;
-  return Math.min(100, (structureScore * 0.65 + rayStructure * 0.35) * rayBonus);
+  return Math.min(
+    100,
+    (structureScore * 0.65 + rayStructure * 0.35) * rayBonus
+  );
 }
 
 function checkRayStructure(
@@ -326,7 +342,8 @@ function checkRayStructure(
 ): number {
   if (pixels.length < 10) return 0;
 
-  const angleGroups: Array<Array<{ x: number; y: number; distance: number }>> = [];
+  const angleGroups: Array<Array<{ x: number; y: number; distance: number }>> =
+    [];
   const angles = [0, 60, 120, 180, 240, 300];
 
   angles.forEach(() => {
@@ -387,7 +404,10 @@ function checkRayStructure(
     if (isRay && group.length >= 2) {
       const distRange = group[group.length - 1].distance - group[0].distance;
       const coverage = distRange / maxDistance;
-      const continuity = group.length > 2 ? Math.min(1, continuityScore / (group.length - 1)) : 0.5;
+      const continuity =
+        group.length > 2
+          ? Math.min(1, continuityScore / (group.length - 1))
+          : 0.5;
       const rayQuality = coverage * 0.7 + continuity * 0.3;
       rayScore += Math.min(100, rayQuality * 100);
       validRays++;
@@ -397,4 +417,3 @@ function checkRayStructure(
   if (validRays === 0) return 0;
   return rayScore / validRays;
 }
-

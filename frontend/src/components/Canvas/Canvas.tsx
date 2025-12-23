@@ -91,10 +91,10 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(
       if (!ctx) return;
 
       const dpr = window.devicePixelRatio || 1;
-      
+
       const container = containerRef.current;
       if (!container) return;
-      
+
       const containerRect = container.getBoundingClientRect();
       const canvasWidth = width || containerRect.width;
       const canvasHeight = height || containerRect.height;
@@ -117,19 +117,25 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(
       const scaleX = canvasWidth / referenceWidth;
       const scaleY = canvasHeight / referenceHeight;
       const baseScale = Math.min(scaleX, scaleY);
-      
+
       const finalScale = baseScale * zoom;
 
       const visibleWidthInCanvas = canvasWidth / finalScale;
       const visibleHeightInCanvas = canvasHeight / finalScale;
-      
+
       const offCanvasCenterX = offCanvasWidth / 2;
       const offCanvasCenterY = offCanvasHeight / 2;
-      
+
       const sourceX = Math.max(0, offCanvasCenterX - visibleWidthInCanvas / 2);
       const sourceY = Math.max(0, offCanvasCenterY - visibleHeightInCanvas / 2);
-      const sourceEndX = Math.min(offCanvasWidth, offCanvasCenterX + visibleWidthInCanvas / 2);
-      const sourceEndY = Math.min(offCanvasHeight, offCanvasCenterY + visibleHeightInCanvas / 2);
+      const sourceEndX = Math.min(
+        offCanvasWidth,
+        offCanvasCenterX + visibleWidthInCanvas / 2
+      );
+      const sourceEndY = Math.min(
+        offCanvasHeight,
+        offCanvasCenterY + visibleHeightInCanvas / 2
+      );
       const sourceWidth = sourceEndX - sourceX;
       const sourceHeight = sourceEndY - sourceY;
 
@@ -144,8 +150,14 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(
       if (sourceWidth > 0 && sourceHeight > 0) {
         ctx.drawImage(
           offCanvas,
-          sourceX, sourceY, sourceWidth, sourceHeight,
-          destX, destY, destWidth, destHeight
+          sourceX,
+          sourceY,
+          sourceWidth,
+          sourceHeight,
+          destX,
+          destY,
+          destWidth,
+          destHeight
         );
       }
       ctx.restore();
@@ -173,42 +185,42 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(
             if (ctx) {
               const baseWidth = CANVAS_CONFIG.BASE_WIDTH;
               const baseHeight = CANVAS_CONFIG.BASE_HEIGHT;
-              
+
               const centerX = Math.floor(offCanvas.width / 2);
               const centerY = Math.floor(offCanvas.height / 2);
-              
+
               const startX = Math.max(0, centerX - baseWidth / 2);
               const startY = Math.max(0, centerY - baseHeight / 2);
               const endX = Math.min(offCanvas.width, startX + baseWidth);
               const endY = Math.min(offCanvas.height, startY + baseHeight);
-              
+
               const width = endX - startX;
               const height = endY - startY;
-              
+
               const imageData = ctx.getImageData(startX, startY, width, height);
-              
+
               if (width === baseWidth && height === baseHeight) {
                 return imageData;
               }
-              
+
               const normalizedData = new ImageData(baseWidth, baseHeight);
               const scaleX = width / baseWidth;
               const scaleY = height / baseHeight;
-              
+
               for (let y = 0; y < baseHeight; y++) {
                 for (let x = 0; x < baseWidth; x++) {
                   const srcX = Math.floor(x * scaleX);
                   const srcY = Math.floor(y * scaleY);
                   const srcIdx = (srcY * width + srcX) * 4;
                   const dstIdx = (y * baseWidth + x) * 4;
-                  
+
                   normalizedData.data[dstIdx] = imageData.data[srcIdx];
                   normalizedData.data[dstIdx + 1] = imageData.data[srcIdx + 1];
                   normalizedData.data[dstIdx + 2] = imageData.data[srcIdx + 2];
                   normalizedData.data[dstIdx + 3] = imageData.data[srcIdx + 3];
                 }
               }
-              
+
               return normalizedData;
             }
           }
@@ -278,13 +290,13 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(
           if (newCtx) {
             newCtx.fillStyle = CANVAS_CONFIG.BACKGROUND_COLOR;
             newCtx.fillRect(0, 0, newWidth, newHeight);
-            
+
             const newCenterX = newWidth / 2;
             const newCenterY = newHeight / 2;
             const offsetX = newCenterX - centerX;
             const offsetY = newCenterY - centerY;
             newCtx.drawImage(offCanvas, offsetX, offsetY);
-            
+
             offscreenCanvasRef.current = newCanvas;
           }
         }
@@ -378,13 +390,13 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(
 
         const visibleCenterX = canvasWidth / 2;
         const visibleCenterY = canvasHeight / 2;
-        
+
         const relativeX = canvasX - visibleCenterX;
         const relativeY = canvasY - visibleCenterY;
-        
+
         const offCanvasCenterX = offCanvas.width / 2;
         const offCanvasCenterY = offCanvas.height / 2;
-        
+
         const x = offCanvasCenterX + relativeX / finalScale;
         const y = offCanvasCenterY + relativeY / finalScale;
 

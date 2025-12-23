@@ -56,12 +56,12 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
 
       const centerX = width / 2;
       const isMobile = width < 768;
-      
+
       let treeWidth = Math.min(
         width * TREE_CONFIG.WIDTH_RATIO,
         TREE_CONFIG.MAX_WIDTH
       );
-      
+
       let treeHeight: number;
       if (isMobile) {
         const aspectRatio = 0.75 / TREE_CONFIG.WIDTH_RATIO;
@@ -74,7 +74,7 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
       } else {
         treeHeight = height * TREE_CONFIG.HEIGHT_RATIO;
       }
-      
+
       const treeTop = height * TREE_CONFIG.TOP_OFFSET;
       const trunkHeight = height * TREE_CONFIG.TRUNK_HEIGHT_RATIO;
 
@@ -329,7 +329,7 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
       ctx.save();
       ctx.translate(snowflake.x, snowflake.y);
       ctx.rotate((snowflake.rotation * Math.PI) / 180);
-      
+
       const fixedSize = TREE_CONFIG.FIXED_SNOWFLAKE_SIZE_ON_TREE;
 
       if (snowflake.imageData) {

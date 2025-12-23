@@ -16,15 +16,19 @@ const getInitialBrushSize = (): number => {
   if (typeof window === 'undefined') {
     return BRUSH_CONFIG.DEFAULT_SIZE;
   }
-  
+
   const saved = localStorage.getItem(BRUSH_SIZE_STORAGE_KEY);
   if (saved !== null) {
     const parsed = Number(saved);
-    if (!isNaN(parsed) && parsed >= BRUSH_CONFIG.MIN_SIZE && parsed <= BRUSH_CONFIG.MAX_SIZE) {
+    if (
+      !isNaN(parsed) &&
+      parsed >= BRUSH_CONFIG.MIN_SIZE &&
+      parsed <= BRUSH_CONFIG.MAX_SIZE
+    ) {
       return parsed;
     }
   }
-  
+
   return BRUSH_CONFIG.DEFAULT_SIZE;
 };
 

@@ -4,14 +4,9 @@ import crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
-/**
- * Generate or extract session ID from request
- */
 function getSessionId(req: Request): string {
-  // Try to get session ID from cookie
   let sessionId = req.cookies?.sessionId;
 
-  // If no cookie, generate one based on IP + User-Agent
   if (!sessionId) {
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
     const userAgent = req.get('user-agent') || 'unknown';
@@ -25,9 +20,6 @@ function getSessionId(req: Request): string {
   return sessionId;
 }
 
-/**
- * Track user session for DAU calculation
- */
 export async function trackUserSession(
   req: Request,
   res: Response,

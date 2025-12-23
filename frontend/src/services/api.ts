@@ -21,7 +21,7 @@ export const saveSnowflakeToServer = async (
 ): Promise<SnowflakeData> => {
   const { isFalling, ...dataToSave } = snowflake;
   void isFalling;
-  
+
   const response = await fetch(`${API_URL}/snowflakes`, {
     method: 'POST',
     headers: {
@@ -33,7 +33,9 @@ export const saveSnowflakeToServer = async (
   if (!response.ok) {
     const errorText = await response.text();
     console.error('Failed to save snowflake:', response.status, errorText);
-    throw new Error(`Failed to save snowflake: ${response.status} ${errorText}`);
+    throw new Error(
+      `Failed to save snowflake: ${response.status} ${errorText}`
+    );
   }
 
   return response.json();
@@ -45,7 +47,9 @@ export const getAllSnowflakes = async (): Promise<SnowflakeData[]> => {
   if (!response.ok) {
     const errorText = await response.text();
     console.error('Failed to load snowflakes:', response.status, errorText);
-    throw new Error(`Failed to load snowflakes: ${response.status} ${errorText}`);
+    throw new Error(
+      `Failed to load snowflakes: ${response.status} ${errorText}`
+    );
   }
 
   return response.json();

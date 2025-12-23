@@ -42,57 +42,61 @@ export const TreePage: React.FC = () => {
         );
 
         const availableWidth = MAX_X - MIN_X;
-        const snowflakes: Snowflake[] = limitedServerSnowflakes.map((s, index) => {
-          const totalSnowflakes = limitedServerSnowflakes.length;
-          const basePosition = totalSnowflakes > 1 
-            ? MIN_X + (index / (totalSnowflakes - 1)) * availableWidth
-            : MIN_X + availableWidth / 2;
-          
-          const randomOffset = (Math.random() - 0.5) * (availableWidth / totalSnowflakes) * 0.5;
-          let distributedX = basePosition + randomOffset;
-          
-          if (distributedX < MIN_X) {
-            distributedX = MIN_X;
-          } else if (distributedX > MAX_X) {
-            distributedX = MAX_X;
+        const snowflakes: Snowflake[] = limitedServerSnowflakes.map(
+          (s, index) => {
+            const totalSnowflakes = limitedServerSnowflakes.length;
+            const basePosition =
+              totalSnowflakes > 1
+                ? MIN_X + (index / (totalSnowflakes - 1)) * availableWidth
+                : MIN_X + availableWidth / 2;
+
+            const randomOffset =
+              (Math.random() - 0.5) * (availableWidth / totalSnowflakes) * 0.5;
+            let distributedX = basePosition + randomOffset;
+
+            if (distributedX < MIN_X) {
+              distributedX = MIN_X;
+            } else if (distributedX > MAX_X) {
+              distributedX = MAX_X;
+            }
+
+            const initialY =
+              SNOWFLAKE_CONFIG.SPAWN_Y_OFFSET -
+              Math.random() * SNOWFLAKE_CONFIG.SPAWN_Y_RANDOM;
+
+            return {
+              id: s.id || `snowflake-${Date.now()}-${Math.random()}`,
+              x: distributedX,
+              y: initialY,
+              rotation: s.rotation || 0,
+              scale: s.scale || 1,
+              pattern: s.pattern || 'custom',
+              data: null,
+              imageData: s.imageData || undefined,
+              fallSpeed:
+                s.fallSpeed ||
+                SNOWFLAKE_CONFIG.MIN_FALL_SPEED +
+                  Math.random() *
+                    (SNOWFLAKE_CONFIG.MAX_FALL_SPEED -
+                      SNOWFLAKE_CONFIG.MIN_FALL_SPEED),
+              isFalling: s.isFalling !== undefined ? s.isFalling : true,
+              driftSpeed:
+                s.driftSpeed ||
+                (Math.random() - 0.5) *
+                  (SNOWFLAKE_CONFIG.MAX_DRIFT_SPEED -
+                    SNOWFLAKE_CONFIG.MIN_DRIFT_SPEED),
+              driftPhase:
+                s.driftPhase !== undefined
+                  ? s.driftPhase
+                  : Math.random() * SNOWFLAKE_CONFIG.PI_MULTIPLIER,
+              timeOffset: Math.random() * 20,
+              startDelay: Math.random() * 3,
+            };
           }
-
-          const initialY =
-            SNOWFLAKE_CONFIG.SPAWN_Y_OFFSET -
-            Math.random() * SNOWFLAKE_CONFIG.SPAWN_Y_RANDOM;
-
-          return {
-            id: s.id || `snowflake-${Date.now()}-${Math.random()}`,
-            x: distributedX,
-            y: initialY,
-            rotation: s.rotation || 0,
-            scale: s.scale || 1,
-            pattern: s.pattern || 'custom',
-            data: null,
-            imageData: s.imageData || undefined,
-            fallSpeed:
-              s.fallSpeed ||
-              SNOWFLAKE_CONFIG.MIN_FALL_SPEED +
-                Math.random() *
-                  (SNOWFLAKE_CONFIG.MAX_FALL_SPEED -
-                    SNOWFLAKE_CONFIG.MIN_FALL_SPEED),
-            isFalling: s.isFalling !== undefined ? s.isFalling : true,
-            driftSpeed:
-              s.driftSpeed ||
-              (Math.random() - 0.5) *
-                (SNOWFLAKE_CONFIG.MAX_DRIFT_SPEED -
-                  SNOWFLAKE_CONFIG.MIN_DRIFT_SPEED),
-            driftPhase:
-              s.driftPhase !== undefined
-                ? s.driftPhase
-                : Math.random() * SNOWFLAKE_CONFIG.PI_MULTIPLIER,
-            timeOffset: Math.random() * 20,
-            startDelay: Math.random() * 3,
-          };
-        });
+        );
 
         const limitedSnowflakes = snowflakes;
-        
+
         dispatch(loadSnowflakes(limitedSnowflakes));
       } catch (error) {
         console.error('Failed to load snowflakes from server:', error);

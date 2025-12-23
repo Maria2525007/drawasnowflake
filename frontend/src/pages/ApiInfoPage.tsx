@@ -78,14 +78,23 @@ export const ApiInfoPage: React.FC = () => {
 
       const res = await fetch(url, options);
       const data = await res.json();
-      
-      if (endpoint.method === 'DELETE' && endpoint.path === '/api/snowflakes' && res.ok) {
-        setResponse(JSON.stringify(data, null, 2) + '\n\n⚠️ ВНИМАНИЕ: Все снежинки удалены из базы данных!');
+
+      if (
+        endpoint.method === 'DELETE' &&
+        endpoint.path === '/api/snowflakes' &&
+        res.ok
+      ) {
+        setResponse(
+          JSON.stringify(data, null, 2) +
+            '\n\n⚠️ ВНИМАНИЕ: Все снежинки удалены из базы данных!'
+        );
       } else {
         setResponse(JSON.stringify(data, null, 2));
       }
     } catch (error) {
-      setResponse(`Ошибка: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setResponse(
+        `Ошибка: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     } finally {
       setLoading(false);
     }
@@ -135,7 +144,14 @@ export const ApiInfoPage: React.FC = () => {
                 color: 'white',
               }}
             >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 1 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'start',
+                  marginBottom: 1,
+                }}
+              >
                 <Box>
                   <Typography variant="h6" sx={{ color: '#81d4fa' }}>
                     {endpoint.name}
@@ -150,7 +166,10 @@ export const ApiInfoPage: React.FC = () => {
                   >
                     {endpoint.method} {endpoint.path}
                   </Typography>
-                  <Typography variant="body2" sx={{ marginTop: 1, color: '#cfd8dc' }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ marginTop: 1, color: '#cfd8dc' }}
+                  >
                     {endpoint.description}
                   </Typography>
                 </Box>
@@ -206,7 +225,8 @@ export const ApiInfoPage: React.FC = () => {
                 wordBreak: 'break-word',
               }}
             >
-              {response || 'Нажмите "Тест" на любом эндпоинте для просмотра ответа'}
+              {response ||
+                'Нажмите "Тест" на любом эндпоинте для просмотра ответа'}
             </pre>
           </Paper>
         </Box>
