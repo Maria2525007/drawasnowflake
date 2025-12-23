@@ -22,7 +22,9 @@ describe('dbHealth', () => {
   describe('checkDbHealth', () => {
     it('should return healthy status when database is connected', async () => {
       const prisma = new PrismaClient();
-      (prisma.$queryRaw as jest.Mock).mockResolvedValue([{ table_name: 'snowflake' }]);
+      (prisma.$queryRaw as jest.Mock).mockResolvedValue([
+        { table_name: 'snowflake' },
+      ]);
       (prisma.snowflake.count as jest.Mock).mockResolvedValue(10);
 
       const result = await checkDbHealth();

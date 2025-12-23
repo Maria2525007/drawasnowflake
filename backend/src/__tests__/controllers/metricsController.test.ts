@@ -176,7 +176,9 @@ describe('MetricsController', () => {
     it('should handle errors', async () => {
       mockRequest.query = { start: '2024-01-01', end: '2024-01-07' };
       const error = new Error('Database error');
-      (dauCalculator.calculateDAUForRange as jest.Mock).mockRejectedValue(error);
+      (dauCalculator.calculateDAUForRange as jest.Mock).mockRejectedValue(
+        error
+      );
 
       await metricsController.getDAUForRange(
         mockRequest as Request,
