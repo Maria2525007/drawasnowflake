@@ -119,7 +119,7 @@ export const TreePage: React.FC = () => {
       <Toolbar
         canvasRef={treeCanvasRef}
         currentTab={UI_CONFIG.TREE_TAB_INDEX}
-        onBackToDraw={() => navigate('/draw')}
+        onBackToDraw={() => navigate('/draw', { state: { fromTree: true } })}
       />
       <Box
         sx={{

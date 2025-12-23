@@ -1,6 +1,6 @@
-import { Box, Typography, Button, Paper, IconButton } from '@mui/material';
+import { Box, Typography, Button, Paper, IconButton, useMediaQuery, useTheme } from '@mui/material';
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Directions, Add, Remove } from '@mui/icons-material';
 import { useAppDispatch } from '../hooks/useAppDispatch';
 import { Canvas, type CanvasHandle } from '../components/Canvas/Canvas';
@@ -31,8 +31,11 @@ export const DrawPage: React.FC = () => {
   const [similarity, setSimilarity] = useState<number | null>(null);
   const drawCanvasRef = useRef<CanvasHandle>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
   const snowflakes = useAppSelector((state) => state.snowflake.snowflakes);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleGoToTree = () => {
     if (!drawCanvasRef?.current) {
@@ -292,6 +295,41 @@ export const DrawPage: React.FC = () => {
     }, ANALYSIS_CONFIG.STROKE_END_DELAY);
   }, [performAnalysis]);
 
+  useEffect(() => {
+    const shouldAutoCenter = (location.state as { fromTree?: boolean })?.fromTree === true;
+    
+    if (!shouldAutoCenter) {
+      setZoom(ZOOM_CONFIG.DEFAULT);
+      return;
+    }
+
+    if (isMobile && drawCanvasRef.current && location.pathname === '/draw') {
+      const timeoutId = setTimeout(() => {
+        const canvas = drawCanvasRef.current?.getCanvas();
+        if (canvas) {
+          const rect = canvas.getBoundingClientRect();
+          const canvasWidth = rect.width;
+          const canvasHeight = rect.height;
+          const baseWidth = CANVAS_CONFIG.BASE_WIDTH;
+          const baseHeight = CANVAS_CONFIG.BASE_HEIGHT;
+          
+          const scaleX = canvasWidth / baseWidth;
+          const scaleY = canvasHeight / baseHeight;
+          const optimalZoom = Math.min(scaleX, scaleY) * 0.9;
+          
+          const clampedZoom = Math.max(
+            ZOOM_CONFIG.MIN,
+            Math.min(ZOOM_CONFIG.MAX, optimalZoom)
+          );
+          
+          setZoom(clampedZoom);
+        }
+      }, 100);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isMobile, location.pathname, location.state]);
+
   return (
     <Box
       sx={{
@@ -338,7 +376,6 @@ export const DrawPage: React.FC = () => {
               drawCanvasRef={drawCanvasRef}
               currentTab={0}
               zoom={zoom}
-              onZoomChange={(newZoom: number) => setZoom(newZoom)}
               hideGoToTreeButton
             />
           </Box>
@@ -354,17 +391,16 @@ export const DrawPage: React.FC = () => {
             <Canvas
               ref={drawCanvasRef}
               zoom={zoom}
-              onZoomChange={(newZoom: number) => setZoom(newZoom)}
               onStrokeEnd={handleStrokeEnd}
             />
-            {/* Mobile zoom control - compact buttons in canvas corner */}
+            {/* Zoom control - compact buttons in canvas corner */}
             <Box
               sx={{
                 position: 'absolute',
                 bottom: 8,
                 right: 8,
                 zIndex: 1000,
-                display: { xs: 'flex', md: 'none' },
+                display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: 0.5,
