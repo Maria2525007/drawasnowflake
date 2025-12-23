@@ -22,3 +22,17 @@ model Snowflake {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
+
+model UserSession {
+  id        String   @id @default(cuid())
+  sessionId String
+  userAgent String?
+  ipAddress String?
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sessionId, date])
+  @@index([date])
+  @@index([sessionId])
+}

@@ -654,53 +654,130 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       </AppBar>
 
       {isDrawTab && (
-        <Box
-          sx={{
-            position: 'fixed',
-            right: 16,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            zIndex: 1000,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 1,
-            backgroundColor: 'background.paper',
-            padding: 1,
-            borderRadius: 2,
-            boxShadow: 2,
-          }}
-        >
-          <IconButton
-            size="small"
-            onClick={handleZoomIn}
-            disabled={zoom >= ZOOM_CONFIG.MAX}
-            aria-label={t('toolbar.ariaLabels.zoomIn')}
+        <>
+          {/* Desktop zoom control - vertical on the right */}
+          <Box
+            sx={{
+              position: 'fixed',
+              right: 16,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 1000,
+              display: { xs: 'none', md: 'flex' },
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 1,
+              backgroundColor: 'background.paper',
+              padding: 1,
+              borderRadius: 2,
+              boxShadow: 2,
+            }}
           >
-            <Add />
-          </IconButton>
-          <Slider
-            orientation="vertical"
-            value={zoom}
-            onChange={(_, value) => handleZoomChange(value as number)}
-            min={ZOOM_CONFIG.MIN}
-            max={ZOOM_CONFIG.MAX}
-            step={ZOOM_CONFIG.STEP}
-            sx={{ height: 200 }}
-            aria-label={t('toolbar.ariaLabels.zoom')}
-          />
-          <IconButton
-            size="small"
-            onClick={handleZoomOut}
-            disabled={zoom <= ZOOM_CONFIG.MIN}
-            aria-label={t('toolbar.ariaLabels.zoomOut')}
-          >
-            <Remove />
-          </IconButton>
-          <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-            {Math.round(zoom * 100)}%
+            <IconButton
+              size="small"
+              onClick={handleZoomIn}
+              disabled={zoom >= ZOOM_CONFIG.MAX}
+              aria-label={t('toolbar.ariaLabels.zoomIn')}
+            >
+              <Add />
+            </IconButton>
+            <Slider
+              orientation="vertical"
+              value={zoom}
+              onChange={(_, value) => handleZoomChange(value as number)}
+              min={ZOOM_CONFIG.MIN}
+              max={ZOOM_CONFIG.MAX}
+              step={ZOOM_CONFIG.STEP}
+              sx={{ height: 200 }}
+              aria-label={t('toolbar.ariaLabels.zoom')}
+            />
+            <IconButton
+              size="small"
+              onClick={handleZoomOut}
+              disabled={zoom <= ZOOM_CONFIG.MIN}
+              aria-label={t('toolbar.ariaLabels.zoomOut')}
+            >
+              <Remove />
+            </IconButton>
+            <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+              {Math.round(zoom * 100)}%
+            </Box>
           </Box>
-        </Box>
+
+          {/* Mobile zoom control - horizontal at the bottom */}
+          <Box
+            sx={{
+              position: 'fixed',
+              bottom: 16,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 1000,
+              display: { xs: 'flex', md: 'none' },
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 1.5,
+              backgroundColor: 'background.paper',
+              padding: '8px 16px',
+              borderRadius: 3,
+              boxShadow: 4,
+              minWidth: 200,
+              maxWidth: '90%',
+            }}
+          >
+            <IconButton
+              size="small"
+              onClick={handleZoomOut}
+              disabled={zoom <= ZOOM_CONFIG.MIN}
+              aria-label={t('toolbar.ariaLabels.zoomOut')}
+              sx={{ 
+                color: zoom <= ZOOM_CONFIG.MIN ? 'action.disabled' : 'inherit',
+                padding: '8px',
+              }}
+            >
+              <Remove />
+            </IconButton>
+            <Slider
+              orientation="horizontal"
+              value={zoom}
+              onChange={(_, value) => handleZoomChange(value as number)}
+              min={ZOOM_CONFIG.MIN}
+              max={ZOOM_CONFIG.MAX}
+              step={ZOOM_CONFIG.STEP}
+              sx={{ 
+                flex: 1,
+                maxWidth: 150,
+                '& .MuiSlider-thumb': {
+                  width: 20,
+                  height: 20,
+                },
+              }}
+              aria-label={t('toolbar.ariaLabels.zoom')}
+            />
+            <Box 
+              sx={{ 
+                fontSize: '0.875rem', 
+                color: 'text.primary',
+                fontWeight: 500,
+                minWidth: 45,
+                textAlign: 'center',
+              }}
+            >
+              {Math.round(zoom * 100)}%
+            </Box>
+            <IconButton
+              size="small"
+              onClick={handleZoomIn}
+              disabled={zoom >= ZOOM_CONFIG.MAX}
+              aria-label={t('toolbar.ariaLabels.zoomIn')}
+              sx={{ 
+                color: zoom >= ZOOM_CONFIG.MAX ? 'action.disabled' : 'inherit',
+                padding: '8px',
+              }}
+            >
+              <Add />
+            </IconButton>
+          </Box>
+        </>
       )}
 
       <Drawer
