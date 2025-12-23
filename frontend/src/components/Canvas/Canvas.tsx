@@ -103,19 +103,16 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(
       ctx.fillStyle = CANVAS_CONFIG.BACKGROUND_COLOR;
       ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-      const centerX = canvasWidth / 2;
-      const centerY = canvasHeight / 2;
       const offCanvasWidth = offCanvas.width;
       const offCanvasHeight = offCanvas.height;
 
-      const scaledWidth = offCanvasWidth * zoom;
-      const scaledHeight = offCanvasHeight * zoom;
-      const offsetX = centerX - scaledWidth / 2;
-      const offsetY = centerY - scaledHeight / 2;
+      const scaleX = canvasWidth / offCanvasWidth;
+      const scaleY = canvasHeight / offCanvasHeight;
+      const baseScale = Math.max(scaleX, scaleY);
+      const finalScale = baseScale * zoom;
 
       ctx.save();
-      ctx.translate(offsetX, offsetY);
-      ctx.scale(zoom, zoom);
+      ctx.scale(finalScale, finalScale);
       ctx.drawImage(offCanvas, 0, 0);
       ctx.restore();
     }, [zoom, width, height]);
@@ -126,17 +123,7 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(
         getCanvas: () => canvasRef.current,
         getImageData: () => {
           if (offscreenCanvasRef.current) {
-            const offCanvas = offscreenCanvasRef.current;
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = offCanvas.width * zoom;
-            tempCanvas.height = offCanvas.height * zoom;
-            const tempCtx = tempCanvas.getContext('2d');
-            if (tempCtx) {
-              tempCtx.scale(zoom, zoom);
-              tempCtx.drawImage(offCanvas, 0, 0);
-              return tempCanvas.toDataURL('image/png');
-            }
-            return offCanvas.toDataURL('image/png');
+            return offscreenCanvasRef.current.toDataURL('image/png');
           }
           if (canvasRef.current) {
             return canvasRef.current.toDataURL('image/png');
@@ -222,9 +209,6 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(
       const canvas = canvasRef.current;
       if (!canvas) return;
 
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
       const getCoordinates = (
         e: MouseEvent | TouchEvent
       ): { x: number; y: number } | null => {
@@ -241,20 +225,28 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(
           return null;
         }
 
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
         const offCanvas = offscreenCanvasRef.current;
         if (!offCanvas) return null;
 
+        const canvasX = clientX - rect.left;
+        const canvasY = clientY - rect.top;
+
+        const canvasWidth = rect.width;
+        const canvasHeight = rect.height;
         const offCanvasWidth = offCanvas.width;
         const offCanvasHeight = offCanvas.height;
-        const scaledWidth = offCanvasWidth * zoom;
-        const scaledHeight = offCanvasHeight * zoom;
-        const offsetX = centerX - scaledWidth / 2;
-        const offsetY = centerY - scaledHeight / 2;
 
-        const x = (clientX - rect.left - offsetX) / zoom;
-        const y = (clientY - rect.top - offsetY) / zoom;
+        const scaleX = canvasWidth / offCanvasWidth;
+        const scaleY = canvasHeight / offCanvasHeight;
+        const baseScale = Math.max(scaleX, scaleY);
+        const finalScale = baseScale * zoom;
+
+        const x = canvasX / finalScale;
+        const y = canvasY / finalScale;
+
+        if (x < 0 || x > offCanvasWidth || y < 0 || y > offCanvasHeight) {
+          return null;
+        }
 
         return { x, y };
       };
