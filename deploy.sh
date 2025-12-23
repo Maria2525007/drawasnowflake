@@ -24,6 +24,9 @@ if [ -d "../backend" ]; then
     cd ../backend
     npm install
 
+    echo "Generating Prisma client..."
+    npx prisma generate
+
     echo "Building backend..."
     npm run build
 
