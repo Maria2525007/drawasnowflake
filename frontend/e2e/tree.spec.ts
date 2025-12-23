@@ -11,8 +11,8 @@ test.describe('Tree Page', () => {
     await expect(canvas).toBeVisible();
   });
 
-  test('should display "LET\'S IT SNOW" message', async ({ page }) => {
-    const message = page.locator('text=/LET\'S IT SNOW/i');
+  test('should display "LET IT SNOW" message', async ({ page }) => {
+    const message = page.locator('text=/LET IT SNOW/i');
     await expect(message).toBeVisible();
   });
 
@@ -20,7 +20,7 @@ test.describe('Tree Page', () => {
     await page.waitForTimeout(500);
     const toolbar = page.locator('header[class*="MuiAppBar"]');
     await expect(toolbar).toBeVisible();
-    const messageBox = toolbar.locator('text=/LET\'S IT SNOW/i');
+    const messageBox = toolbar.locator('text=/LET IT SNOW/i');
     await expect(messageBox).toBeVisible();
     const container = messageBox.locator('..');
     const lights = container.locator('div').filter({ hasText: '' }).first();

@@ -39,7 +39,7 @@ test.describe('Responsive Design', () => {
     const canvas = page.locator('canvas');
     await expect(canvas).toBeVisible();
     
-    const message = page.locator('text=/LET\'S IT SNOW/i');
+    const message = page.locator('text=/LET IT SNOW/i');
     await expect(message).toBeVisible();
   });
 

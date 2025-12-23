@@ -14,7 +14,7 @@ test.describe('Navigation', () => {
 
   test('should navigate to tree page', async ({ page }) => {
     await page.goto('/tree');
-    await expect(page.locator('text=/LET\'S IT SNOW/i')).toBeVisible();
+    await expect(page.locator('text=/LET IT SNOW/i')).toBeVisible();
   });
 
   test('should navigate from draw to tree page', async ({ page }) => {
