@@ -7,10 +7,6 @@ import {
 } from '../utils/dauCalculator.js';
 
 export const metricsController = {
-  /**
-   * Get Daily Active Users statistics
-   * GET /api/metrics/dau
-   */
   getDAU: async (_req: Request, res: Response) => {
     try {
       const stats = await getDAUStats();
@@ -21,11 +17,6 @@ export const metricsController = {
     }
   },
 
-  /**
-   * Get DAU for a specific date
-   * GET /api/metrics/dau/:date
-   * Date format: YYYY-MM-DD
-   */
   getDAUForDate: async (req: Request, res: Response) => {
     try {
       const { date } = req.params;
@@ -44,10 +35,6 @@ export const metricsController = {
     }
   },
 
-  /**
-   * Get DAU for a date range
-   * GET /api/metrics/dau/range?start=YYYY-MM-DD&end=YYYY-MM-DD
-   */
   getDAUForRange: async (req: Request, res: Response) => {
     try {
       const { start, end } = req.query;
@@ -72,7 +59,6 @@ export const metricsController = {
         return;
       }
 
-      // Limit range to 90 days
       const daysDiff =
         (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
       if (daysDiff > 90) {
@@ -88,17 +74,20 @@ export const metricsController = {
     }
   },
 
-  /**
-   * Check 1M DAU milestone
-   * GET /api/metrics/dau/milestone
-   */
   getMilestone: async (_req: Request, res: Response) => {
     try {
       const milestone = await check1MDAUMilestone();
       res.json(milestone);
     } catch (error) {
       console.error('Error checking milestone:', error);
-      res.status(500).json({ error: 'Failed to check milestone' });
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
+      res.status(500).json({ 
+        error: 'Failed to check milestone',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   },
 };

@@ -13,35 +13,40 @@ export interface DAUStats {
   thisWeek: number;
   thisMonth: number;
   allTime: number;
-  growth: number; // percentage change from yesterday
+  growth: number;
 }
 
-/**
- * Calculate Daily Active Users for a specific date
- */
 export async function calculateDAUForDate(date: Date): Promise<number> {
-  const startOfDay = new Date(date);
-  startOfDay.setHours(0, 0, 0, 0);
-  
-  const endOfDay = new Date(date);
-  endOfDay.setHours(23, 59, 59, 999);
+  try {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
 
-  const count = await prisma.userSession.count({
-    where: {
-      date: {
-        gte: startOfDay,
-        lte: endOfDay,
+    const sessions = await prisma.userSession.findMany({
+      where: {
+        date: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
       },
-    },
-    distinct: ['sessionId'],
-  });
+      select: {
+        sessionId: true,
+      },
+      distinct: ['sessionId'],
+    });
 
-  return count;
+    return sessions.length;
+  } catch (error) {
+    console.error('Error in calculateDAUForDate:', error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+    }
+    throw error;
+  }
 }
 
-/**
- * Calculate DAU for a date range
- */
 export async function calculateDAUForRange(
   startDate: Date,
   endDate: Date
@@ -61,9 +66,6 @@ export async function calculateDAUForRange(
   return results;
 }
 
-/**
- * Get comprehensive DAU statistics
- */
 export async function getDAUStats(): Promise<DAUStats> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -131,25 +133,31 @@ export async function getDAUStats(): Promise<DAUStats> {
   };
 }
 
-/**
- * Check if we've reached 1M DAU milestone
- */
 export async function check1MDAUMilestone(): Promise<{
   reached: boolean;
   current: number;
   target: number;
   percentage: number;
 }> {
-  const stats = await getDAUStats();
-  const target = 1_000_000;
-  const current = stats.allTime;
-  const reached = current >= target;
-  const percentage = (current / target) * 100;
+  try {
+    const stats = await getDAUStats();
+    const target = 1_000_000;
+    const current = stats.allTime;
+    const reached = current >= target;
+    const percentage = (current / target) * 100;
 
-  return {
-    reached,
-    current,
-    target,
-    percentage: Math.round(percentage * 100) / 100,
-  };
+    return {
+      reached,
+      current,
+      target,
+      percentage: Math.round(percentage * 100) / 100,
+    };
+  } catch (error) {
+    console.error('Error in check1MDAUMilestone:', error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
+    throw error;
+  }
 }
