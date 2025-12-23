@@ -51,6 +51,7 @@ import {
   ZOOM_CONFIG,
   BRUSH_CONFIG,
   ANIMATION_CONFIG,
+  HEADER_CONFIG,
 } from '../../config/constants';
 import { t } from '../../i18n';
 
@@ -568,8 +569,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                           width: 8,
                           height: 8,
                           borderRadius: '50%',
-                          backgroundColor: '#FFD700',
-                          boxShadow: '0 0 10px #FFD700, 0 0 20px #FFA500',
+                          backgroundColor: '#FFFFFF',
+                          boxShadow: '0 0 10px #FFFFFF, 0 0 20px rgba(255, 255, 255, 0.8)',
                           animation: `${twinkle} ${ANIMATION_CONFIG.LIGHT_ANIMATION_DURATION}s ease-in-out infinite`,
                           animationDelay: `${delay}s`,
                         }}
@@ -580,17 +581,16 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
                 <Box
                   sx={{
-                    fontFamily: 'cursive',
-                    fontSize: '1.5rem',
+                    fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
                     fontWeight: 'bold',
                     textTransform: 'uppercase',
-                    background:
-                      'linear-gradient(45deg, #C0C0C0 0%, #FFFFFF 50%, #E8E8E8 100%)',
+                    background: `linear-gradient(45deg, ${HEADER_CONFIG.TEXT_GRADIENT_START} 30%, ${HEADER_CONFIG.TEXT_GRADIENT_MID} 60%, ${HEADER_CONFIG.TEXT_GRADIENT_END} 90%)`,
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
-                    textShadow: '0 0 10px rgba(192, 192, 192, 0.8)',
-                    letterSpacing: '0.1em',
+                    textShadow:
+                      '0 0 15px rgba(129, 212, 250, 0.7), 0 0 25px rgba(255, 255, 255, 0.5)',
+                    letterSpacing: '0.08em',
                   }}
                 >
                   {t('toolbar.letsItSnow')}
@@ -624,8 +624,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                           width: 8,
                           height: 8,
                           borderRadius: '50%',
-                          backgroundColor: '#FFD700',
-                          boxShadow: '0 0 10px #FFD700, 0 0 20px #FFA500',
+                          backgroundColor: '#FFFFFF',
+                          boxShadow: '0 0 10px #FFFFFF, 0 0 20px rgba(255, 255, 255, 0.8)',
                           animation: `${twinkle} ${ANIMATION_CONFIG.LIGHT_ANIMATION_DURATION}s ease-in-out infinite`,
                           animationDelay: `${delay}s`,
                         }}
@@ -655,7 +655,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
       {isDrawTab && (
         <>
-          {/* Desktop zoom control - vertical on the right */}
           <Box
             sx={{
               position: 'fixed',
@@ -704,79 +703,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             </Box>
           </Box>
 
-          {/* Mobile zoom control - horizontal at the bottom */}
-          <Box
-            sx={{
-              position: 'fixed',
-              bottom: 16,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 1000,
-              display: { xs: 'flex', md: 'none' },
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 1.5,
-              backgroundColor: 'background.paper',
-              padding: '8px 16px',
-              borderRadius: 3,
-              boxShadow: 4,
-              minWidth: 200,
-              maxWidth: '90%',
-            }}
-          >
-            <IconButton
-              size="small"
-              onClick={handleZoomOut}
-              disabled={zoom <= ZOOM_CONFIG.MIN}
-              aria-label={t('toolbar.ariaLabels.zoomOut')}
-              sx={{ 
-                color: zoom <= ZOOM_CONFIG.MIN ? 'action.disabled' : 'inherit',
-                padding: '8px',
-              }}
-            >
-              <Remove />
-            </IconButton>
-            <Slider
-              orientation="horizontal"
-              value={zoom}
-              onChange={(_, value) => handleZoomChange(value as number)}
-              min={ZOOM_CONFIG.MIN}
-              max={ZOOM_CONFIG.MAX}
-              step={ZOOM_CONFIG.STEP}
-              sx={{ 
-                flex: 1,
-                maxWidth: 150,
-                '& .MuiSlider-thumb': {
-                  width: 20,
-                  height: 20,
-                },
-              }}
-              aria-label={t('toolbar.ariaLabels.zoom')}
-            />
-            <Box 
-              sx={{ 
-                fontSize: '0.875rem', 
-                color: 'text.primary',
-                fontWeight: 500,
-                minWidth: 45,
-                textAlign: 'center',
-              }}
-            >
-              {Math.round(zoom * 100)}%
-            </Box>
-            <IconButton
-              size="small"
-              onClick={handleZoomIn}
-              disabled={zoom >= ZOOM_CONFIG.MAX}
-              aria-label={t('toolbar.ariaLabels.zoomIn')}
-              sx={{ 
-                color: zoom >= ZOOM_CONFIG.MAX ? 'action.disabled' : 'inherit',
-                padding: '8px',
-              }}
-            >
-              <Add />
-            </IconButton>
-          </Box>
         </>
       )}
 
