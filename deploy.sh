@@ -24,6 +24,10 @@ if [ -d "../backend" ]; then
     cd ../backend
     npm install
 
+    echo "Cleaning old Prisma client..."
+    rm -rf node_modules/.prisma
+    rm -rf node_modules/@prisma/client
+
     echo "Generating Prisma client..."
     npx prisma generate --schema=./prisma/schema.prisma
     if [ ! -d "./node_modules/.prisma/client" ]; then
