@@ -17,9 +17,9 @@ export const snowflakeController = {
         console.error('Error message:', error.message);
         console.error('Error stack:', error.stack);
       }
-      res.status(500).json({ 
+      res.status(500).json({
         error: 'Failed to get snowflakes',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   },
@@ -73,9 +73,9 @@ export const snowflakeController = {
         console.error('Error message:', error.message);
         console.error('Error stack:', error.stack);
       }
-      res.status(500).json({ 
+      res.status(500).json({
         error: 'Failed to create snowflake',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   },
@@ -150,10 +150,10 @@ export const snowflakeController = {
     try {
       const result = await prisma.snowflake.deleteMany({});
       console.log(`Deleted ${result.count} snowflakes from database`);
-      res.json({ 
-        success: true, 
+      res.json({
+        success: true,
         deletedCount: result.count,
-        message: `Successfully deleted ${result.count} snowflake(s) from database`
+        message: `Successfully deleted ${result.count} snowflake(s) from database`,
       });
     } catch (error) {
       console.error('Error deleting all snowflakes:', error);
@@ -161,9 +161,9 @@ export const snowflakeController = {
         console.error('Error message:', error.message);
         console.error('Error stack:', error.stack);
       }
-      res.status(500).json({ 
+      res.status(500).json({
         error: 'Failed to delete all snowflakes',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   },

@@ -21,11 +21,9 @@ export async function checkDbHealth(): Promise<DbHealthStatus> {
   };
 
   try {
-    // Check database connection
     await prisma.$queryRaw`SELECT 1`;
     result.connected = true;
 
-    // Check if snowflake table exists
     const tables = await prisma.$queryRaw<Array<{ table_name: string }>>`
       SELECT table_name 
       FROM information_schema.tables 
@@ -34,11 +32,11 @@ export async function checkDbHealth(): Promise<DbHealthStatus> {
     result.tablesExist = tables.length > 0;
 
     if (result.tablesExist) {
-      // Count snowflakes
       result.snowflakeCount = await prisma.snowflake.count();
     }
 
-    result.status = result.connected && result.tablesExist ? 'healthy' : 'unhealthy';
+    result.status =
+      result.connected && result.tablesExist ? 'healthy' : 'unhealthy';
   } catch (error) {
     result.error = error instanceof Error ? error.message : 'Unknown error';
     result.status = 'unhealthy';

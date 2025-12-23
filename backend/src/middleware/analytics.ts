@@ -26,7 +26,6 @@ export async function trackUserSession(
   next: NextFunction
 ): Promise<void> {
   try {
-    // Skip tracking for health checks and metrics endpoints
     if (
       req.path.startsWith('/api/health') ||
       req.path.startsWith('/api/metrics')
@@ -39,11 +38,10 @@ export async function trackUserSession(
     const ipAddress = req.ip || req.socket.remoteAddress || null;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const endOfToday = new Date(today);
     endOfToday.setHours(23, 59, 59, 999);
 
-    // Check if session already exists for today
     const existingSession = await prisma.userSession.findFirst({
       where: {
         sessionId,
@@ -54,7 +52,6 @@ export async function trackUserSession(
       },
     });
 
-    // Only create new session if it doesn't exist for today
     if (!existingSession) {
       try {
         await prisma.userSession.create({
@@ -62,7 +59,7 @@ export async function trackUserSession(
             sessionId,
             userAgent,
             ipAddress,
-            date: today, // Use start of day for consistent grouping
+            date: today,
           },
         });
       } catch (error: unknown) {
@@ -77,16 +74,14 @@ export async function trackUserSession(
       }
     }
 
-    // Set session cookie if not present
     if (!req.cookies?.sessionId) {
       res.cookie('sessionId', sessionId, {
-        maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
+        maxAge: 365 * 24 * 60 * 60 * 1000,
         httpOnly: true,
         sameSite: 'lax',
       });
     }
   } catch (error) {
-    // Don't block request if analytics fails
     console.error('Error tracking user session:', error);
   }
 

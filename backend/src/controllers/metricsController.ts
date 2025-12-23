@@ -84,9 +84,9 @@ export const metricsController = {
         console.error('Error message:', error.message);
         console.error('Error stack:', error.stack);
       }
-      res.status(500).json({ 
+      res.status(500).json({
         error: 'Failed to check milestone',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   },

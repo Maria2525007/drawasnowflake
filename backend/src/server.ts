@@ -57,31 +57,37 @@ app.use(
 
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
-  
+
   try {
     const { checkDbHealth, getDbStats } = await import('./utils/dbHealth.js');
     const health = await checkDbHealth();
     const stats = await getDbStats();
-    
+
     console.log('Database Health Check:');
     console.log(`  Status: ${health.status}`);
     console.log(`  Connected: ${health.connected}`);
     console.log(`  Tables Exist: ${health.tablesExist}`);
     console.log(`  Snowflake Count: ${health.snowflakeCount}`);
-    
+
     if (stats) {
       console.log('Database Stats:');
       console.log(`  Total Snowflakes: ${stats.totalSnowflakes}`);
       if (stats.oldestSnowflakeDate) {
-        console.log(`  Oldest Snowflake: ${stats.oldestSnowflakeDate.toISOString()}`);
+        console.log(
+          `  Oldest Snowflake: ${stats.oldestSnowflakeDate.toISOString()}`
+        );
       }
       if (stats.newestSnowflakeDate) {
-        console.log(`  Newest Snowflake: ${stats.newestSnowflakeDate.toISOString()}`);
+        console.log(
+          `  Newest Snowflake: ${stats.newestSnowflakeDate.toISOString()}`
+        );
       }
     }
-    
+
     if (health.status === 'unhealthy') {
-      console.warn('WARNING: Database health check failed. Some features may not work correctly.');
+      console.warn(
+        'WARNING: Database health check failed. Some features may not work correctly.'
+      );
     }
   } catch (error) {
     console.error('Failed to check database health on startup:', error);

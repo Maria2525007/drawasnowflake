@@ -171,9 +171,7 @@ describe('MetricsController', () => {
 
     it('should handle errors', async () => {
       const error = new Error('Database error');
-      (dauCalculator.check1MDAUMilestone as jest.Mock).mockRejectedValue(
-        error
-      );
+      (dauCalculator.check1MDAUMilestone as jest.Mock).mockRejectedValue(error);
 
       await metricsController.getMilestone(
         mockRequest as Request,

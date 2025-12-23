@@ -20,7 +20,7 @@ export async function calculateDAUForDate(date: Date): Promise<number> {
   try {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
-    
+
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
 
@@ -78,39 +78,44 @@ export async function getDAUStats(): Promise<DAUStats> {
 
   const thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
-  const [todayCount, yesterdayCount, thisWeekSessions, thisMonthSessions, allTimeSessions] =
-    await Promise.all([
-      calculateDAUForDate(today),
-      calculateDAUForDate(yesterday),
-      prisma.userSession.findMany({
-        where: {
-          date: {
-            gte: thisWeekStart,
-          },
+  const [
+    todayCount,
+    yesterdayCount,
+    thisWeekSessions,
+    thisMonthSessions,
+    allTimeSessions,
+  ] = await Promise.all([
+    calculateDAUForDate(today),
+    calculateDAUForDate(yesterday),
+    prisma.userSession.findMany({
+      where: {
+        date: {
+          gte: thisWeekStart,
         },
-        select: {
-          sessionId: true,
+      },
+      select: {
+        sessionId: true,
+      },
+      distinct: ['sessionId'],
+    }),
+    prisma.userSession.findMany({
+      where: {
+        date: {
+          gte: thisMonthStart,
         },
-        distinct: ['sessionId'],
-      }),
-      prisma.userSession.findMany({
-        where: {
-          date: {
-            gte: thisMonthStart,
-          },
-        },
-        select: {
-          sessionId: true,
-        },
-        distinct: ['sessionId'],
-      }),
-      prisma.userSession.findMany({
-        select: {
-          sessionId: true,
-        },
-        distinct: ['sessionId'],
-      }),
-    ]);
+      },
+      select: {
+        sessionId: true,
+      },
+      distinct: ['sessionId'],
+    }),
+    prisma.userSession.findMany({
+      select: {
+        sessionId: true,
+      },
+      distinct: ['sessionId'],
+    }),
+  ]);
 
   const thisWeekCount = thisWeekSessions.length;
   const thisMonthCount = thisMonthSessions.length;
