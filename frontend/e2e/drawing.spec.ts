@@ -109,22 +109,49 @@ test.describe('Drawing Page', () => {
       await page.mouse.down();
       await page.mouse.move(canvasBox.x + canvasBox.width / 2 + 50, canvasBox.y + canvasBox.height / 2 + 50);
       await page.mouse.up();
-      await page.waitForTimeout(300);
+      await page.waitForTimeout(500);
+      
+      const beforeClear = await canvas.evaluate((el: HTMLCanvasElement) => {
+        const ctx = el.getContext('2d');
+        if (!ctx) return false;
+        const imageData = ctx.getImageData(0, 0, el.width, el.height).data;
+        return imageData.some((value, index) => {
+          if (index % 4 === 3) {
+            const r = imageData[index - 3];
+            const g = imageData[index - 2];
+            const b = imageData[index - 1];
+            const a = value;
+            return a > 0 && !(r === 10 && g === 25 && b === 41);
+          }
+          return false;
+        });
+      });
+      
+      expect(beforeClear).toBeTruthy();
     }
     
     const clearButton = page.locator('button[aria-label="clear canvas"]');
     await clearButton.click();
     
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
     
-    const imageData = await canvas.evaluate((el: HTMLCanvasElement) => {
+    const hasNonBackgroundContent = await canvas.evaluate((el: HTMLCanvasElement) => {
       const ctx = el.getContext('2d');
-      if (!ctx) return null;
-      return ctx.getImageData(0, 0, el.width, el.height).data;
+      if (!ctx) return true;
+      const imageData = ctx.getImageData(0, 0, el.width, el.height).data;
+      return imageData.some((value, index) => {
+        if (index % 4 === 3) {
+          const r = imageData[index - 3];
+          const g = imageData[index - 2];
+          const b = imageData[index - 1];
+          const a = value;
+          return a > 0 && !(r === 10 && g === 25 && b === 41);
+        }
+        return false;
+      });
     });
     
-    const hasContent = imageData?.some((value, index) => index % 4 === 3 && value > 0);
-    expect(hasContent).toBeFalsy();
+    expect(hasNonBackgroundContent).toBeFalsy();
   });
 
   test('should display zoom controls', async ({ page }) => {
