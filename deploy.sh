@@ -22,14 +22,13 @@ npm run build
 if [ -d "../backend" ]; then
     echo "Installing backend dependencies..."
     cd ../backend
-    npm install
-
-    echo "Cleaning old Prisma client..."
+    
+    echo "Cleaning old Prisma client and node_modules cache..."
     rm -rf node_modules/.prisma
     rm -rf node_modules/@prisma/client
-
-    echo "Reinstalling @prisma/client..."
-    npm install @prisma/client@latest
+    
+    echo "Installing dependencies..."
+    npm install
 
     echo "Generating Prisma client..."
     npx prisma generate --schema=./prisma/schema.prisma
@@ -38,6 +37,11 @@ if [ -d "../backend" ]; then
       exit 1
     fi
     echo "Prisma client generated successfully"
+    
+    echo "Verifying Prisma client has UserSession model..."
+    if ! grep -q "userSession" node_modules/.prisma/client/index.d.ts 2>/dev/null; then
+      echo "WARNING: UserSession model not found in Prisma client, but continuing..."
+    fi
 
     echo "Building backend..."
     npm run build
