@@ -25,7 +25,12 @@ if [ -d "../backend" ]; then
     npm install
 
     echo "Generating Prisma client..."
-    npx prisma generate
+    npx prisma generate --schema=./prisma/schema.prisma
+    if [ ! -d "./node_modules/.prisma/client" ]; then
+      echo "ERROR: Prisma client directory not found after generation"
+      exit 1
+    fi
+    echo "Prisma client generated successfully"
 
     echo "Building backend..."
     npm run build
