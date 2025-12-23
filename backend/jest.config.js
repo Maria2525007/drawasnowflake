@@ -7,13 +7,8 @@ export default {
     'src/**/*.ts',
     '!src/**/*.d.ts',
     '!src/**/__tests__/**',
-    '!src/server.ts',
-    '!src/middleware/analytics.ts',
-    '!src/utils/dauCalculator.ts',
-  ],
-  collectCoverageFrom: [
-    'src/**/*.ts',
     '!src/**/*.test.ts',
+    '!src/server.ts',
     '!src/middleware/analytics.ts',
     '!src/utils/dauCalculator.ts',
   ],
@@ -29,4 +24,3 @@ export default {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
 };
-
