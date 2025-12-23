@@ -22,8 +22,6 @@ import {
   Redo,
   Directions,
   DeleteOutline,
-  Add,
-  Remove,
   ArrowBack,
 } from '@mui/icons-material';
 import { useAppSelector } from '../../hooks/useAppSelector';
@@ -148,7 +146,6 @@ interface ToolbarProps {
   onGoToTree?: () => void;
   currentTab?: number;
   zoom?: number;
-  onZoomChange?: (zoom: number) => void;
   hideGoToTreeButton?: boolean;
   onBackToDraw?: () => void;
 }
@@ -159,7 +156,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onGoToTree,
   currentTab = 0,
   zoom: zoomProp = ZOOM_CONFIG.DEFAULT,
-  onZoomChange,
   hideGoToTreeButton = false,
   onBackToDraw,
 }) => {
@@ -240,27 +236,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   const handleClearCanvas = () => {
     if (drawCanvasRef?.current) {
       drawCanvasRef.current.clear();
-      setSnackbarMessage(t('toolbar.canvasCleared'));
-      setSnackbarOpen(true);
     }
   };
 
-  const handleZoomChange = (newZoom: number) => {
-    setZoom(newZoom);
-    if (onZoomChange) {
-      onZoomChange(newZoom);
-    }
-  };
-
-  const handleZoomIn = () => {
-    const newZoom = Math.min(zoom + ZOOM_CONFIG.STEP, ZOOM_CONFIG.MAX);
-    handleZoomChange(newZoom);
-  };
-
-  const handleZoomOut = () => {
-    const newZoom = Math.max(zoom - ZOOM_CONFIG.STEP, ZOOM_CONFIG.MIN);
-    handleZoomChange(newZoom);
-  };
 
   const handleGoToTreeClick = () => {
     if (onGoToTree) {
@@ -653,58 +631,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         </MuiToolbar>
       </AppBar>
 
-      {isDrawTab && (
-        <>
-          <Box
-            sx={{
-              position: 'fixed',
-              right: 16,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              zIndex: 1000,
-              display: { xs: 'none', md: 'flex' },
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 1,
-              backgroundColor: 'background.paper',
-              padding: 1,
-              borderRadius: 2,
-              boxShadow: 2,
-            }}
-          >
-            <IconButton
-              size="small"
-              onClick={handleZoomIn}
-              disabled={zoom >= ZOOM_CONFIG.MAX}
-              aria-label={t('toolbar.ariaLabels.zoomIn')}
-            >
-              <Add />
-            </IconButton>
-            <Slider
-              orientation="vertical"
-              value={zoom}
-              onChange={(_, value) => handleZoomChange(value as number)}
-              min={ZOOM_CONFIG.MIN}
-              max={ZOOM_CONFIG.MAX}
-              step={ZOOM_CONFIG.STEP}
-              sx={{ height: 200 }}
-              aria-label={t('toolbar.ariaLabels.zoom')}
-            />
-            <IconButton
-              size="small"
-              onClick={handleZoomOut}
-              disabled={zoom <= ZOOM_CONFIG.MIN}
-              aria-label={t('toolbar.ariaLabels.zoomOut')}
-            >
-              <Remove />
-            </IconButton>
-            <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-              {Math.round(zoom * 100)}%
-            </Box>
-          </Box>
-
-        </>
-      )}
 
       <Drawer
         anchor="right"
