@@ -55,11 +55,26 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
       ctx.fillRect(0, 0, width, height);
 
       const centerX = width / 2;
-      const treeWidth = Math.min(
+      const isMobile = width < 768;
+
+      let treeWidth = Math.min(
         width * TREE_CONFIG.WIDTH_RATIO,
         TREE_CONFIG.MAX_WIDTH
       );
-      const treeHeight = height * TREE_CONFIG.HEIGHT_RATIO;
+
+      let treeHeight: number;
+      if (isMobile) {
+        const aspectRatio = 0.75 / TREE_CONFIG.WIDTH_RATIO;
+        treeHeight = treeWidth * aspectRatio;
+        const maxHeight = height * 0.6;
+        if (treeHeight > maxHeight) {
+          treeHeight = maxHeight;
+          treeWidth = treeHeight / aspectRatio;
+        }
+      } else {
+        treeHeight = height * TREE_CONFIG.HEIGHT_RATIO;
+      }
+
       const treeTop = height * TREE_CONFIG.TOP_OFFSET;
       const trunkHeight = height * TREE_CONFIG.TRUNK_HEIGHT_RATIO;
 
@@ -314,27 +329,23 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
       ctx.save();
       ctx.translate(snowflake.x, snowflake.y);
       ctx.rotate((snowflake.rotation * Math.PI) / 180);
-      ctx.scale(snowflake.scale, snowflake.scale);
+
+      const fixedSize = TREE_CONFIG.FIXED_SNOWFLAKE_SIZE_ON_TREE;
 
       if (snowflake.imageData) {
         const img = preloadImage(snowflake.imageData);
 
         if (img.complete && img.naturalWidth > 0) {
           const aspectRatio = img.width / img.height;
-          let imgWidth = img.width;
-          let imgHeight = img.height;
+          let imgWidth = fixedSize;
+          let imgHeight = fixedSize;
 
-          if (
-            imgWidth > SNOWFLAKE_CONFIG.MAX_SIZE ||
-            imgHeight > SNOWFLAKE_CONFIG.MAX_SIZE
-          ) {
-            if (imgWidth > imgHeight) {
-              imgWidth = SNOWFLAKE_CONFIG.MAX_SIZE;
-              imgHeight = SNOWFLAKE_CONFIG.MAX_SIZE / aspectRatio;
-            } else {
-              imgHeight = SNOWFLAKE_CONFIG.MAX_SIZE;
-              imgWidth = SNOWFLAKE_CONFIG.MAX_SIZE * aspectRatio;
-            }
+          if (img.width > img.height) {
+            imgWidth = fixedSize;
+            imgHeight = fixedSize / aspectRatio;
+          } else {
+            imgHeight = fixedSize;
+            imgWidth = fixedSize * aspectRatio;
           }
 
           ctx.drawImage(
@@ -352,7 +363,7 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
 
         const branches = 6;
         const angleStep = (Math.PI * 2) / branches;
-        const radius = 20;
+        const radius = fixedSize / 2;
 
         for (let i = 0; i < branches; i++) {
           const angle = i * angleStep;

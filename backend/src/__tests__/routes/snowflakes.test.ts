@@ -15,6 +15,9 @@ jest.mock('../../controllers/snowflakeController', () => ({
       res.json({ id: req.params.id, ...req.body })
     ),
     delete: jest.fn(async (_req, res) => res.json({ success: true })),
+    deleteAll: jest.fn(async (_req, res) =>
+      res.json({ success: true, deletedCount: 5 })
+    ),
   },
 }));
 
@@ -55,5 +58,12 @@ describe('Snowflake Routes', () => {
     const response = await request(app).delete('/api/snowflakes/1');
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('success', true);
+  });
+
+  it('should delete all snowflakes', async () => {
+    const response = await request(app).delete('/api/snowflakes');
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('success', true);
+    expect(response.body).toHaveProperty('deletedCount');
   });
 });

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { DrawPage } from './pages/DrawPage';
 import { TreePage } from './pages/TreePage';
+import { ApiInfoPage } from './pages/ApiInfoPage';
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
         <Route path="/" element={<Navigate to="/draw" replace />} />
         <Route path="/draw" element={<DrawPage />} />
         <Route path="/tree" element={<TreePage />} />
+        <Route path="/api-info" element={<ApiInfoPage />} />
       </Routes>
     </BrowserRouter>
   );
