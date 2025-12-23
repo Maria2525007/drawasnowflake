@@ -1,7 +1,7 @@
-import { Box, Typography, Button, Paper } from '@mui/material';
+import { Box, Typography, Button, Paper, IconButton } from '@mui/material';
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Directions } from '@mui/icons-material';
+import { Directions, Add, Remove } from '@mui/icons-material';
 import { useAppDispatch } from '../hooks/useAppDispatch';
 import { Canvas, type CanvasHandle } from '../components/Canvas/Canvas';
 import { Toolbar } from '../components/UI/Toolbar';
@@ -203,13 +203,7 @@ export const DrawPage: React.FC = () => {
     }
 
     saveSnowflakeToServer(newSnowflake)
-      .then((savedSnowflake) => {
-        if (savedSnowflake?.id) {
-          const updatedSnowflake = { ...newSnowflake, id: savedSnowflake.id };
-          dispatch(addSnowflake(updatedSnowflake));
-        } else {
-          dispatch(addSnowflake(newSnowflake));
-        }
+      .then(() => {
         if (drawCanvasRef?.current) {
           drawCanvasRef.current.clear();
         }
@@ -217,6 +211,7 @@ export const DrawPage: React.FC = () => {
       })
       .catch((error) => {
         console.error('Failed to save snowflake to server:', error);
+        alert('Не удалось сохранить снежинку на сервер. Она будет видна только до перезагрузки страницы.');
         dispatch(addSnowflake(newSnowflake));
         if (drawCanvasRef?.current) {
           drawCanvasRef.current.clear();
@@ -362,6 +357,76 @@ export const DrawPage: React.FC = () => {
               onZoomChange={(newZoom: number) => setZoom(newZoom)}
               onStrokeEnd={handleStrokeEnd}
             />
+            {/* Mobile zoom control - compact buttons in canvas corner */}
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: 8,
+                right: 8,
+                zIndex: 1000,
+                display: { xs: 'flex', md: 'none' },
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 0.5,
+                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                backdropFilter: 'blur(4px)',
+                padding: '4px 8px',
+                borderRadius: 2,
+                boxShadow: 2,
+                maxWidth: 'calc(100% - 16px)',
+              }}
+            >
+              <IconButton
+                size="small"
+                onClick={() => {
+                  const newZoom = Math.max(ZOOM_CONFIG.MIN, zoom - ZOOM_CONFIG.STEP);
+                  setZoom(newZoom);
+                }}
+                disabled={zoom <= ZOOM_CONFIG.MIN}
+                sx={{ 
+                  color: zoom <= ZOOM_CONFIG.MIN ? 'rgba(255, 255, 255, 0.3)' : 'white',
+                  padding: '4px',
+                  minWidth: 32,
+                  height: 32,
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  },
+                }}
+              >
+                <Remove fontSize="small" />
+              </IconButton>
+              <Box 
+                sx={{ 
+                  fontSize: '0.75rem', 
+                  color: 'white',
+                  fontWeight: 500,
+                  minWidth: 36,
+                  textAlign: 'center',
+                  userSelect: 'none',
+                }}
+              >
+                {Math.round(zoom * 100)}%
+              </Box>
+              <IconButton
+                size="small"
+                onClick={() => {
+                  const newZoom = Math.min(ZOOM_CONFIG.MAX, zoom + ZOOM_CONFIG.STEP);
+                  setZoom(newZoom);
+                }}
+                disabled={zoom >= ZOOM_CONFIG.MAX}
+                sx={{ 
+                  color: zoom >= ZOOM_CONFIG.MAX ? 'rgba(255, 255, 255, 0.3)' : 'white',
+                  padding: '4px',
+                  minWidth: 32,
+                  height: 32,
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  },
+                }}
+              >
+                <Add fontSize="small" />
+              </IconButton>
+            </Box>
           </Box>
 
           <Box
