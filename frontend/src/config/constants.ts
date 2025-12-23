@@ -13,14 +13,14 @@ export const ZOOM_CONFIG = {
   MIN: 0.1,
   MAX: 2.0,
   STEP: 0.1,
-  DEFAULT: 1.0,
+  DEFAULT: 0.2,
 } as const;
 
 export const BRUSH_CONFIG = {
   MIN_SIZE: 1,
   MAX_SIZE: 50,
   DEFAULT_COLOR: '#ffffff',
-  DEFAULT_SIZE: 5,
+  DEFAULT_SIZE: 20,
 } as const;
 
 export const SNOWFLAKE_CONFIG = {
