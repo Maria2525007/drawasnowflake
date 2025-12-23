@@ -86,7 +86,7 @@ test.describe('Drawing Page', () => {
     const slider = page.locator('input[type="range"]').first();
     const initialValue = await slider.inputValue();
     
-    await slider.fill('20');
+    await slider.fill('30');
     const newValue = await slider.inputValue();
     
     expect(newValue).not.toBe(initialValue);
@@ -109,48 +109,87 @@ test.describe('Drawing Page', () => {
       await page.mouse.down();
       await page.mouse.move(canvasBox.x + canvasBox.width / 2 + 50, canvasBox.y + canvasBox.height / 2 + 50);
       await page.mouse.up();
-      await page.waitForTimeout(300);
+      await page.waitForTimeout(500);
+      
+      const beforeClear = await canvas.evaluate((el: HTMLCanvasElement) => {
+        const ctx = el.getContext('2d');
+        if (!ctx) return false;
+        const imageData = ctx.getImageData(0, 0, el.width, el.height).data;
+        return imageData.some((value, index) => {
+          if (index % 4 === 3) {
+            const r = imageData[index - 3];
+            const g = imageData[index - 2];
+            const b = imageData[index - 1];
+            const a = value;
+            return a > 0 && !(r === 10 && g === 25 && b === 41);
+          }
+          return false;
+        });
+      });
+      
+      expect(beforeClear).toBeTruthy();
     }
     
     const clearButton = page.locator('button[aria-label="clear canvas"]');
     await clearButton.click();
     
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
     
-    const snackbar = page.locator('text=Canvas cleared');
-    await expect(snackbar).toBeVisible({ timeout: 2000 });
+    const hasNonBackgroundContent = await canvas.evaluate((el: HTMLCanvasElement) => {
+      const ctx = el.getContext('2d');
+      if (!ctx) return true;
+      const imageData = ctx.getImageData(0, 0, el.width, el.height).data;
+      return imageData.some((value, index) => {
+        if (index % 4 === 3) {
+          const r = imageData[index - 3];
+          const g = imageData[index - 2];
+          const b = imageData[index - 1];
+          const a = value;
+          return a > 0 && !(r === 10 && g === 25 && b === 41);
+        }
+        return false;
+      });
+    });
+    
+    expect(hasNonBackgroundContent).toBeFalsy();
   });
 
   test('should display zoom controls', async ({ page }) => {
-    const zoomInButton = page.locator('button[aria-label="zoom in"]');
-    const zoomOutButton = page.locator('button[aria-label="zoom out"]');
+    const zoomControls = page.locator('button').filter({ has: page.locator('svg[data-testid="AddIcon"]') });
+    const zoomOutControls = page.locator('button').filter({ has: page.locator('svg[data-testid="RemoveIcon"]') });
     
-    await expect(zoomInButton).toBeVisible();
-    await expect(zoomOutButton).toBeVisible();
+    await expect(zoomControls.first()).toBeVisible();
+    await expect(zoomOutControls.first()).toBeVisible();
   });
 
   test('should zoom in canvas', async ({ page }) => {
-    const zoomInButton = page.locator('button[aria-label="zoom in"]');
-    const slider = page.locator('input[type="range"]').last();
+    const zoomInButton = page.locator('button').filter({ has: page.locator('svg[data-testid="AddIcon"]') }).first();
+    const zoomDisplay = page.locator('text=/\\d+%/').first();
     
-    const initialZoom = await slider.inputValue();
+    const initialZoomText = await zoomDisplay.textContent();
+    const initialZoom = initialZoomText ? parseFloat(initialZoomText.replace('%', '')) : 0;
+    
     await zoomInButton.click();
     await page.waitForTimeout(200);
     
-    const newZoom = await slider.inputValue();
-    expect(parseFloat(newZoom)).toBeGreaterThan(parseFloat(initialZoom));
+    const newZoomText = await zoomDisplay.textContent();
+    const newZoom = newZoomText ? parseFloat(newZoomText.replace('%', '')) : 0;
+    expect(newZoom).toBeGreaterThan(initialZoom);
   });
 
   test('should zoom out canvas', async ({ page }) => {
-    const zoomOutButton = page.locator('button[aria-label="zoom out"]');
-    const slider = page.locator('input[type="range"]').last();
+    const zoomOutButton = page.locator('button').filter({ has: page.locator('svg[data-testid="RemoveIcon"]') }).first();
+    const zoomDisplay = page.locator('text=/\\d+%/').first();
     
-    const initialZoom = await slider.inputValue();
+    const initialZoomText = await zoomDisplay.textContent();
+    const initialZoom = initialZoomText ? parseFloat(initialZoomText.replace('%', '')) : 0;
+    
     await zoomOutButton.click();
     await page.waitForTimeout(200);
     
-    const newZoom = await slider.inputValue();
-    expect(parseFloat(newZoom)).toBeLessThan(parseFloat(initialZoom));
+    const newZoomText = await zoomDisplay.textContent();
+    const newZoom = newZoomText ? parseFloat(newZoomText.replace('%', '')) : 0;
+    expect(newZoom).toBeLessThan(initialZoom);
   });
 
   test('should display similarity percentage after drawing', async ({ page }) => {

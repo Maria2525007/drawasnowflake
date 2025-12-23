@@ -1,4 +1,5 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Link } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import { HEADER_CONFIG } from '../../config/constants';
 import { t } from '../../i18n';
 
@@ -15,8 +16,28 @@ export const Header: React.FC = () => {
         color: 'white',
         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
         borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        position: 'relative',
       }}
     >
+      <Link
+        component={RouterLink}
+        to="/api-info"
+        sx={{
+          position: 'absolute',
+          top: 16,
+          right: 16,
+          color: 'white',
+          textDecoration: 'none',
+          fontSize: '0.875rem',
+          opacity: 0.8,
+          '&:hover': {
+            opacity: 1,
+            textDecoration: 'underline',
+          },
+        }}
+      >
+        API Info
+      </Link>
       <Typography
         variant="h2"
         component="h1"
