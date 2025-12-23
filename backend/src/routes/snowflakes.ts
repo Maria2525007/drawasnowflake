@@ -5,6 +5,7 @@ export const snowflakeRouter = Router();
 
 snowflakeRouter.get('/', snowflakeController.getAll);
 snowflakeRouter.post('/', snowflakeController.create);
+snowflakeRouter.delete('/', snowflakeController.deleteAll);
 snowflakeRouter.get('/:id', snowflakeController.getById);
 snowflakeRouter.put('/:id', snowflakeController.update);
 snowflakeRouter.delete('/:id', snowflakeController.delete);
