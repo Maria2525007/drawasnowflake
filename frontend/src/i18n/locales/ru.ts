@@ -6,7 +6,7 @@ export const ru = {
   },
   toolbar: {
     goOnTree: 'На Ёлку',
-    letsItSnow: 'Пусть идёт снег',
+    letsItSnow: 'LET IT SNOW',
     workSaved: 'Работа успешно сохранена!',
     workLoaded: 'Работа успешно загружена!',
     noSavedWork: 'Сохранённых работ не найдено',

@@ -1,7 +1,15 @@
-import { Box, Typography, Button, Paper } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Button,
+  Paper,
+  IconButton,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Directions } from '@mui/icons-material';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Directions, Add, Remove } from '@mui/icons-material';
 import { useAppDispatch } from '../hooks/useAppDispatch';
 import { Canvas, type CanvasHandle } from '../components/Canvas/Canvas';
 import { Toolbar } from '../components/UI/Toolbar';
@@ -31,8 +39,11 @@ export const DrawPage: React.FC = () => {
   const [similarity, setSimilarity] = useState<number | null>(null);
   const drawCanvasRef = useRef<CanvasHandle>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
   const snowflakes = useAppSelector((state) => state.snowflake.snowflakes);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleGoToTree = () => {
     if (!drawCanvasRef?.current) {
@@ -203,13 +214,7 @@ export const DrawPage: React.FC = () => {
     }
 
     saveSnowflakeToServer(newSnowflake)
-      .then((savedSnowflake) => {
-        if (savedSnowflake?.id) {
-          const updatedSnowflake = { ...newSnowflake, id: savedSnowflake.id };
-          dispatch(addSnowflake(updatedSnowflake));
-        } else {
-          dispatch(addSnowflake(newSnowflake));
-        }
+      .then(() => {
         if (drawCanvasRef?.current) {
           drawCanvasRef.current.clear();
         }
@@ -217,6 +222,9 @@ export const DrawPage: React.FC = () => {
       })
       .catch((error) => {
         console.error('Failed to save snowflake to server:', error);
+        alert(
+          'Не удалось сохранить снежинку на сервер. Она будет видна только до перезагрузки страницы.'
+        );
         dispatch(addSnowflake(newSnowflake));
         if (drawCanvasRef?.current) {
           drawCanvasRef.current.clear();
@@ -240,8 +248,8 @@ export const DrawPage: React.FC = () => {
 
       const analysis = analyzeSnowflake(
         imageData,
-        ANALYSIS_CONFIG.CANVAS_WIDTH,
-        ANALYSIS_CONFIG.CANVAS_HEIGHT
+        imageData.width,
+        imageData.height
       );
 
       setSimilarity(Math.max(0, analysis.similarity));
@@ -297,6 +305,42 @@ export const DrawPage: React.FC = () => {
     }, ANALYSIS_CONFIG.STROKE_END_DELAY);
   }, [performAnalysis]);
 
+  useEffect(() => {
+    const shouldAutoCenter =
+      (location.state as { fromTree?: boolean })?.fromTree === true;
+
+    if (!shouldAutoCenter) {
+      setZoom(ZOOM_CONFIG.DEFAULT);
+      return;
+    }
+
+    if (isMobile && drawCanvasRef.current && location.pathname === '/draw') {
+      const timeoutId = setTimeout(() => {
+        const canvas = drawCanvasRef.current?.getCanvas();
+        if (canvas) {
+          const rect = canvas.getBoundingClientRect();
+          const canvasWidth = rect.width;
+          const canvasHeight = rect.height;
+          const baseWidth = CANVAS_CONFIG.BASE_WIDTH;
+          const baseHeight = CANVAS_CONFIG.BASE_HEIGHT;
+
+          const scaleX = canvasWidth / baseWidth;
+          const scaleY = canvasHeight / baseHeight;
+          const optimalZoom = Math.min(scaleX, scaleY) * 0.9;
+
+          const clampedZoom = Math.max(
+            ZOOM_CONFIG.MIN,
+            Math.min(ZOOM_CONFIG.MAX, optimalZoom)
+          );
+
+          setZoom(clampedZoom);
+        }
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isMobile, location.pathname, location.state]);
+
   return (
     <Box
       sx={{
@@ -343,7 +387,6 @@ export const DrawPage: React.FC = () => {
               drawCanvasRef={drawCanvasRef}
               currentTab={0}
               zoom={zoom}
-              onZoomChange={(newZoom: number) => setZoom(newZoom)}
               hideGoToTreeButton
             />
           </Box>
@@ -359,9 +402,89 @@ export const DrawPage: React.FC = () => {
             <Canvas
               ref={drawCanvasRef}
               zoom={zoom}
-              onZoomChange={(newZoom: number) => setZoom(newZoom)}
               onStrokeEnd={handleStrokeEnd}
             />
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: 8,
+                right: 8,
+                zIndex: 1000,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 0.5,
+                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                backdropFilter: 'blur(4px)',
+                padding: '4px 8px',
+                borderRadius: 2,
+                boxShadow: 2,
+                maxWidth: 'calc(100% - 16px)',
+              }}
+            >
+              <IconButton
+                size="small"
+                onClick={() => {
+                  const newZoom = Math.max(
+                    ZOOM_CONFIG.MIN,
+                    zoom - ZOOM_CONFIG.STEP
+                  );
+                  setZoom(newZoom);
+                }}
+                disabled={zoom <= ZOOM_CONFIG.MIN}
+                sx={{
+                  color:
+                    zoom <= ZOOM_CONFIG.MIN
+                      ? 'rgba(255, 255, 255, 0.3)'
+                      : 'white',
+                  padding: '4px',
+                  minWidth: 32,
+                  height: 32,
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  },
+                }}
+              >
+                <Remove fontSize="small" />
+              </IconButton>
+              <Box
+                sx={{
+                  fontSize: '0.75rem',
+                  color: 'white',
+                  fontWeight: 500,
+                  minWidth: 36,
+                  textAlign: 'center',
+                  userSelect: 'none',
+                }}
+              >
+                {Math.round(zoom * 100)}%
+              </Box>
+              <IconButton
+                size="small"
+                onClick={() => {
+                  const newZoom = Math.min(
+                    ZOOM_CONFIG.MAX,
+                    zoom + ZOOM_CONFIG.STEP
+                  );
+                  setZoom(newZoom);
+                }}
+                disabled={zoom >= ZOOM_CONFIG.MAX}
+                sx={{
+                  color:
+                    zoom >= ZOOM_CONFIG.MAX
+                      ? 'rgba(255, 255, 255, 0.3)'
+                      : 'white',
+                  padding: '4px',
+                  minWidth: 32,
+                  height: 32,
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  },
+                }}
+              >
+                <Add fontSize="small" />
+              </IconButton>
+            </Box>
           </Box>
 
           <Box

@@ -6,7 +6,7 @@ export const en = {
   },
   toolbar: {
     goOnTree: 'Go on Tree',
-    letsItSnow: "Let's it snow",
+    letsItSnow: 'LET IT SNOW',
     workSaved: 'Work saved successfully!',
     workLoaded: 'Work loaded successfully!',
     noSavedWork: 'No saved work found',
