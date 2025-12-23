@@ -314,27 +314,23 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
       ctx.save();
       ctx.translate(snowflake.x, snowflake.y);
       ctx.rotate((snowflake.rotation * Math.PI) / 180);
-      ctx.scale(snowflake.scale, snowflake.scale);
+      
+      const fixedSize = TREE_CONFIG.FIXED_SNOWFLAKE_SIZE_ON_TREE;
 
       if (snowflake.imageData) {
         const img = preloadImage(snowflake.imageData);
 
         if (img.complete && img.naturalWidth > 0) {
           const aspectRatio = img.width / img.height;
-          let imgWidth = img.width;
-          let imgHeight = img.height;
+          let imgWidth = fixedSize;
+          let imgHeight = fixedSize;
 
-          if (
-            imgWidth > SNOWFLAKE_CONFIG.MAX_SIZE ||
-            imgHeight > SNOWFLAKE_CONFIG.MAX_SIZE
-          ) {
-            if (imgWidth > imgHeight) {
-              imgWidth = SNOWFLAKE_CONFIG.MAX_SIZE;
-              imgHeight = SNOWFLAKE_CONFIG.MAX_SIZE / aspectRatio;
-            } else {
-              imgHeight = SNOWFLAKE_CONFIG.MAX_SIZE;
-              imgWidth = SNOWFLAKE_CONFIG.MAX_SIZE * aspectRatio;
-            }
+          if (img.width > img.height) {
+            imgWidth = fixedSize;
+            imgHeight = fixedSize / aspectRatio;
+          } else {
+            imgHeight = fixedSize;
+            imgWidth = fixedSize * aspectRatio;
           }
 
           ctx.drawImage(
@@ -352,7 +348,7 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
 
         const branches = 6;
         const angleStep = (Math.PI * 2) / branches;
-        const radius = 20;
+        const radius = fixedSize / 2;
 
         for (let i = 0; i < branches; i++) {
           const angle = i * angleStep;
