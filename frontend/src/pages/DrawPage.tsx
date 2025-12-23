@@ -238,8 +238,8 @@ export const DrawPage: React.FC = () => {
 
       const analysis = analyzeSnowflake(
         imageData,
-        ANALYSIS_CONFIG.CANVAS_WIDTH,
-        ANALYSIS_CONFIG.CANVAS_HEIGHT
+        imageData.width,
+        imageData.height
       );
 
       setSimilarity(Math.max(0, analysis.similarity));
@@ -393,7 +393,6 @@ export const DrawPage: React.FC = () => {
               zoom={zoom}
               onStrokeEnd={handleStrokeEnd}
             />
-            {/* Zoom control - compact buttons in canvas corner */}
             <Box
               sx={{
                 position: 'absolute',

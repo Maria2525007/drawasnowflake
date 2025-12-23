@@ -73,9 +73,13 @@ export async function trackUserSession(
             date: today, // Use start of day for consistent grouping
           },
         });
-      } catch (error: any) {
-        // Ignore unique constraint errors (race condition)
-        if (error?.code !== 'P2002') {
+      } catch (error: unknown) {
+        if (
+          error &&
+          typeof error === 'object' &&
+          'code' in error &&
+          error.code !== 'P2002'
+        ) {
           throw error;
         }
       }

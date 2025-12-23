@@ -153,16 +153,22 @@ export function analyzeSnowflake(
   baseSimilarity -= isolatedPenalty;
   baseSimilarity += centerAlignmentBonus;
 
-  if (symmetry < 40) {
-    baseSimilarity *= 0.5;
-  }
-
-  if (structure < 30) {
-    baseSimilarity *= 0.6;
-  }
-
-  if (centerAlignment < 0.5) {
+  if (symmetry < 30) {
     baseSimilarity *= 0.7;
+  } else if (symmetry < 50) {
+    baseSimilarity *= 0.9;
+  }
+
+  if (structure < 20) {
+    baseSimilarity *= 0.7;
+  } else if (structure < 40) {
+    baseSimilarity *= 0.9;
+  }
+
+  if (centerAlignment < 0.3) {
+    baseSimilarity *= 0.8;
+  } else if (centerAlignment < 0.6) {
+    baseSimilarity *= 0.95;
   }
 
   const brightnessBonus =
@@ -217,9 +223,11 @@ function calculateSymmetry(
   const rayQuality = sectorDistances.map((distances) => {
     if (distances.length === 0) return 0;
     const sorted = distances.sort((a, b) => a - b);
-    const hasNearCenter = sorted[0] < Math.max(...sorted) * 0.3;
-    const hasVariation = sorted.length > 1 && (sorted[sorted.length - 1] - sorted[0]) > Math.max(...sorted) * 0.2;
-    return (hasNearCenter ? 0.6 : 0) + (hasVariation ? 0.4 : 0);
+    const maxDist = Math.max(...sorted);
+    const hasNearCenter = sorted[0] < maxDist * 0.4;
+    const hasVariation = sorted.length > 1 && (sorted[sorted.length - 1] - sorted[0]) > maxDist * 0.15;
+    const hasMultipleLayers = sorted.length >= 3;
+    return (hasNearCenter ? 0.5 : 0) + (hasVariation ? 0.3 : 0) + (hasMultipleLayers ? 0.2 : 0);
   });
   const avgRayQuality = rayQuality.reduce((a, b) => a + b, 0) / rayQuality.length;
 
@@ -252,9 +260,10 @@ function calculateSymmetry(
   const uniformity =
     maxVariance > 0 ? 1 - Math.min(1, sectorVariance / maxVariance) : 0;
 
-  const baseScore = symmetryScore * 0.5 + uniformity * 100 * 0.3 + avgRayQuality * 100 * 0.2;
+  const baseScore = symmetryScore * 0.6 + uniformity * 100 * 0.25 + avgRayQuality * 100 * 0.15;
   
-  return baseScore * (0.7 + avgRayQuality * 0.3);
+  const rayBonus = avgRayQuality > 0.5 ? 1.1 : 1.0;
+  return Math.min(100, baseScore * (0.75 + avgRayQuality * 0.25) * rayBonus);
 }
 
 function calculateStructure(
@@ -307,7 +316,8 @@ function calculateStructure(
     }
   }
 
-  return Math.min(100, structureScore * 0.7 + rayStructure * 0.3);
+  const rayBonus = rayStructure > 50 ? 1.15 : 1.0;
+  return Math.min(100, (structureScore * 0.65 + rayStructure * 0.35) * rayBonus);
 }
 
 function checkRayStructure(
@@ -352,24 +362,34 @@ function checkRayStructure(
   let validRays = 0;
 
   angleGroups.forEach((group) => {
-    if (group.length < 3) return;
+    if (group.length < 2) return;
 
     group.sort((a, b) => a.distance - b.distance);
 
     let isRay = true;
     let prevDist = 0;
+    let continuityScore = 0;
     for (let i = 0; i < group.length; i++) {
-      if (i > 0 && group[i].distance < prevDist * 0.8) {
-        isRay = false;
-        break;
+      if (i > 0) {
+        const distDiff = group[i].distance - prevDist;
+        if (distDiff < 0) {
+          if (group[i].distance < prevDist * 0.7) {
+            isRay = false;
+            break;
+          }
+        } else {
+          continuityScore += Math.min(1, distDiff / (maxDistance * 0.1));
+        }
       }
       prevDist = group[i].distance;
     }
 
-    if (isRay) {
+    if (isRay && group.length >= 2) {
       const distRange = group[group.length - 1].distance - group[0].distance;
       const coverage = distRange / maxDistance;
-      rayScore += Math.min(100, coverage * 100);
+      const continuity = group.length > 2 ? Math.min(1, continuityScore / (group.length - 1)) : 0.5;
+      const rayQuality = coverage * 0.7 + continuity * 0.3;
+      rayScore += Math.min(100, rayQuality * 100);
       validRays++;
     }
   });
