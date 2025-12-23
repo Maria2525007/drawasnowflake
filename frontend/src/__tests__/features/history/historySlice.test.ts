@@ -1,0 +1,118 @@
+import historyReducer, {
+  saveState,
+  undo,
+  redo,
+  clearHistory,
+} from '../../../features/history/historySlice';
+
+describe('historySlice', () => {
+  const initialState = {
+    past: [] as string[],
+    present: null as string | null,
+    future: [] as string[],
+    maxHistorySize: 50,
+  };
+
+  it('should return initial state', () => {
+    const state = historyReducer(undefined, { type: 'unknown' });
+    expect(state).toEqual(initialState);
+  });
+
+  describe('saveState', () => {
+    it('should save state', () => {
+      const state = historyReducer(initialState, saveState('state1'));
+      expect(state.present).toBe('state1');
+      expect(state.past).toHaveLength(0);
+    });
+
+    it('should move previous state to past', () => {
+      let state = historyReducer(initialState, saveState('state1'));
+      state = historyReducer(state, saveState('state2'));
+      expect(state.present).toBe('state2');
+      expect(state.past).toHaveLength(1);
+      expect(state.past[0]).toBe('state1');
+    });
+  });
+
+  describe('undo', () => {
+    it('should undo state', () => {
+      let state = historyReducer(initialState, saveState('state1'));
+      state = historyReducer(state, saveState('state2'));
+      state = historyReducer(state, undo());
+
+      expect(state.present).toBe('state1');
+      expect(state.past).toHaveLength(0);
+      expect(state.future).toHaveLength(1);
+    });
+
+    it('should not undo when past is empty', () => {
+      const state = historyReducer(initialState, undo());
+      expect(state).toEqual(initialState);
+    });
+
+    it('should not undo when present is null', () => {
+      const stateWithNullPresent = {
+        ...initialState,
+        past: ['state1'],
+        present: null,
+      };
+      const state = historyReducer(stateWithNullPresent, undo());
+      expect(state.present).toBeNull();
+      expect(state.past).toHaveLength(1);
+    });
+  });
+
+  describe('redo', () => {
+    it('should redo state', () => {
+      let state = historyReducer(initialState, saveState('state1'));
+      state = historyReducer(state, saveState('state2'));
+      state = historyReducer(state, undo());
+      state = historyReducer(state, redo());
+
+      expect(state.present).toBe('state2');
+      expect(state.past).toHaveLength(1);
+      expect(state.future).toHaveLength(0);
+    });
+
+    it('should not redo when future is empty', () => {
+      const state = historyReducer(initialState, redo());
+      expect(state).toEqual(initialState);
+    });
+
+    it('should not redo when present is null', () => {
+      const stateWithNullPresent = {
+        ...initialState,
+        future: ['state1'],
+        present: null,
+      };
+      const state = historyReducer(stateWithNullPresent, redo());
+      expect(state.present).toBeNull();
+      expect(state.future).toHaveLength(1);
+    });
+  });
+
+  describe('clearHistory', () => {
+    it('should clear history', () => {
+      let state = historyReducer(initialState, saveState('state1'));
+      state = historyReducer(state, saveState('state2'));
+      state = historyReducer(state, clearHistory());
+
+      expect(state.present).toBeNull();
+      expect(state.past).toHaveLength(0);
+      expect(state.future).toHaveLength(0);
+    });
+  });
+
+  describe('saveState maxHistorySize limit', () => {
+    it('should limit history size to maxHistorySize', () => {
+      let state = historyReducer(initialState, saveState('state0'));
+
+      for (let i = 1; i <= 60; i++) {
+        state = historyReducer(state, saveState(`state${i}`));
+      }
+
+      expect(state.past.length).toBeLessThanOrEqual(50);
+      expect(state.present).toBe('state60');
+    });
+  });
+});
