@@ -28,6 +28,9 @@ if [ -d "../backend" ]; then
     rm -rf node_modules/.prisma
     rm -rf node_modules/@prisma/client
 
+    echo "Reinstalling @prisma/client..."
+    npm install @prisma/client@latest
+
     echo "Generating Prisma client..."
     npx prisma generate --schema=./prisma/schema.prisma
     if [ ! -d "./node_modules/.prisma/client" ]; then
