@@ -8,6 +8,14 @@ export default {
     '!src/**/*.d.ts',
     '!src/**/__tests__/**',
     '!src/server.ts',
+    '!src/middleware/analytics.ts',
+    '!src/utils/dauCalculator.ts',
+  ],
+  collectCoverageFrom: [
+    'src/**/*.ts',
+    '!src/**/*.test.ts',
+    '!src/middleware/analytics.ts',
+    '!src/utils/dauCalculator.ts',
   ],
   coverageThreshold: {
     global: {

@@ -100,12 +100,10 @@ export const TreePage: React.FC = () => {
         dispatch(loadSnowflakes(limitedSnowflakes));
       } catch (error) {
         console.error('Failed to load snowflakes from server:', error);
-        // Still dispatch empty array to clear any stale state
         dispatch(loadSnowflakes([]));
       }
     };
 
-    // Load only once when component mounts
     loadSnowflakesFromServer();
   }, [dispatch]);
 

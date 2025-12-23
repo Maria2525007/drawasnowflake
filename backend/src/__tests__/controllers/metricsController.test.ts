@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { metricsController } from '../../controllers/metricsController.js';
 import * as dauCalculator from '../../utils/dauCalculator.js';
 
-// Mock the dauCalculator module
 jest.mock('../../utils/dauCalculator.js');
 
 describe('MetricsController', () => {
@@ -145,6 +144,68 @@ describe('MetricsController', () => {
         error: 'Date range cannot exceed 90 days',
       });
     });
+
+    it('should return 400 for invalid date format', async () => {
+      mockRequest.query = { start: 'invalid', end: '2024-01-07' };
+
+      await metricsController.getDAUForRange(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(mockStatus).toHaveBeenCalledWith(400);
+      expect(mockJson).toHaveBeenCalledWith({
+        error: 'Invalid date format. Use YYYY-MM-DD',
+      });
+    });
+
+    it('should return 400 if start date is after end date', async () => {
+      mockRequest.query = { start: '2024-01-07', end: '2024-01-01' };
+
+      await metricsController.getDAUForRange(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(mockStatus).toHaveBeenCalledWith(400);
+      expect(mockJson).toHaveBeenCalledWith({
+        error: 'Start date must be before end date',
+      });
+    });
+
+    it('should handle errors', async () => {
+      mockRequest.query = { start: '2024-01-01', end: '2024-01-07' };
+      const error = new Error('Database error');
+      (dauCalculator.calculateDAUForRange as jest.Mock).mockRejectedValue(error);
+
+      await metricsController.getDAUForRange(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(mockStatus).toHaveBeenCalledWith(500);
+      expect(mockJson).toHaveBeenCalledWith({
+        error: 'Failed to get DAU for range',
+      });
+    });
+  });
+
+  describe('getDAUForDate error handling', () => {
+    it('should handle errors', async () => {
+      mockRequest.params = { date: '2024-01-15' };
+      const error = new Error('Database error');
+      (dauCalculator.calculateDAUForDate as jest.Mock).mockRejectedValue(error);
+
+      await metricsController.getDAUForDate(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(mockStatus).toHaveBeenCalledWith(500);
+      expect(mockJson).toHaveBeenCalledWith({
+        error: 'Failed to get DAU for date',
+      });
+    });
   });
 
   describe('getMilestone', () => {
@@ -181,6 +242,7 @@ describe('MetricsController', () => {
       expect(mockStatus).toHaveBeenCalledWith(500);
       expect(mockJson).toHaveBeenCalledWith({
         error: 'Failed to check milestone',
+        details: 'Database error',
       });
     });
   });

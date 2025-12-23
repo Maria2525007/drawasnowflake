@@ -10,6 +10,7 @@ jest.mock('@prisma/client', () => {
       findUnique: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      deleteMany: jest.fn(),
     },
   };
   return {
@@ -145,6 +146,7 @@ describe('snowflakeController', () => {
     expect(mockStatus).toHaveBeenCalledWith(500);
     expect(mockJson).toHaveBeenCalledWith({
       error: 'Failed to get snowflakes',
+      details: 'Database error',
     });
   });
 
@@ -163,6 +165,7 @@ describe('snowflakeController', () => {
     expect(mockStatus).toHaveBeenCalledWith(500);
     expect(mockJson).toHaveBeenCalledWith({
       error: 'Failed to create snowflake',
+      details: 'Database error',
     });
   });
 
@@ -216,6 +219,42 @@ describe('snowflakeController', () => {
     expect(mockStatus).toHaveBeenCalledWith(500);
     expect(mockJson).toHaveBeenCalledWith({
       error: 'Failed to delete snowflake',
+    });
+  });
+
+  it('should delete all snowflakes', async () => {
+    const prisma = new PrismaClient();
+    (prisma.snowflake.deleteMany as jest.Mock).mockResolvedValue({
+      count: 5,
+    });
+
+    await snowflakeController.deleteAll(
+      mockRequest as Request,
+      mockResponse as Response
+    );
+
+    expect(mockJson).toHaveBeenCalledWith({
+      success: true,
+      deletedCount: 5,
+      message: 'Successfully deleted 5 snowflake(s) from database',
+    });
+  });
+
+  it('should handle error in deleteAll', async () => {
+    const prisma = new PrismaClient();
+    (prisma.snowflake.deleteMany as jest.Mock).mockRejectedValue(
+      new Error('Database error')
+    );
+
+    await snowflakeController.deleteAll(
+      mockRequest as Request,
+      mockResponse as Response
+    );
+
+    expect(mockStatus).toHaveBeenCalledWith(500);
+    expect(mockJson).toHaveBeenCalledWith({
+      error: 'Failed to delete all snowflakes',
+      details: 'Database error',
     });
   });
 
