@@ -1,4 +1,9 @@
-import { setTool, setColor, setBrushSize, setIsDrawing } from '../../../features/drawing/drawingSlice';
+import {
+  setTool,
+  setColor,
+  setBrushSize,
+  setIsDrawing,
+} from '../../../features/drawing/drawingSlice';
 
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
@@ -26,8 +31,10 @@ describe('drawingSlice', () => {
     jest.resetModules();
   });
 
-  it('should return initial state with default brush size', () => {
-    const drawingReducer = require('../../../features/drawing/drawingSlice').default;
+  it('should return initial state with default brush size', async () => {
+    const drawingReducer = (
+      await import('../../../features/drawing/drawingSlice')
+    ).default;
     const state = drawingReducer(undefined, { type: 'unknown' });
     expect(state.tool).toBe('pencil');
     expect(state.color).toBe('#ffffff');
@@ -35,50 +42,62 @@ describe('drawingSlice', () => {
     expect(state.isDrawing).toBe(false);
   });
 
-  it('should load brush size from localStorage', () => {
+  it('should load brush size from localStorage', async () => {
     localStorageMock.setItem('drawasnowflake_brushSize', '30');
     jest.resetModules();
-    const drawingReducer = require('../../../features/drawing/drawingSlice').default;
+    const drawingReducer = (
+      await import('../../../features/drawing/drawingSlice')
+    ).default;
     const state = drawingReducer(undefined, { type: 'unknown' });
     expect(state.brushSize).toBe(30);
   });
 
-  it('should use default brush size if localStorage value is invalid', () => {
+  it('should use default brush size if localStorage value is invalid', async () => {
     localStorageMock.setItem('drawasnowflake_brushSize', 'invalid');
     jest.resetModules();
-    const drawingReducer = require('../../../features/drawing/drawingSlice').default;
+    const drawingReducer = (
+      await import('../../../features/drawing/drawingSlice')
+    ).default;
     const state = drawingReducer(undefined, { type: 'unknown' });
     expect(state.brushSize).toBe(20);
   });
 
-  it('should use default brush size if localStorage value is out of range', () => {
+  it('should use default brush size if localStorage value is out of range', async () => {
     localStorageMock.setItem('drawasnowflake_brushSize', '100');
     jest.resetModules();
-    const drawingReducer = require('../../../features/drawing/drawingSlice').default;
+    const drawingReducer = (
+      await import('../../../features/drawing/drawingSlice')
+    ).default;
     const state = drawingReducer(undefined, { type: 'unknown' });
     expect(state.brushSize).toBe(20);
   });
 
-  it('should use default brush size if localStorage value is too small', () => {
+  it('should use default brush size if localStorage value is too small', async () => {
     localStorageMock.setItem('drawasnowflake_brushSize', '0');
     jest.resetModules();
-    const drawingReducer = require('../../../features/drawing/drawingSlice').default;
+    const drawingReducer = (
+      await import('../../../features/drawing/drawingSlice')
+    ).default;
     const state = drawingReducer(undefined, { type: 'unknown' });
     expect(state.brushSize).toBe(20);
   });
 
   describe('setTool', () => {
-    it('should set tool to pencil', () => {
+    it('should set tool to pencil', async () => {
       jest.resetModules();
-      const drawingReducer = require('../../../features/drawing/drawingSlice').default;
+      const drawingReducer = (
+        await import('../../../features/drawing/drawingSlice')
+      ).default;
       const initialState = drawingReducer(undefined, { type: 'unknown' });
       const state = drawingReducer(initialState, setTool('pencil'));
       expect(state.tool).toBe('pencil');
     });
 
-    it('should set tool to eraser', () => {
+    it('should set tool to eraser', async () => {
       jest.resetModules();
-      const drawingReducer = require('../../../features/drawing/drawingSlice').default;
+      const drawingReducer = (
+        await import('../../../features/drawing/drawingSlice')
+      ).default;
       const initialState = drawingReducer(undefined, { type: 'unknown' });
       const state = drawingReducer(initialState, setTool('eraser'));
       expect(state.tool).toBe('eraser');
@@ -86,9 +105,11 @@ describe('drawingSlice', () => {
   });
 
   describe('setColor', () => {
-    it('should set color', () => {
+    it('should set color', async () => {
       jest.resetModules();
-      const drawingReducer = require('../../../features/drawing/drawingSlice').default;
+      const drawingReducer = (
+        await import('../../../features/drawing/drawingSlice')
+      ).default;
       const initialState = drawingReducer(undefined, { type: 'unknown' });
       const state = drawingReducer(initialState, setColor('#ff0000'));
       expect(state.color).toBe('#ff0000');
@@ -96,17 +117,21 @@ describe('drawingSlice', () => {
   });
 
   describe('setBrushSize', () => {
-    it('should set brush size', () => {
+    it('should set brush size', async () => {
       jest.resetModules();
-      const drawingReducer = require('../../../features/drawing/drawingSlice').default;
+      const drawingReducer = (
+        await import('../../../features/drawing/drawingSlice')
+      ).default;
       const initialState = drawingReducer(undefined, { type: 'unknown' });
       const state = drawingReducer(initialState, setBrushSize(10));
       expect(state.brushSize).toBe(10);
     });
 
-    it('should save brush size to localStorage', () => {
+    it('should save brush size to localStorage', async () => {
       jest.resetModules();
-      const drawingReducer = require('../../../features/drawing/drawingSlice').default;
+      const drawingReducer = (
+        await import('../../../features/drawing/drawingSlice')
+      ).default;
       const initialState = drawingReducer(undefined, { type: 'unknown' });
       drawingReducer(initialState, setBrushSize(25));
       expect(localStorageMock.getItem('drawasnowflake_brushSize')).toBe('25');
@@ -114,17 +139,21 @@ describe('drawingSlice', () => {
   });
 
   describe('setIsDrawing', () => {
-    it('should set isDrawing to true', () => {
+    it('should set isDrawing to true', async () => {
       jest.resetModules();
-      const drawingReducer = require('../../../features/drawing/drawingSlice').default;
+      const drawingReducer = (
+        await import('../../../features/drawing/drawingSlice')
+      ).default;
       const initialState = drawingReducer(undefined, { type: 'unknown' });
       const state = drawingReducer(initialState, setIsDrawing(true));
       expect(state.isDrawing).toBe(true);
     });
 
-    it('should set isDrawing to false', () => {
+    it('should set isDrawing to false', async () => {
       jest.resetModules();
-      const drawingReducer = require('../../../features/drawing/drawingSlice').default;
+      const drawingReducer = (
+        await import('../../../features/drawing/drawingSlice')
+      ).default;
       const initialState = drawingReducer(undefined, { type: 'unknown' });
       const stateWithDrawing = drawingReducer(initialState, setIsDrawing(true));
       const state = drawingReducer(stateWithDrawing, setIsDrawing(false));

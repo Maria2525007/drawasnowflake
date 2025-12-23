@@ -71,8 +71,10 @@ describe('ApiInfoPage', () => {
     );
 
     const deleteButtons = screen.getAllByText('Тест');
-    const deleteButton = deleteButtons.find(
-      (btn) => btn.closest('[class*="MuiPaper"]')?.textContent?.includes('Delete All Snowflakes')
+    const deleteButton = deleteButtons.find((btn) =>
+      btn
+        .closest('[class*="MuiPaper"]')
+        ?.textContent?.includes('Delete All Snowflakes')
     );
 
     if (deleteButton) {
