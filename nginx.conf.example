@@ -1,0 +1,92 @@
+# Пример конфигурации Nginx для drawasnowflake.online
+# Скопируйте этот файл в конфигурацию Nginx вашего домена через ispmanager
+# или создайте файл в /etc/nginx/sites-available/drawasnowflake.online
+
+server {
+    listen 80;
+    server_name drawasnowflake.online www.drawasnowflake.online;
+
+    # Корневая директория со статическими файлами (собранный frontend)
+    root /var/www/u3363642/data/www/drawasnowflake.online/frontend/dist;
+    index index.html;
+
+    # Логи
+    access_log /var/log/nginx/drawasnowflake.online.access.log;
+    error_log /var/log/nginx/drawasnowflake.online.error.log;
+
+    # Раздача статических файлов для SPA (React Router)
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Кеширование статических ресурсов
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+    }
+
+    # Проксирование API запросов на backend
+    location /api {
+        proxy_pass http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        
+        # Таймауты
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+
+    # Блокировка доступа к скрытым файлам
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+}
+
+# Конфигурация для HTTPS (после настройки SSL)
+# Раскомментируйте после получения SSL сертификата
+#
+# server {
+#     listen 443 ssl http2;
+#     server_name drawasnowflake.online www.drawasnowflake.online;
+#
+#     ssl_certificate /path/to/certificate.crt;
+#     ssl_certificate_key /path/to/private.key;
+#
+#     # Остальная конфигурация такая же, как выше
+#     root /var/www/u3363642/data/www/drawasnowflake.online/frontend/dist;
+#     index index.html;
+#
+#     location / {
+#         try_files $uri $uri/ /index.html;
+#     }
+#
+#     location /api {
+#         proxy_pass http://127.0.0.1:3001;
+#         proxy_http_version 1.1;
+#         proxy_set_header Upgrade $http_upgrade;
+#         proxy_set_header Connection 'upgrade';
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#         proxy_cache_bypass $http_upgrade;
+#     }
+# }
+#
+# # Редирект с HTTP на HTTPS
+# server {
+#     listen 80;
+#     server_name drawasnowflake.online www.drawasnowflake.online;
+#     return 301 https://$server_name$request_uri;
+# }
+
