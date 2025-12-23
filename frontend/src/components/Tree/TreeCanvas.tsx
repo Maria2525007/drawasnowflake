@@ -55,11 +55,26 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
       ctx.fillRect(0, 0, width, height);
 
       const centerX = width / 2;
-      const treeWidth = Math.min(
+      const isMobile = width < 768;
+      
+      let treeWidth = Math.min(
         width * TREE_CONFIG.WIDTH_RATIO,
         TREE_CONFIG.MAX_WIDTH
       );
-      const treeHeight = height * TREE_CONFIG.HEIGHT_RATIO;
+      
+      let treeHeight: number;
+      if (isMobile) {
+        const aspectRatio = 0.75 / TREE_CONFIG.WIDTH_RATIO;
+        treeHeight = treeWidth * aspectRatio;
+        const maxHeight = height * 0.6;
+        if (treeHeight > maxHeight) {
+          treeHeight = maxHeight;
+          treeWidth = treeHeight / aspectRatio;
+        }
+      } else {
+        treeHeight = height * TREE_CONFIG.HEIGHT_RATIO;
+      }
+      
       const treeTop = height * TREE_CONFIG.TOP_OFFSET;
       const trunkHeight = height * TREE_CONFIG.TRUNK_HEIGHT_RATIO;
 
