@@ -1,4 +1,12 @@
-import { Box, Typography, Paper, Button, IconButton } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Paper,
+  Button,
+  IconButton,
+  useTheme,
+  useMediaQuery,
+} from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -56,6 +64,8 @@ export const ApiInfoPage: React.FC = () => {
   const [response, setResponse] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const testEndpoint = async (endpoint: EndpointInfo) => {
     setLoading(true);
@@ -264,18 +274,19 @@ export const ApiInfoPage: React.FC = () => {
               boxSizing: 'border-box',
             }}
           >
-            <pre
-              style={{
+            <Box
+              component="pre"
+              sx={{
                 margin: 0,
                 fontFamily: 'monospace',
-                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                fontSize: isMobile ? '0.75rem' : '0.875rem',
                 whiteSpace: 'pre-wrap',
                 wordBreak: 'break-word',
               }}
             >
               {response ||
                 'Нажмите "Тест" на любом эндпоинте для просмотра ответа'}
-            </pre>
+            </Box>
           </Paper>
         </Box>
       </Box>
