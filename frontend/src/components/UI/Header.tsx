@@ -24,12 +24,15 @@ export const Header: React.FC = () => {
         to="/api-info"
         sx={{
           position: 'absolute',
-          top: 16,
-          right: 16,
+          bottom: { xs: 8, sm: 12, md: 16 },
+          right: { xs: 16, sm: 20, md: 24 },
           color: 'white',
           textDecoration: 'none',
-          fontSize: '0.875rem',
+          fontSize: { xs: '0.75rem', sm: '0.875rem', md: '0.875rem' },
           opacity: 0.8,
+          padding: { xs: '4px 8px', sm: '6px 10px', md: '8px 12px' },
+          margin: 0,
+          display: 'inline-block',
           '&:hover': {
             opacity: 1,
             textDecoration: 'underline',
