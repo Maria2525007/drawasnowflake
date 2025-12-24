@@ -1,11 +1,6 @@
+import './instrument.js';
+
 import * as Sentry from '@sentry/node';
-import { initSentry } from './utils/sentry.js';
-
-const sentryDsn = process.env.SENTRY_DSN;
-if (sentryDsn) {
-  initSentry(sentryDsn);
-}
-
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -67,6 +62,13 @@ app.use('/api/health', healthRouter);
 app.use('/api/snowflakes', snowflakeRouter);
 app.use('/api/metrics', metricsRouter);
 
+const sentryDsn = process.env.SENTRY_DSN;
+if (sentryDsn) {
+  app.get('/api/debug-sentry', (_req, _res) => {
+    throw new Error('My first Sentry error!');
+  });
+}
+
 if (sentryDsn) {
   Sentry.setupExpressErrorHandler(app);
 }
@@ -78,23 +80,19 @@ app.use(
     res: express.Response,
     _next: express.NextFunction
   ) => {
-    console.error(err.stack);
-    res.status(500).json({
-      error: 'Something went wrong!',
-      ...(process.env.NODE_ENV === 'development' && { details: err.message }),
-    });
+    if (!res.headersSent) {
+      console.error(err.stack);
+      res.status(500).json({
+        error: 'Something went wrong!',
+        ...(process.env.NODE_ENV === 'development' && { details: err.message }),
+      });
+    }
   }
 );
 
-if (sentryDsn) {
-  app.get('/api/debug-sentry', (_req, _res) => {
-    throw new Error('My first Sentry error!');
-  });
-}
-
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
-  if (sentryDsn) {
+  if (process.env.SENTRY_DSN) {
     console.log('Sentry is configured and ready');
   }
 
