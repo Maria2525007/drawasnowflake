@@ -23,6 +23,7 @@ export NODE_OPTIONS="--max-old-space-size=3072"
 npm install --legacy-peer-deps --no-audit --no-fund
 
 echo "Building frontend..."
+export VITE_SENTRY_DSN="https://2ea4609255876d7a38a654dfa42bfadb@o4510590461935616.ingest.de.sentry.io/4510590612996176"
 npm run build
 
 if [ -d "../backend" ]; then
