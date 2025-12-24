@@ -48,7 +48,7 @@ const endpoints: EndpointInfo[] = [
     method: 'GET',
     path: '/api/metrics/dau/:date',
     description: 'Получить DAU за конкретную дату (YYYY-MM-DD)',
-    example: `${API_URL}/metrics/dau/2024-12-23`,
+    example: `${API_URL}/metrics/dau/${new Date().toISOString().split('T')[0]}`,
   },
   {
     name: 'Check 1M DAU Milestone',
