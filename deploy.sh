@@ -11,6 +11,12 @@ echo "Updating code from Git..."
 git fetch origin
 git reset --hard origin/master
 
+echo "Checking project structure..."
+if [ ! -d "backend" ] || [ ! -d "frontend" ]; then
+  echo "ERROR: backend or frontend directory not found"
+  exit 1
+fi
+
 echo "Installing frontend dependencies..."
 cd frontend
 export NODE_OPTIONS="--max-old-space-size=3072"
@@ -46,12 +52,36 @@ if [ -d "../backend" ]; then
     echo "Building backend..."
     npm run build
 
+    echo "Checking environment variables..."
+    if [ -z "$DATABASE_URL" ] && [ ! -f ".env" ]; then
+      echo "WARNING: DATABASE_URL not set and .env file not found"
+      echo "Backend may not work without database connection"
+    fi
+
     echo "Restarting backend..."
     cd ..
-    if pm2 list | grep -q "drawasnowflake-backend"; then
+    
+    if [ -f "ecosystem.config.js" ]; then
+      OLD_PROCESS=$(pm2 list | grep -E "backend|drawasnowflake-backend" | awk '{print $2}' | head -1)
+      
+      if [ -n "$OLD_PROCESS" ] && [ "$OLD_PROCESS" != "drawasnowflake-backend" ]; then
+        echo "Found old process '$OLD_PROCESS', stopping it..."
+        pm2 delete "$OLD_PROCESS" 2>/dev/null || true
+      fi
+      
+      if pm2 list | grep -q "drawasnowflake-backend"; then
         pm2 restart drawasnowflake-backend
+        echo "Backend restarted via PM2"
+      else
+        echo "Backend not running via PM2. Starting..."
+        pm2 start ecosystem.config.js
+        pm2 save
+      fi
+      echo "PM2 status:"
+      pm2 list
     else
-        echo "Backend not running via PM2. Start manually: pm2 start ecosystem.config.js"
+      echo "WARNING: ecosystem.config.js not found. PM2 may not be configured correctly."
+      echo "Please ensure PM2 is configured with correct working directory."
     fi
 else
     echo "Backend not found, skipping..."
