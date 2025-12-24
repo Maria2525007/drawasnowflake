@@ -19,7 +19,7 @@ const getEnv = (): { MODE: string; PROD: boolean } => {
       };
     }
   } catch {
-    // Ignore errors in test environment
+    void 0;
   }
   return { MODE: 'development', PROD: false };
 };
