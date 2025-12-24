@@ -79,7 +79,7 @@ export const ApiInfoPage: React.FC = () => {
       ) {
         setResponse(
           JSON.stringify(data, null, 2) +
-            '\n\n⚠️ ВНИМАНИЕ: Все снежинки удалены из базы данных!'
+            '\n\nВсе снежинки удалены из базы данных'
         );
       } else {
         setResponse(JSON.stringify(data, null, 2));
@@ -98,10 +98,11 @@ export const ApiInfoPage: React.FC = () => {
       sx={{
         width: '100%',
         minHeight: '100vh',
-        padding: 4,
+        padding: { xs: 3, sm: 4, md: 5 },
         backgroundColor: '#0a1929',
         color: 'white',
         position: 'relative',
+        boxSizing: 'border-box',
       }}
     >
       <IconButton
@@ -110,20 +111,43 @@ export const ApiInfoPage: React.FC = () => {
         onClick={() => navigate('/draw')}
         sx={{
           position: 'absolute',
-          top: 16,
-          left: 16,
+          top: { xs: 8, sm: 16 },
+          left: { xs: 8, sm: 16 },
           color: 'white',
+          zIndex: 1,
         }}
       >
         <ArrowBack />
       </IconButton>
-      <Typography variant="h3" sx={{ marginBottom: 4, textAlign: 'center' }}>
+      <Typography
+        variant="h3"
+        sx={{
+          marginBottom: { xs: 2, sm: 3, md: 4 },
+          textAlign: 'center',
+          fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
+          paddingTop: { xs: 4, sm: 0 },
+        }}
+      >
         API Endpoints
       </Typography>
 
-      <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-        <Box sx={{ flex: 1, minWidth: 400 }}>
-          <Typography variant="h5" sx={{ marginBottom: 2 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          gap: { xs: 3, sm: 4 },
+          width: '100%',
+          boxSizing: 'border-box',
+        }}
+      >
+        <Box sx={{ flex: 1, width: '100%', minWidth: 0 }}>
+          <Typography
+            variant="h5"
+            sx={{
+              marginBottom: 2,
+              fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' },
+            }}
+          >
             Доступные эндпоинты:
           </Typography>
 
@@ -131,22 +155,32 @@ export const ApiInfoPage: React.FC = () => {
             <Paper
               key={index}
               sx={{
-                padding: 2,
+                padding: { xs: 1.5, sm: 2 },
                 marginBottom: 2,
                 backgroundColor: '#1a2332',
                 color: 'white',
+                width: '100%',
+                boxSizing: 'border-box',
               }}
             >
               <Box
                 sx={{
                   display: 'flex',
+                  flexDirection: { xs: 'column', sm: 'row' },
                   justifyContent: 'space-between',
-                  alignItems: 'start',
+                  alignItems: { xs: 'flex-start', sm: 'start' },
                   marginBottom: 1,
+                  gap: { xs: 1, sm: 0 },
                 }}
               >
-                <Box>
-                  <Typography variant="h6" sx={{ color: '#81d4fa' }}>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: '#81d4fa',
+                      fontSize: { xs: '0.95rem', sm: '1rem', md: '1.25rem' },
+                    }}
+                  >
                     {endpoint.name}
                   </Typography>
                   <Typography
@@ -155,13 +189,19 @@ export const ApiInfoPage: React.FC = () => {
                       fontFamily: 'monospace',
                       color: '#b0bec5',
                       marginTop: 0.5,
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                      wordBreak: 'break-word',
                     }}
                   >
                     {endpoint.method} {endpoint.path}
                   </Typography>
                   <Typography
                     variant="body2"
-                    sx={{ marginTop: 1, color: '#cfd8dc' }}
+                    sx={{
+                      marginTop: 1,
+                      color: '#cfd8dc',
+                      fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                    }}
                   >
                     {endpoint.description}
                   </Typography>
@@ -171,7 +211,14 @@ export const ApiInfoPage: React.FC = () => {
                   size="small"
                   onClick={() => testEndpoint(endpoint)}
                   disabled={loading}
-                  sx={{ color: 'white', borderColor: 'white' }}
+                  sx={{
+                    color: 'white',
+                    borderColor: 'white',
+                    minWidth: { xs: '60px', sm: 'auto' },
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                    marginTop: { xs: 1, sm: 0 },
+                    alignSelf: { xs: 'flex-start', sm: 'auto' },
+                  }}
                 >
                   Тест
                 </Button>
@@ -182,7 +229,7 @@ export const ApiInfoPage: React.FC = () => {
                   sx={{
                     fontFamily: 'monospace',
                     color: '#90caf9',
-                    fontSize: '0.7rem',
+                    fontSize: { xs: '0.65rem', sm: '0.7rem' },
                     display: 'block',
                     marginTop: 1,
                     wordBreak: 'break-all',
@@ -195,25 +242,33 @@ export const ApiInfoPage: React.FC = () => {
           ))}
         </Box>
 
-        <Box sx={{ flex: 1, minWidth: 400 }}>
-          <Typography variant="h5" sx={{ marginBottom: 2 }}>
+        <Box sx={{ flex: 1, width: '100%', minWidth: 0 }}>
+          <Typography
+            variant="h5"
+            sx={{
+              marginBottom: 2,
+              fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' },
+            }}
+          >
             Ответ сервера:
           </Typography>
           <Paper
             sx={{
-              padding: 2,
+              padding: { xs: 1.5, sm: 2 },
               backgroundColor: '#1a2332',
               color: 'white',
-              minHeight: 400,
-              maxHeight: '80vh',
+              minHeight: { xs: 200, sm: 300, md: 400 },
+              maxHeight: { xs: '60vh', sm: '70vh', md: '80vh' },
               overflow: 'auto',
+              width: '100%',
+              boxSizing: 'border-box',
             }}
           >
             <pre
               style={{
                 margin: 0,
                 fontFamily: 'monospace',
-                fontSize: '0.875rem',
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
                 whiteSpace: 'pre-wrap',
                 wordBreak: 'break-word',
               }}
