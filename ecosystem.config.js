@@ -6,6 +6,7 @@ module.exports = {
       cwd: '/var/www/drawasnowflake.online/backend',
       instances: 1,
       exec_mode: 'fork',
+      node_args: '--import ./dist/instrument.js',
       env: {
         NODE_ENV: 'production',
         PORT: 3001,
