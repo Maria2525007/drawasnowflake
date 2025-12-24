@@ -522,7 +522,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 1,
+                    gap: { xs: 0.5, sm: 0.75, md: 1 },
                   }}
                 >
                   {[...Array(3)].map((_, i) => {
@@ -543,12 +543,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                       <Box
                         key={`left-${i}`}
                         sx={{
-                          width: 8,
-                          height: 8,
+                          width: { xs: 4, sm: 6, md: 8 },
+                          height: { xs: 4, sm: 6, md: 8 },
                           borderRadius: '50%',
                           backgroundColor: '#FFFFFF',
-                          boxShadow:
-                            '0 0 10px #FFFFFF, 0 0 20px rgba(255, 255, 255, 0.8)',
+                          boxShadow: {
+                            xs: '0 0 5px #FFFFFF, 0 0 10px rgba(255, 255, 255, 0.8)',
+                            sm: '0 0 8px #FFFFFF, 0 0 15px rgba(255, 255, 255, 0.8)',
+                            md: '0 0 10px #FFFFFF, 0 0 20px rgba(255, 255, 255, 0.8)',
+                          },
                           animation: `${twinkle} ${ANIMATION_CONFIG.LIGHT_ANIMATION_DURATION}s ease-in-out infinite`,
                           animationDelay: `${delay}s`,
                         }}
@@ -559,16 +562,22 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
                 <Box
                   sx={{
-                    fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
+                    fontSize: {
+                      xs: '0.9rem',
+                      sm: '1.3rem',
+                      md: '2rem',
+                      lg: '2.5rem',
+                    },
                     fontWeight: 'bold',
                     textTransform: 'uppercase',
+                    whiteSpace: 'nowrap',
                     background: `linear-gradient(45deg, ${HEADER_CONFIG.TEXT_GRADIENT_START} 30%, ${HEADER_CONFIG.TEXT_GRADIENT_MID} 60%, ${HEADER_CONFIG.TEXT_GRADIENT_END} 90%)`,
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
                     textShadow:
                       '0 0 15px rgba(129, 212, 250, 0.7), 0 0 25px rgba(255, 255, 255, 0.5)',
-                    letterSpacing: '0.08em',
+                    letterSpacing: { xs: '0.05em', sm: '0.06em', md: '0.08em' },
                   }}
                 >
                   {t('toolbar.letsItSnow')}
@@ -578,7 +587,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 1,
+                    gap: { xs: 0.5, sm: 0.75, md: 1 },
                   }}
                 >
                   {[...Array(3)].map((_, i) => {
@@ -599,12 +608,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                       <Box
                         key={`right-${i}`}
                         sx={{
-                          width: 8,
-                          height: 8,
+                          width: { xs: 4, sm: 6, md: 8 },
+                          height: { xs: 4, sm: 6, md: 8 },
                           borderRadius: '50%',
                           backgroundColor: '#FFFFFF',
-                          boxShadow:
-                            '0 0 10px #FFFFFF, 0 0 20px rgba(255, 255, 255, 0.8)',
+                          boxShadow: {
+                            xs: '0 0 5px #FFFFFF, 0 0 10px rgba(255, 255, 255, 0.8)',
+                            sm: '0 0 8px #FFFFFF, 0 0 15px rgba(255, 255, 255, 0.8)',
+                            md: '0 0 10px #FFFFFF, 0 0 20px rgba(255, 255, 255, 0.8)',
+                          },
                           animation: `${twinkle} ${ANIMATION_CONFIG.LIGHT_ANIMATION_DURATION}s ease-in-out infinite`,
                           animationDelay: `${delay}s`,
                         }}
