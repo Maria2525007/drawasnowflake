@@ -60,17 +60,29 @@ if [ -d "../backend" ]; then
 
     echo "Restarting backend..."
     cd ..
-    if pm2 list | grep -q "drawasnowflake-backend"; then
+    
+    if [ -f "ecosystem.config.js" ]; then
+      OLD_PROCESS=$(pm2 list | grep -E "backend|drawasnowflake-backend" | awk '{print $2}' | head -1)
+      
+      if [ -n "$OLD_PROCESS" ] && [ "$OLD_PROCESS" != "drawasnowflake-backend" ]; then
+        echo "Found old process '$OLD_PROCESS', stopping it..."
+        pm2 delete "$OLD_PROCESS" 2>/dev/null || true
+      fi
+      
+      if pm2 list | grep -q "drawasnowflake-backend"; then
         pm2 restart drawasnowflake-backend
         echo "Backend restarted via PM2"
-    else
+      else
         echo "Backend not running via PM2. Starting..."
         pm2 start ecosystem.config.js
         pm2 save
+      fi
+      echo "PM2 status:"
+      pm2 list
+    else
+      echo "WARNING: ecosystem.config.js not found. PM2 may not be configured correctly."
+      echo "Please ensure PM2 is configured with correct working directory."
     fi
-    
-    echo "PM2 status:"
-    pm2 list
 else
     echo "Backend not found, skipping..."
     cd ..
