@@ -82,17 +82,17 @@ export const DrawPage: React.FC = () => {
 
     const extractSnowflakeFromImageData = (imageData: ImageData): string => {
       const data = imageData.data;
-      const width = imageData.width;
-      const height = imageData.height;
+      const imgWidth = imageData.width;
+      const imgHeight = imageData.height;
 
-      let minX = width;
-      let minY = height;
+      let minX = imgWidth;
+      let minY = imgHeight;
       let maxX = 0;
       let maxY = 0;
 
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          const idx = (y * width + x) * 4;
+      for (let y = 0; y < imgHeight; y++) {
+        for (let x = 0; x < imgWidth; x++) {
+          const idx = (y * imgWidth + x) * 4;
           const r = data[idx];
           const g = data[idx + 1];
           const b = data[idx + 2];
@@ -119,8 +119,8 @@ export const DrawPage: React.FC = () => {
 
       minX = Math.max(0, minX - ANALYSIS_CONFIG.EXTRACT_PADDING);
       minY = Math.max(0, minY - ANALYSIS_CONFIG.EXTRACT_PADDING);
-      maxX = Math.min(width, maxX + ANALYSIS_CONFIG.EXTRACT_PADDING);
-      maxY = Math.min(height, maxY + ANALYSIS_CONFIG.EXTRACT_PADDING);
+      maxX = Math.min(imgWidth, maxX + ANALYSIS_CONFIG.EXTRACT_PADDING);
+      maxY = Math.min(imgHeight, maxY + ANALYSIS_CONFIG.EXTRACT_PADDING);
 
       const width = maxX - minX;
       const height = maxY - minY;
@@ -140,7 +140,7 @@ export const DrawPage: React.FC = () => {
 
       for (let y = 0; y < extractHeight; y++) {
         for (let x = 0; x < extractWidth; x++) {
-          const srcIdx = ((minY + y) * width + (minX + x)) * 4;
+          const srcIdx = ((minY + y) * imgWidth + (minX + x)) * 4;
           const dstIdx = (y * extractWidth + x) * 4;
           extractData[dstIdx] = data[srcIdx];
           extractData[dstIdx + 1] = data[srcIdx + 1];
