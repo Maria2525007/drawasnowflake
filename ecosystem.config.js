@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'drawasnowflake-backend',
       script: 'dist/server.js',
-      cwd: '/var/www/u3363642/data/www/drawasnowflake.online/backend',
+      cwd: '/var/www/drawasnowflake.online/backend',
       instances: 1,
       exec_mode: 'fork',
       env: {
