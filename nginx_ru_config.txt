@@ -1,6 +1,3 @@
-# Конфигурация Nginx для drawasnowflake.ru с SSL
-# Скопируйте этот файл в /etc/nginx/sites-available/drawasnowflake.ru
-
 # Редирект с HTTP на HTTPS
 server {
     listen 80;
@@ -13,12 +10,12 @@ server {
     listen 443 ssl http2;
     server_name drawasnowflake.ru www.drawasnowflake.ru;
 
-    # SSL сертификаты (замените пути на реальные)
+    # SSL сертификаты
     ssl_certificate /etc/ssl/certs/drawasnowflake.ru.crt;
     ssl_certificate_key /etc/ssl/private/drawasnowflake.ru.key;
     
-    # Если есть цепочка сертификатов (intermediate/root)
-    # ssl_trusted_certificate /etc/ssl/certs/drawasnowflake.ru.chain.crt;
+    # Если есть цепочка сертификатов (проверьте файл certificate_ca.crt)
+    # ssl_trusted_certificate /etc/ssl/certs/certificate_ca.crt;
 
     # SSL настройки
     ssl_protocols TLSv1.2 TLSv1.3;

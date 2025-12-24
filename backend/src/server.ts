@@ -17,7 +17,7 @@ if (sentryDsn) {
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
 
 app.use(helmet());
 const allowedOrigins = [
@@ -25,9 +25,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
   'https://www.drawasnowflake.ru',
-  'http://www.drawasnowflake.ru',
   'https://drawasnowflake.ru',
-  'http://drawasnowflake.ru',
 ].filter(Boolean);
 
 app.use(
