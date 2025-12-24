@@ -132,18 +132,6 @@ export const DrawPage: React.FC = () => {
         return tempCanvas.toDataURL('image/png');
       }
 
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = width;
-      tempCanvas.height = height;
-      const tempCtx = tempCanvas.getContext('2d');
-
-      if (!tempCtx) {
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = width;
-        tempCanvas.height = height;
-        return tempCanvas.toDataURL('image/png');
-      }
-
       const extractWidth = maxX - minX;
       const extractHeight = maxY - minY;
       const extractData = new Uint8ClampedArray(
@@ -183,6 +171,15 @@ export const DrawPage: React.FC = () => {
         ) {
           extractDataArray[i + 3] = 0;
         }
+      }
+
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = extractWidth;
+      tempCanvas.height = extractHeight;
+      const tempCtx = tempCanvas.getContext('2d');
+
+      if (!tempCtx) {
+        return tempCanvas.toDataURL('image/png');
       }
 
       tempCtx.putImageData(extractImageData, 0, 0);
