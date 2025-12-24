@@ -50,17 +50,11 @@ export const DrawPage: React.FC = () => {
       return;
     }
 
-    const canvas = drawCanvasRef.current.getCanvas();
-    if (!canvas) {
+    const imageDataObj = drawCanvasRef.current.getImageDataForAnalysis();
+    if (!imageDataObj) {
       return;
     }
 
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    if (!ctx) {
-      return;
-    }
-
-    const imageDataObj = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageDataObj.data;
     let hasContent = false;
 
@@ -86,21 +80,19 @@ export const DrawPage: React.FC = () => {
       return;
     }
 
-    const extractSnowflakeFromCanvas = (
-      canvas: HTMLCanvasElement,
-      ctx: CanvasRenderingContext2D
-    ): string => {
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const extractSnowflakeFromImageData = (imageData: ImageData): string => {
       const data = imageData.data;
+      const imgWidth = imageData.width;
+      const imgHeight = imageData.height;
 
-      let minX = canvas.width;
-      let minY = canvas.height;
+      let minX = imgWidth;
+      let minY = imgHeight;
       let maxX = 0;
       let maxY = 0;
 
-      for (let y = 0; y < canvas.height; y++) {
-        for (let x = 0; x < canvas.width; x++) {
-          const idx = (y * canvas.width + x) * 4;
+      for (let y = 0; y < imgHeight; y++) {
+        for (let x = 0; x < imgWidth; x++) {
+          const idx = (y * imgWidth + x) * 4;
           const r = data[idx];
           const g = data[idx + 1];
           const b = data[idx + 2];
@@ -127,8 +119,8 @@ export const DrawPage: React.FC = () => {
 
       minX = Math.max(0, minX - ANALYSIS_CONFIG.EXTRACT_PADDING);
       minY = Math.max(0, minY - ANALYSIS_CONFIG.EXTRACT_PADDING);
-      maxX = Math.min(canvas.width, maxX + ANALYSIS_CONFIG.EXTRACT_PADDING);
-      maxY = Math.min(canvas.height, maxY + ANALYSIS_CONFIG.EXTRACT_PADDING);
+      maxX = Math.min(imgWidth, maxX + ANALYSIS_CONFIG.EXTRACT_PADDING);
+      maxY = Math.min(imgHeight, maxY + ANALYSIS_CONFIG.EXTRACT_PADDING);
 
       const width = maxX - minX;
       const height = maxY - minY;
@@ -140,23 +132,34 @@ export const DrawPage: React.FC = () => {
         return tempCanvas.toDataURL('image/png');
       }
 
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = width;
-      tempCanvas.height = height;
-      const tempCtx = tempCanvas.getContext('2d');
+      const extractWidth = maxX - minX;
+      const extractHeight = maxY - minY;
+      const extractData = new Uint8ClampedArray(
+        extractWidth * extractHeight * 4
+      );
 
-      if (!tempCtx) {
-        return canvas.toDataURL('image/png');
+      for (let y = 0; y < extractHeight; y++) {
+        for (let x = 0; x < extractWidth; x++) {
+          const srcIdx = ((minY + y) * imgWidth + (minX + x)) * 4;
+          const dstIdx = (y * extractWidth + x) * 4;
+          extractData[dstIdx] = data[srcIdx];
+          extractData[dstIdx + 1] = data[srcIdx + 1];
+          extractData[dstIdx + 2] = data[srcIdx + 2];
+          extractData[dstIdx + 3] = data[srcIdx + 3];
+        }
       }
 
-      tempCtx.clearRect(0, 0, width, height);
-      const sourceImageData = ctx.getImageData(minX, minY, width, height);
-      const sourceData = sourceImageData.data;
+      const extractImageData = new ImageData(
+        extractData,
+        extractWidth,
+        extractHeight
+      );
+      const extractDataArray = extractImageData.data;
 
-      for (let i = 0; i < sourceData.length; i += 4) {
-        const r = sourceData[i];
-        const g = sourceData[i + 1];
-        const b = sourceData[i + 2];
+      for (let i = 0; i < extractDataArray.length; i += 4) {
+        const r = extractDataArray[i];
+        const g = extractDataArray[i + 1];
+        const b = extractDataArray[i + 2];
 
         if (
           Math.abs(r - CANVAS_CONFIG.BACKGROUND_R) <
@@ -166,18 +169,28 @@ export const DrawPage: React.FC = () => {
           Math.abs(b - CANVAS_CONFIG.BACKGROUND_B) <
             ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL
         ) {
-          sourceData[i + 3] = 0;
+          extractDataArray[i + 3] = 0;
         }
       }
 
-      tempCtx.putImageData(sourceImageData, 0, 0);
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = extractWidth;
+      tempCanvas.height = extractHeight;
+      const tempCtx = tempCanvas.getContext('2d');
+
+      if (!tempCtx) {
+        return tempCanvas.toDataURL('image/png');
+      }
+
+      tempCtx.putImageData(extractImageData, 0, 0);
       return tempCanvas.toDataURL('image/png');
     };
 
-    const processedImageData = extractSnowflakeFromCanvas(canvas, ctx);
+    const processedImageData = extractSnowflakeFromImageData(imageDataObj);
 
+    const canvasWidth = window.innerWidth;
     const MIN_X = SNOWFLAKE_CONFIG.BORDER_PADDING;
-    const MAX_X = canvas.width - SNOWFLAKE_CONFIG.BORDER_PADDING;
+    const MAX_X = canvasWidth - SNOWFLAKE_CONFIG.BORDER_PADDING;
 
     const randomX = MIN_X + Math.random() * (MAX_X - MIN_X);
 

@@ -64,6 +64,9 @@ export function analyzeSnowflake(
     };
   }
 
+  const canvasSize = Math.min(width, height);
+  const maxDistance = Math.sqrt(width * width + height * height) / 2;
+
   let centerMassX = 0;
   let centerMassY = 0;
   pixels.forEach((p) => {
@@ -75,37 +78,54 @@ export function analyzeSnowflake(
   const centerMassDistance = Math.sqrt(
     centerMassX * centerMassX + centerMassY * centerMassY
   );
-  const maxCanvasDistance = Math.sqrt(width * width + height * height) / 2;
   const centerAlignment = Math.max(
     0,
-    1 - centerMassDistance / (maxCanvasDistance * 0.1)
+    1 - centerMassDistance / (maxDistance * 0.1)
   );
 
   const distances = pixels.map((p) => Math.sqrt(p.x * p.x + p.y * p.y));
-  const canvasSize = Math.min(width, height);
   const centerRadius = canvasSize * 0.3;
   const centerCheckRadius = canvasSize * 0.1;
+  const edgeThreshold = maxDistance * 0.7;
 
   let isolatedCount = 0;
+  let edgePixelCount = 0;
+  let chaoticPixelCount = 0;
+
   pixels.forEach((pixel, index) => {
     const distance = distances[index];
+
+    if (distance > edgeThreshold) {
+      edgePixelCount++;
+    }
+
     if (distance > centerRadius) {
       let minDistToOther = Infinity;
+      let nearbyCount = 0;
       pixels.forEach((otherPixel, otherIndex) => {
         if (index === otherIndex) return;
         const dx = pixel.x - otherPixel.x;
         const dy = pixel.y - otherPixel.y;
         const pixelDistance = Math.sqrt(dx * dx + dy * dy);
         minDistToOther = Math.min(minDistToOther, pixelDistance);
+        if (pixelDistance < canvasSize * 0.05) {
+          nearbyCount++;
+        }
       });
 
-      if (minDistToOther > canvasSize * 0.15) {
+      if (minDistToOther > canvasSize * 0.12) {
         isolatedCount++;
+      }
+
+      if (nearbyCount < 2) {
+        chaoticPixelCount++;
       }
     }
   });
 
   const isolatedPixelPenalty = isolatedCount / Math.max(1, pixels.length);
+  const edgePixelPenalty = edgePixelCount / Math.max(1, pixels.length);
+  const chaoticPixelPenalty = chaoticPixelCount / Math.max(1, pixels.length);
 
   const centerPixels = pixels.filter(
     (p) => Math.sqrt(p.x * p.x + p.y * p.y) < centerCheckRadius
@@ -120,8 +140,8 @@ export function analyzeSnowflake(
     (pixels.length / totalSampledPixels) * ANALYSIS_CONFIG.COVERAGE_MULTIPLIER
   );
 
-  const symmetry = calculateSymmetry(pixels, centerX, centerY);
-  const structure = calculateStructure(pixels, centerX, centerY);
+  const symmetry = calculateSymmetry(pixels, centerX, centerY, canvasSize);
+  const structure = calculateStructure(pixels, centerX, centerY, canvasSize);
 
   const minPixels = ANALYSIS_CONFIG.MIN_MEANINGFUL_PIXELS * 5;
   if (pixels.length < minPixels) {
@@ -134,15 +154,21 @@ export function analyzeSnowflake(
   }
 
   if (!hasCenter) {
+    const noCenterPenalty = 0.5;
     return {
-      similarity: Math.max(0, Math.round(symmetry * 0.3 + structure * 0.2)),
+      similarity: Math.max(
+        0,
+        Math.round((symmetry * 0.3 + structure * 0.2) * noCenterPenalty)
+      ),
       symmetry: Math.round(symmetry),
       structure: Math.round(structure),
       coverage: Math.round(coverage),
     };
   }
 
-  const isolatedPenalty = isolatedPixelPenalty * 50;
+  const isolatedPenalty = isolatedPixelPenalty * 60;
+  const edgePenalty = edgePixelPenalty * 40;
+  const chaoticPenalty = chaoticPixelPenalty * 30;
 
   const coveragePenalty =
     coverage > 50 ? Math.max(0, (coverage - 50) * 0.3) : 0;
@@ -156,24 +182,42 @@ export function analyzeSnowflake(
     adjustedCoverage * ANALYSIS_CONFIG.COVERAGE_WEIGHT;
 
   baseSimilarity -= isolatedPenalty;
+  baseSimilarity -= edgePenalty;
+  baseSimilarity -= chaoticPenalty;
   baseSimilarity += centerAlignmentBonus;
 
-  if (symmetry < 30) {
+  if (symmetry < 40) {
+    baseSimilarity *= 0.6;
+  } else if (symmetry < 60) {
+    baseSimilarity *= 0.85;
+  }
+
+  if (structure < 30) {
+    baseSimilarity *= 0.6;
+  } else if (structure < 50) {
+    baseSimilarity *= 0.85;
+  }
+
+  if (centerAlignment < 0.4) {
     baseSimilarity *= 0.7;
-  } else if (symmetry < 50) {
+  } else if (centerAlignment < 0.7) {
     baseSimilarity *= 0.9;
   }
 
-  if (structure < 20) {
-    baseSimilarity *= 0.7;
-  } else if (structure < 40) {
-    baseSimilarity *= 0.9;
+  if (isolatedPixelPenalty > 0.15) {
+    baseSimilarity *= 0.5;
+  } else if (isolatedPixelPenalty > 0.08) {
+    baseSimilarity *= 0.75;
   }
 
-  if (centerAlignment < 0.3) {
-    baseSimilarity *= 0.8;
-  } else if (centerAlignment < 0.6) {
-    baseSimilarity *= 0.95;
+  if (edgePixelPenalty > 0.2) {
+    baseSimilarity *= 0.6;
+  } else if (edgePixelPenalty > 0.1) {
+    baseSimilarity *= 0.85;
+  }
+
+  if (chaoticPixelPenalty > 0.2) {
+    baseSimilarity *= 0.7;
   }
 
   const brightnessBonus =
@@ -194,7 +238,8 @@ export function analyzeSnowflake(
 function calculateSymmetry(
   pixels: Array<{ x: number; y: number; brightness: number }>,
   _centerX: number,
-  _centerY: number
+  _centerY: number,
+  canvasSize: number
 ): number {
   if (pixels.length === 0) return 0;
 
@@ -219,25 +264,34 @@ function calculateSymmetry(
       }
     });
 
-    const key = `${Math.round(pixel.x)},${Math.round(pixel.y)}`;
-    sectors[closestSector].add(key);
-    sectorPixels[closestSector]++;
-    sectorDistances[closestSector].push(distance);
+    if (minDiff < 35) {
+      const key = `${Math.round(pixel.x)},${Math.round(pixel.y)}`;
+      sectors[closestSector].add(key);
+      sectorPixels[closestSector]++;
+      sectorDistances[closestSector].push(distance);
+    }
   });
 
   const rayQuality = sectorDistances.map((distances) => {
     if (distances.length === 0) return 0;
     const sorted = distances.sort((a, b) => a - b);
     const maxDist = Math.max(...sorted);
-    const hasNearCenter = sorted[0] < maxDist * 0.4;
+    const minDist = sorted[0];
+
+    if (minDist > canvasSize * 0.15) return 0;
+
+    const hasNearCenter = minDist < canvasSize * 0.1;
     const hasVariation =
       sorted.length > 1 &&
-      sorted[sorted.length - 1] - sorted[0] > maxDist * 0.15;
-    const hasMultipleLayers = sorted.length >= 3;
+      sorted[sorted.length - 1] - sorted[0] > maxDist * 0.2;
+    const hasMultipleLayers = sorted.length >= 4;
+    const hasGoodRange = maxDist > canvasSize * 0.2;
+
     return (
-      (hasNearCenter ? 0.5 : 0) +
+      (hasNearCenter ? 0.4 : 0) +
       (hasVariation ? 0.3 : 0) +
-      (hasMultipleLayers ? 0.2 : 0)
+      (hasMultipleLayers ? 0.2 : 0) +
+      (hasGoodRange ? 0.1 : 0)
     );
   });
   const avgRayQuality =
@@ -272,17 +326,29 @@ function calculateSymmetry(
   const uniformity =
     maxVariance > 0 ? 1 - Math.min(1, sectorVariance / maxVariance) : 0;
 
-  const baseScore =
-    symmetryScore * 0.6 + uniformity * 100 * 0.25 + avgRayQuality * 100 * 0.15;
+  const activeSectors = sectorPixels.filter((size) => size > 0).length;
+  const sectorCompleteness = activeSectors / 6;
 
-  const rayBonus = avgRayQuality > 0.5 ? 1.1 : 1.0;
-  return Math.min(100, baseScore * (0.75 + avgRayQuality * 0.25) * rayBonus);
+  const baseScore =
+    symmetryScore * 0.5 +
+    uniformity * 100 * 0.3 +
+    avgRayQuality * 100 * 0.15 +
+    sectorCompleteness * 100 * 0.05;
+
+  if (symmetryScore < 50 || uniformity < 0.5) {
+    return Math.min(100, baseScore * 0.6);
+  }
+
+  const rayBonus =
+    avgRayQuality > 0.6 ? 1.15 : avgRayQuality > 0.4 ? 1.05 : 1.0;
+  return Math.min(100, baseScore * rayBonus);
 }
 
 function calculateStructure(
   pixels: Array<{ x: number; y: number; brightness: number }>,
   _centerX: number,
-  _centerY: number
+  _centerY: number,
+  canvasSize: number
 ): number {
   if (pixels.length < ANALYSIS_CONFIG.MIN_MEANINGFUL_PIXELS) return 0;
 
@@ -291,9 +357,9 @@ function calculateStructure(
 
   if (maxDistance === 0) return 0;
 
-  const rayStructure = checkRayStructure(pixels, maxDistance);
+  const rayStructure = checkRayStructure(pixels, maxDistance, canvasSize);
 
-  const radiusBins = 10;
+  const radiusBins = 12;
   const bins = new Array(radiusBins).fill(0);
 
   distances.forEach((dist) => {
@@ -310,35 +376,33 @@ function calculateStructure(
 
   let structureScore = Math.min(100, (variance / (avg + 1)) * 50);
 
-  const centerPixelCount = bins.slice(0, 2).reduce((a, b) => a + b, 0);
-  const edgePixelCount = bins.slice(-2).reduce((a, b) => a + b, 0);
+  const centerPixelCount = bins.slice(0, 3).reduce((a, b) => a + b, 0);
+  const edgePixelCount = bins.slice(-3).reduce((a, b) => a + b, 0);
   const totalPixels = bins.reduce((a, b) => a + b, 0);
 
   if (totalPixels > 0) {
     const centerRatio = centerPixelCount / totalPixels;
     const edgeRatio = edgePixelCount / totalPixels;
 
-    if (centerRatio > 0.15 && centerRatio < 0.4 && edgeRatio < 0.4) {
-      structureScore *= 1.2;
-    } else if (centerRatio > 0.7 || edgeRatio > 0.7) {
-      structureScore *= 0.5;
+    if (centerRatio > 0.2 && centerRatio < 0.45 && edgeRatio < 0.35) {
+      structureScore *= 1.25;
+    } else if (centerRatio > 0.65 || edgeRatio > 0.65) {
+      structureScore *= 0.4;
     }
 
-    if (centerRatio < 0.1) {
-      structureScore *= 0.7;
+    if (centerRatio < 0.12) {
+      structureScore *= 0.6;
     }
   }
 
-  const rayBonus = rayStructure > 50 ? 1.15 : 1.0;
-  return Math.min(
-    100,
-    (structureScore * 0.65 + rayStructure * 0.35) * rayBonus
-  );
+  const rayBonus = rayStructure > 60 ? 1.2 : rayStructure > 40 ? 1.1 : 1.0;
+  return Math.min(100, (structureScore * 0.6 + rayStructure * 0.4) * rayBonus);
 }
 
 function checkRayStructure(
   pixels: Array<{ x: number; y: number; brightness: number }>,
-  maxDistance: number
+  maxDistance: number,
+  canvasSize: number
 ): number {
   if (pixels.length < 10) return 0;
 
@@ -366,7 +430,7 @@ function checkRayStructure(
       }
     });
 
-    if (minDiff < 30) {
+    if (minDiff < 25) {
       angleGroups[closestSector].push({
         x: pixel.x,
         y: pixel.y,
@@ -379,41 +443,52 @@ function checkRayStructure(
   let validRays = 0;
 
   angleGroups.forEach((group) => {
-    if (group.length < 2) return;
+    if (group.length < 3) return;
 
     group.sort((a, b) => a.distance - b.distance);
+
+    const minDist = group[0].distance;
+    if (minDist > canvasSize * 0.12) return;
 
     let isRay = true;
     let prevDist = 0;
     let continuityScore = 0;
+    let gaps = 0;
+
     for (let i = 0; i < group.length; i++) {
       if (i > 0) {
         const distDiff = group[i].distance - prevDist;
         if (distDiff < 0) {
-          if (group[i].distance < prevDist * 0.7) {
+          if (group[i].distance < prevDist * 0.8) {
             isRay = false;
             break;
           }
         } else {
-          continuityScore += Math.min(1, distDiff / (maxDistance * 0.1));
+          const gapSize = distDiff / (maxDistance * 0.08);
+          if (gapSize > 1.5) {
+            gaps++;
+          }
+          continuityScore += Math.min(1, 1 / (gapSize + 0.1));
         }
       }
       prevDist = group[i].distance;
     }
 
-    if (isRay && group.length >= 2) {
+    if (isRay && group.length >= 3) {
       const distRange = group[group.length - 1].distance - group[0].distance;
       const coverage = distRange / maxDistance;
       const continuity =
         group.length > 2
           ? Math.min(1, continuityScore / (group.length - 1))
           : 0.5;
-      const rayQuality = coverage * 0.7 + continuity * 0.3;
+      const gapPenalty = Math.max(0, 1 - gaps / group.length);
+      const rayQuality = coverage * 0.6 + continuity * 0.3 + gapPenalty * 0.1;
       rayScore += Math.min(100, rayQuality * 100);
       validRays++;
     }
   });
 
   if (validRays === 0) return 0;
+  if (validRays < 3) return (rayScore / validRays) * 0.6;
   return rayScore / validRays;
 }
