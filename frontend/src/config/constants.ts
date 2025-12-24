@@ -10,10 +10,10 @@ export const CANVAS_CONFIG = {
 } as const;
 
 export const ZOOM_CONFIG = {
-  MIN: 0.1,
+  MIN: 0.6,
   MAX: 2.0,
   STEP: 0.1,
-  DEFAULT: 0.2,
+  DEFAULT: 1.0,
 } as const;
 
 export const BRUSH_CONFIG = {
