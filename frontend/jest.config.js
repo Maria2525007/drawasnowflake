@@ -11,6 +11,15 @@ export default {
     '^@/hooks/(.*)$': '<rootDir>/src/hooks/$1',
     '^@/store/(.*)$': '<rootDir>/src/store/$1',
   },
+  globals: {
+    'import.meta': {
+      env: {
+        MODE: 'test',
+        PROD: false,
+        DEV: true,
+      },
+    },
+  },
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',

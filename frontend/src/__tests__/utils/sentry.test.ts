@@ -1,11 +1,11 @@
-import { initSentry, captureException } from '../../utils/sentry';
-
 jest.mock('@sentry/react', () => ({
   init: jest.fn(),
   captureException: jest.fn(),
   browserTracingIntegration: jest.fn(() => ({})),
   replayIntegration: jest.fn(() => ({})),
 }));
+
+import { initSentry, captureException } from '../../utils/sentry';
 
 describe('sentry utilities', () => {
   beforeEach(() => {
