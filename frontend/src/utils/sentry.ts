@@ -5,13 +5,14 @@ export const initSentry = (dsn?: string) => {
 
   Sentry.init({
     dsn,
+    environment: import.meta.env.MODE || 'development',
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration(),
     ],
-    tracesSampleRate: 1.0,
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1.0,
+    tracesSampleRate: import.meta.env.PROD ? 0.1 : 1.0,
+    replaysSessionSampleRate: 0.1, // 10% сессий
+    replaysOnErrorSampleRate: 1.0, // 100% сессий с ошибками
   });
 };
 
