@@ -5,7 +5,9 @@ export const initSentry = (dsn?: string) => {
 
   Sentry.init({
     dsn,
-    tracesSampleRate: 1.0,
+    sendDefaultPii: true,
+    environment: process.env.NODE_ENV || 'development',
+    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
   });
 };
 
@@ -17,3 +19,5 @@ export const captureException = (
     extra: context,
   });
 };
+
+export { Sentry };

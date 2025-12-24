@@ -1,3 +1,11 @@
+import * as Sentry from '@sentry/node';
+import { initSentry } from './utils/sentry.js';
+
+const sentryDsn = process.env.SENTRY_DSN;
+if (sentryDsn) {
+  initSentry(sentryDsn);
+}
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -7,12 +15,6 @@ import { healthRouter } from './routes/health.js';
 import { snowflakeRouter } from './routes/snowflakes.js';
 import { metricsRouter } from './routes/metrics.js';
 import { trackUserSession } from './middleware/analytics.js';
-import { initSentry, captureException } from './utils/sentry.js';
-
-const sentryDsn = process.env.SENTRY_DSN;
-if (sentryDsn) {
-  initSentry(sentryDsn);
-}
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -65,21 +67,36 @@ app.use('/api/health', healthRouter);
 app.use('/api/snowflakes', snowflakeRouter);
 app.use('/api/metrics', metricsRouter);
 
+if (sentryDsn) {
+  Sentry.setupExpressErrorHandler(app);
+}
+
 app.use(
   (
     err: Error,
-    req: express.Request,
+    _req: express.Request,
     res: express.Response,
     _next: express.NextFunction
   ) => {
-    captureException(err, { url: req.url, method: req.method });
     console.error(err.stack);
-    res.status(500).json({ error: 'Something went wrong!' });
+    res.status(500).json({
+      error: 'Something went wrong!',
+      ...(process.env.NODE_ENV === 'development' && { details: err.message }),
+    });
   }
 );
 
+if (sentryDsn) {
+  app.get('/api/debug-sentry', (_req, _res) => {
+    throw new Error('My first Sentry error!');
+  });
+}
+
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
+  if (sentryDsn) {
+    console.log('Sentry is configured and ready');
+  }
 
   try {
     const { checkDbHealth, getDbStats } = await import('./utils/dbHealth.js');
