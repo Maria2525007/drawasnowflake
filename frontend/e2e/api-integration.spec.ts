@@ -2,6 +2,20 @@ import { test, expect } from '@playwright/test';
 
 test.describe('API Integration', () => {
   test('should save snowflake to server when navigating to tree', async ({ page }) => {
+    let postRequestCaptured = false;
+    await page.route('**/api/snowflakes', (route) => {
+      if (route.request().method() === 'POST') {
+        postRequestCaptured = true;
+        route.fulfill({
+          status: 201,
+          contentType: 'application/json',
+          body: JSON.stringify({ id: 'test-snowflake-1', success: true }),
+        });
+      } else {
+        route.continue();
+      }
+    });
+
     await page.goto('/draw');
     await page.waitForLoadState('networkidle');
     
@@ -36,9 +50,31 @@ test.describe('API Integration', () => {
       expect(requestBody).toHaveProperty('scale');
       expect(requestBody).toHaveProperty('pattern');
     }
+    expect(postRequestCaptured).toBe(true);
   });
 
   test('should load snowflakes from server on tree page', async ({ page }) => {
+    await page.route('**/api/snowflakes', (route) => {
+      if (route.request().method() === 'GET') {
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              id: 'test-1',
+              x: 100,
+              y: 200,
+              rotation: 0,
+              scale: 1,
+              pattern: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+            },
+          ]),
+        });
+      } else {
+        route.continue();
+      }
+    });
+
     const responsePromise = page.waitForResponse(
       (response) => response.url().includes('/snowflakes') && response.request().method() === 'GET',
       { timeout: 10000 }
