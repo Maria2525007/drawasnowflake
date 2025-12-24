@@ -74,7 +74,7 @@ if (sentryDsn) {
 app.use(
   (
     err: Error,
-    req: express.Request,
+    _req: express.Request,
     res: express.Response,
     _next: express.NextFunction
   ) => {
