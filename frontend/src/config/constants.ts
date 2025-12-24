@@ -127,7 +127,7 @@ export const ANIMATION_CONFIG = {
 } as const;
 
 export const API_CONFIG = {
-  DEFAULT_URL: 'http://localhost:3001/api',
+  DEFAULT_URL: '/api',
 } as const;
 
 export const HEADER_CONFIG = {
