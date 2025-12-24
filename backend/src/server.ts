@@ -1,8 +1,6 @@
-// Импортируем Sentry ПЕРВЫМ, до всех остальных импортов
 import * as Sentry from '@sentry/node';
 import { initSentry } from './utils/sentry.js';
 
-// Инициализируем Sentry как можно раньше
 const sentryDsn = process.env.SENTRY_DSN;
 if (sentryDsn) {
   initSentry(sentryDsn);
@@ -69,12 +67,10 @@ app.use('/api/health', healthRouter);
 app.use('/api/snowflakes', snowflakeRouter);
 app.use('/api/metrics', metricsRouter);
 
-// Sentry error handler должен быть ПОСЛЕ всех роутов, но ПЕРЕД другими error handlers
 if (sentryDsn) {
   Sentry.setupExpressErrorHandler(app);
 }
 
-// Опциональный fallback error handler
 app.use(
   (
     err: Error,
@@ -82,17 +78,14 @@ app.use(
     res: express.Response,
     _next: express.NextFunction
   ) => {
-    // Sentry уже обработал ошибку, если он настроен
     console.error(err.stack);
     res.status(500).json({ 
       error: 'Something went wrong!',
-      // В продакшене можно вернуть res.sentry (ID ошибки из Sentry)
       ...(process.env.NODE_ENV === 'development' && { details: err.message })
     });
   }
 );
 
-// Тестовый эндпоинт для проверки Sentry (можно удалить после проверки)
 if (sentryDsn) {
   app.get('/api/debug-sentry', (_req, _res) => {
     throw new Error('My first Sentry error!');
