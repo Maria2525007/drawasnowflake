@@ -57,25 +57,44 @@ export const TreeCanvas: React.FC<TreeCanvasProps> = ({
       const centerX = width / 2;
       const isMobile = width < 768;
 
+      const treeAspectRatio =
+        TREE_CONFIG.HEIGHT_RATIO / TREE_CONFIG.WIDTH_RATIO;
+
       let treeWidth = Math.min(
         width * TREE_CONFIG.WIDTH_RATIO,
         TREE_CONFIG.MAX_WIDTH
       );
 
-      let treeHeight: number;
+      let treeHeight = treeWidth * treeAspectRatio;
+
       if (isMobile) {
-        const aspectRatio = 0.75 / TREE_CONFIG.WIDTH_RATIO;
-        treeHeight = treeWidth * aspectRatio;
-        const maxHeight = height * 0.6;
-        if (treeHeight > maxHeight) {
-          treeHeight = maxHeight;
-          treeWidth = treeHeight / aspectRatio;
+        const maxHeight = height * 0.65;
+        const maxWidth = width * 0.9;
+
+        if (treeHeight > maxHeight || treeWidth > maxWidth) {
+          const scaleByHeight = maxHeight / treeHeight;
+          const scaleByWidth = maxWidth / treeWidth;
+          const scale = Math.min(scaleByHeight, scaleByWidth);
+
+          treeWidth = treeWidth * scale;
+          treeHeight = treeWidth * treeAspectRatio;
         }
       } else {
-        treeHeight = height * TREE_CONFIG.HEIGHT_RATIO;
+        const desiredHeight = height * TREE_CONFIG.HEIGHT_RATIO;
+        const desiredWidth = desiredHeight / treeAspectRatio;
+
+        if (
+          desiredWidth <= TREE_CONFIG.MAX_WIDTH &&
+          desiredWidth <= width * TREE_CONFIG.WIDTH_RATIO
+        ) {
+          treeWidth = desiredWidth;
+          treeHeight = desiredHeight;
+        } else {
+          treeHeight = treeWidth * treeAspectRatio;
+        }
       }
 
-      const treeTop = height * TREE_CONFIG.TOP_OFFSET;
+      const treeTop = isMobile ? height * 0.2 : height * TREE_CONFIG.TOP_OFFSET;
       const trunkHeight = height * TREE_CONFIG.TRUNK_HEIGHT_RATIO;
 
       ctx.fillStyle = TREE_CONFIG.TREE_COLOR;
