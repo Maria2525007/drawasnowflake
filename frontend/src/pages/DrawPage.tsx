@@ -144,33 +144,6 @@ export const DrawPage: React.FC = () => {
         return tempCanvas.toDataURL('image/png');
       }
 
-      tempCtx.clearRect(0, 0, width, height);
-      const sourceImageData = new ImageData(
-        new Uint8ClampedArray(
-          data.slice((minY * width + minX) * 4, (maxY * width + maxX) * 4 + 4)
-        ),
-        width,
-        height
-      );
-      const sourceData = sourceImageData.data;
-
-      for (let i = 0; i < sourceData.length; i += 4) {
-        const r = sourceData[i];
-        const g = sourceData[i + 1];
-        const b = sourceData[i + 2];
-
-        if (
-          Math.abs(r - CANVAS_CONFIG.BACKGROUND_R) <
-            ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL &&
-          Math.abs(g - CANVAS_CONFIG.BACKGROUND_G) <
-            ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL &&
-          Math.abs(b - CANVAS_CONFIG.BACKGROUND_B) <
-            ANALYSIS_CONFIG.BACKGROUND_TOLERANCE_SMALL
-        ) {
-          sourceData[i + 3] = 0;
-        }
-      }
-
       const extractWidth = maxX - minX;
       const extractHeight = maxY - minY;
       const extractData = new Uint8ClampedArray(
