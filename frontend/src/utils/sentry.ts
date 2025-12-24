@@ -8,7 +8,6 @@ const getEnv = (): { MODE: string; PROD: boolean } => {
     };
   }
   try {
-    // eslint-disable-next-line @typescript-eslint/no-implied-eval
     const metaEnv = eval('typeof import.meta !== "undefined" ? import.meta.env : undefined');
     if (metaEnv) {
       return {
@@ -17,7 +16,6 @@ const getEnv = (): { MODE: string; PROD: boolean } => {
       };
     }
   } catch {
-    // Fallback for test environment
   }
   return { MODE: 'development', PROD: false };
 };
