@@ -6,6 +6,7 @@ import { Toolbar } from '../components/UI/Toolbar';
 import { useAppDispatch } from '../hooks/useAppDispatch';
 import {
   loadSnowflakes,
+  clearSnowflakes,
   Snowflake,
 } from '../features/snowflake/snowflakeSlice';
 import { getAllSnowflakes } from '../services/api';
@@ -17,6 +18,8 @@ export const TreePage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    dispatch(clearSnowflakes());
+
     const loadSnowflakesFromServer = async () => {
       try {
         const serverSnowflakes = await getAllSnowflakes();
