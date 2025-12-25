@@ -114,10 +114,6 @@ make install
 # Настройка Prisma
 make prisma-setup
 
-# Настройка переменных окружения (опционально)
-# Backend: создайте backend/.env с DATABASE_URL и SENTRY_DSN
-# Frontend: создайте frontend/.env с VITE_API_URL и VITE_SENTRY_DSN
-
 # Запуск в dev режиме
 make dev
 ```
@@ -273,27 +269,6 @@ make test-e2e
 cd frontend && npm run test:coverage
 cd backend && npm run test:coverage
 ```
-
-## Последние изменения и улучшения
-
-### Версия 1.1.0
-
-**Мониторинг и аналитика:**
-- ✅ Интеграция Sentry для frontend и backend
-- ✅ Автоматическое отслеживание DAU (Daily Active Users)
-- ✅ API endpoints для получения метрик в реальном времени
-- ✅ Проверка достижения цели в 1M DAU
-- ✅ Session Replay для отладки проблемных сессий
-
-**Оптимизация производительности:**
-- ✅ Оптимизированная загрузка страницы Tree (без показа старых снежинок)
-- ✅ Автоматическая очистка снежинок при переходе на страницу Tree
-- ✅ Улучшенная обработка состояния при навигации между страницами
-
-**Безопасность:**
-- ✅ Rate limiting для защиты от злоупотреблений
-- ✅ Helmet для безопасности HTTP заголовков
-- ✅ Cookie-based session tracking с httpOnly флагом
 
 ## CI/CD
 
