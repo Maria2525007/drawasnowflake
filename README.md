@@ -1,320 +1,97 @@
-# DrawASnowflake ❄️
+# DrawASnowflake
 
-Веб-приложение для создания и анимации снежинок на новогодней ёлке. Аналог [drawafish.app](https://drawafish.app) с поддержкой рисования снежинок, анимации вращения и зуммирования.
+Web app for drawing and animating snowflakes on a Christmas tree — a snowflake-drawing
+analog of [drawafish.app](https://drawafish.app). Draw with a brush/eraser, get a
+similarity score against a reference snowflake (symmetry, structure), then watch your
+snowflakes fall and spin on an animated tree.
 
-## Описание проекта
+## Stack
 
-Приложение позволяет пользователям:
-- Рисовать уникальные снежинки с помощью инструментов кисти и ластика
-- Анализировать схожесть снежинок с идеальной снежинкой (симметрия, структура)
-- Сохранять снежинки в базе данных
-- Наблюдать анимацию падающих снежинок на новогодней ёлке с реалистичной физикой
-- Использовать приложение на мобильных устройствах
+**Frontend** — React 18, TypeScript, Vite, MUI, Redux Toolkit, React Router, Framer Motion, i18n (RU/EN), Sentry
+**Backend** — Node.js, Express, TypeScript, Prisma + PostgreSQL, Helmet, rate limiting (100 req/15min), Sentry
+**Testing** — Jest, React Testing Library, Playwright (E2E), coverage target ≥80%
+**Tooling** — ESLint, Prettier, Stylelint, GitHub Actions, Docker Compose
 
-Проект разработан для поддержки 1M DAU (Daily Active Users) с использованием современных веб-технологий и best practices.
-
-## Технологический стек
-
-### Frontend
-- **React 18** - UI библиотека
-- **TypeScript** - типизация
-- **Vite** - сборщик и dev-сервер
-- **Material-UI (MUI)** - компоненты интерфейса
-- **Redux Toolkit** - управление состоянием
-- **React Router** - маршрутизация
-- **Framer Motion** - анимации
-- **i18n** - интернационализация (русский/английский)
-- **Sentry** - мониторинг ошибок и сессий (frontend)
-
-### Backend
-- **Node.js** - серверная среда
-- **Express** - веб-фреймворк
-- **TypeScript** - типизация
-- **Prisma** - ORM для работы с БД
-- **PostgreSQL** - база данных
-- **Helmet** - безопасность HTTP заголовков
-- **Express Rate Limit** - ограничение запросов (100 req/15min)
-- **Sentry** - мониторинг ошибок и производительности (backend)
-
-### Web APIs
-- **Canvas API** - рисование и анимация снежинок
-- **Web Crypto API** - генерация session ID для аналитики
-
-### Тестирование
-- **Jest** - unit тесты
-- **React Testing Library** - тестирование компонентов
-- **Playwright** - E2E тесты
-- Покрытие тестами: >= 80%
-
-### Инструменты разработки
-- **ESLint** - линтер кода
-- **Prettier** - форматирование кода
-- **Stylelint** - линтер стилей
-- **GitHub Actions** - CI/CD
-- **Docker Compose** - контейнеризация
-
-## Архитектура проекта
+## Structure
 
 ```
 drawasnowflake/
-├── backend/                 # Backend приложение
+├── backend/
 │   ├── src/
-│   │   ├── controllers/     # Контроллеры (snowflake, metrics)
-│   │   ├── routes/          # API маршруты
-│   │   ├── middleware/      # Middleware (analytics, rate limiting)
-│   │   ├── utils/           # Утилиты (Sentry, DB health)
-│   │   └── server.ts        # Точка входа
-│   ├── prisma/
-│   │   └── schema.prisma    # Схема базы данных
-│   └── Dockerfile
-│
-├── frontend/                # Frontend приложение
+│   │   ├── controllers/     # snowflake, metrics
+│   │   ├── routes/
+│   │   ├── middleware/      # analytics, rate limiting
+│   │   └── server.ts
+│   └── prisma/schema.prisma
+├── frontend/
 │   ├── src/
-│   │   ├── components/      # React компоненты
-│   │   │   ├── Canvas/      # Компонент canvas для рисования
-│   │   │   ├── Tree/        # Компонент дерева с анимацией
-│   │   │   └── UI/          # UI компоненты (Toolbar, Header)
-│   │   ├── pages/           # Страницы приложения
-│   │   │   ├── DrawPage.tsx # Страница рисования
-│   │   │   └── TreePage.tsx # Страница с деревом
-│   │   ├── features/        # Redux slices
-│   │   │   ├── drawing/     # Состояние рисования
-│   │   │   ├── history/     # История действий (undo/redo)
-│   │   │   └── snowflake/   # Состояние снежинок
-│   │   ├── services/       # API сервисы
-│   │   ├── utils/           # Утилиты (анализ снежинок, экспорт)
-│   │   ├── store/           # Redux store
-│   │   └── i18n/            # Локализация
-│   ├── e2e/                 # E2E тесты (Playwright)
-│   └── Dockerfile
-│
-├── docker-compose.yml       # Docker Compose конфигурация
-├── Makefile                 # Команды для разработки
-└── README.md
+│   │   ├── components/      # Canvas, Tree, UI
+│   │   ├── pages/           # DrawPage, TreePage
+│   │   ├── features/        # Redux slices: drawing, history, snowflake
+│   │   └── i18n/
+│   └── e2e/                 # Playwright
+├── docker-compose.yml
+└── Makefile
 ```
 
-## Быстрый старт
-
-### Запуск с Docker (рекомендуется)
+## Running it
 
 ```bash
 docker compose up --build
 ```
+Frontend on `http://localhost`, backend API on `http://localhost:3001`.
 
-Приложение будет доступно:
-- Frontend: http://localhost
-- Backend API: http://localhost:3001
-
-### Локальный запуск
-
+Or locally:
 ```bash
-# Установка зависимостей
 make install
-
-# Настройка Prisma
 make prisma-setup
-
-# Запуск в dev режиме
 make dev
 ```
 
-**Переменные окружения:**
+Backend needs `DATABASE_URL`, `PORT`, `FRONTEND_URL`, optionally `SENTRY_DSN`.
+Frontend needs `VITE_API_URL` (defaults to `/api`), optionally `VITE_SENTRY_DSN`.
 
-Backend (`.env`):
-- `DATABASE_URL` - строка подключения к PostgreSQL
-- `PORT` - порт сервера (по умолчанию 3001)
-- `SENTRY_DSN` - DSN для Sentry (опционально)
-- `FRONTEND_URL` - URL фронтенда для CORS
-- `NODE_ENV` - окружение (development/production)
+## What it does
 
-Frontend (`.env`):
-- `VITE_API_URL` - URL бэкенд API (по умолчанию `/api`)
-- `VITE_SENTRY_DSN` - DSN для Sentry (опционально)
+- Draw snowflakes with brush/eraser, adjustable size, color picker, zoom, undo/redo
+- Similarity scoring against a reference snowflake (symmetry, structure, coverage)
+- Export to PNG or copy to clipboard
+- Falling-snowflake animation with rotation/drift physics, play/pause, speed control
+- Snowflakes persist to PostgreSQL, capped at 50 per tree — oldest get pruned
+- DAU tracking via a session-id (SHA-256 of IP + UA) middleware, cookie-based
 
-## Основные возможности
+## API
 
-### Рисование снежинок
-- Инструменты: кисть и ластик с настраиваемым размером
-- Выбор цвета через палитру
-- Масштабирование (zoom) с центрированием
-- История действий: undo/redo
-- Анализ схожести снежинки (симметрия, структура, покрытие)
-- Экспорт в PNG и копирование в буфер обмена
-
-### Анимация на дереве
-- Падающие снежинки с реалистичной физикой
-- Вращение и дрейф снежинок
-- Управление скоростью анимации
-- Пауза/возобновление
-- Загрузка актуальных снежинок из базы данных при открытии страницы
-- Оптимизированная загрузка без показа старых данных
-
-### Хранение данных
-- Сохранение снежинок в PostgreSQL
-- Загрузка ранее созданных снежинок
-- Обновление и удаление снежинок
-- Автоматическое отслеживание DAU через UserSession middleware
-- Ограничение количества снежинок на дереве (максимум 50)
-- Автоматическое удаление старых снежинок при превышении лимита
-
-### Аналитика и метрики
-- Автоматическое отслеживание активных пользователей (DAU)
-- Статистика по дням, неделям и месяцам
-- Проверка достижения цели в 1M DAU
-- API для получения метрик в реальном времени
-
-## API Endpoints
-
-### Snowflakes
 ```
-GET    /api/snowflakes          # Получить все снежинки
-GET    /api/snowflakes/:id      # Получить снежинку по ID
-POST   /api/snowflakes          # Создать новую снежинку
-PUT    /api/snowflakes/:id      # Обновить снежинку
-DELETE /api/snowflakes/:id      # Удалить снежинку
+GET    /api/snowflakes
+GET    /api/snowflakes/:id
+POST   /api/snowflakes
+PUT    /api/snowflakes/:id
+DELETE /api/snowflakes/:id
+
+GET    /api/metrics/dau              # today / yesterday / week / month / all-time / growth %
+GET    /api/metrics/dau/milestone    # progress toward a self-set 1M DAU target — a stretch
+                                      # goal for the exercise, not real traffic
+GET    /api/metrics/dau/:date
+GET    /api/metrics/dau/range        # ?start=YYYY-MM-DD&end=YYYY-MM-DD, max 90 days
+
+GET    /api/health
 ```
 
-### Metrics (DAU)
-```
-GET    /api/metrics/dau         # Статистика DAU (today, yesterday, thisWeek, thisMonth, allTime, growth)
-GET    /api/metrics/dau/milestone # Проверка достижения 1M DAU (reached, current, target, percentage)
-GET    /api/metrics/dau/:date   # DAU за конкретную дату (формат: YYYY-MM-DD)
-GET    /api/metrics/dau/range   # DAU за период (query: start=YYYY-MM-DD&end=YYYY-MM-DD, макс. 90 дней)
-```
-
-### Health
-```
-GET    /api/health              # Health check (проверка БД и сервера)
-```
-
-## База данных
-
-### Модели
-
-**Snowflake:**
-- id, x, y, rotation, scale, pattern
-- imageData (Base64)
-- fallSpeed, driftSpeed, driftPhase
-- createdAt, updatedAt
-
-**UserSession:**
-- id, sessionId, userAgent, ipAddress
-- date (для группировки по дням)
-- createdAt, updatedAt
-
-## Мониторинг и аналитика
-
-### Sentry
-
-Проект использует Sentry для мониторинга ошибок и производительности на frontend и backend:
-
-**Backend:**
-- Автоматический сбор ошибок сервера
-- Трассировка запросов (sample rate: 10% в production, 100% в development)
-- Интеграция с Express error handler
-- Отслеживание исключений в middleware и контроллерах
-
-**Frontend:**
-- Мониторинг ошибок React компонентов
-- Session Replay для воспроизведения проблемных сессий
-- Browser Tracing для анализа производительности
-- Автоматический сбор ошибок JavaScript и React
-
-**Настройка:**
-- Backend: переменная окружения `SENTRY_DSN`
-- Frontend: переменная окружения `VITE_SENTRY_DSN`
-- В production используется sample rate 10% для оптимизации
-
-### Отслеживание DAU (Daily Active Users)
-
-Система автоматически отслеживает активных пользователей:
-
-- **UserSession**: автоматическое создание сессий при каждом запросе
-- **Session ID**: генерируется на основе IP и User-Agent (SHA-256 hash)
-- **Cookie-based tracking**: сохранение sessionId в cookies для повторных визитов
-- **Ежедневная группировка**: уникальные пользователи считаются по дням
-
-**Метрики DAU:**
-- `today` - активные пользователи сегодня
-- `yesterday` - активные пользователи вчера
-- `thisWeek` - уникальные пользователи за неделю
-- `thisMonth` - уникальные пользователи за месяц
-- `allTime` - все уникальные пользователи за всё время
-- `growth` - процент роста по сравнению с вчерашним днём
-
-**Проверка достижения 1M DAU:**
-- Endpoint `/api/metrics/dau/milestone` проверяет достижение цели в 1,000,000 уникальных пользователей
-- Возвращает: `reached` (boolean), `current`, `target`, `percentage`
-
-## Производительность и масштабирование
-
-- **Rate Limiting**: 100 запросов за 15 минут на IP
-- **Аналитика**: автоматическое отслеживание DAU через UserSession middleware
-- **Оптимизация Canvas**: использование offscreen canvas для производительности
-- **Оптимизация загрузки**: очистка старых снежинок при переходе на страницу Tree
-- **Мобильная адаптивность**: responsive design для всех устройств
-- **Мониторинг**: Sentry для отслеживания ошибок и производительности
-- **База данных**: оптимизированные запросы с использованием Prisma distinct для подсчёта уникальных пользователей
-
-## Тестирование
+## Testing & CI
 
 ```bash
-# Unit тесты
-make test
-
-# E2E тесты
-make test-e2e
-
-# С покрытием
-cd frontend && npm run test:coverage
-cd backend && npm run test:coverage
+make test        # unit
+make test-e2e    # Playwright
 ```
+GitHub Actions runs tests, lint, and type-checking on every PR, and deploys on merge to `master`.
 
-## CI/CD
+## Why I built it
 
-Проект использует GitHub Actions для:
-- Автоматического запуска тестов при PR
-- Проверки покрытия тестами (>= 80%)
-- Проверки линтеров (ESLint, Prettier, Stylelint)
-- Проверки TypeScript типов
-- Автоматического деплоя при merge в master
+Wanted a project that forced me to wire up the boring-but-real parts of a web app —
+rate limiting, error monitoring, DAU analytics, E2E tests, a deploy pipeline — around
+something visual instead of another CRUD form. The DAU/milestone tracking is built like
+it matters at scale even though real traffic is nowhere near it; it was the excuse to
+build the analytics pipeline properly.
 
-## Разработка
-
-### Команды Makefile
-
-```bash
-make dev          # Запуск frontend и backend
-make install      # Установка зависимостей
-make prisma-setup # Настройка Prisma
-make build        # Сборка production
-make test         # Запуск тестов
-make lint         # Проверка линтером
-make format       # Форматирование кода
-```
-
-### Git Workflow
-
-- `main` - production версия
-- `develop` - разработка
-- `feature/*` - новые функции
-- `fix/*` - исправления багов
-
-### Pull Request
-
-При создании PR используйте шаблон из `.github/pull_request_template.md`.
-
-### CI/CD
-
-Проект использует GitHub Actions:
-- `.github/workflows/ci.yml` - проверка кода и тесты
-- `.github/workflows/deploy.yml` - деплой
-
-
-## 👥 Авторы
-
-Махмудова Мария
-
----
-
-**Приятного рисования снежинок! ❄️**
+— Maria Makhmudova
